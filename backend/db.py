@@ -7,14 +7,13 @@ from __future__ import annotations
 
 import threading
 from pathlib import Path
-from typing import Optional
 
 import duckdb
 
 from .config import settings
 
 _lock = threading.Lock()
-_conn: Optional[duckdb.DuckDBPyConnection] = None
+_conn: duckdb.DuckDBPyConnection | None = None
 
 
 def get_connection() -> duckdb.DuckDBPyConnection:
