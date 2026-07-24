@@ -55,9 +55,7 @@ def extract_features(brief: str | None, incident: Any, lat: float | None, lon: f
     """Structured MO features for one case."""
     brief = brief or ""
     hour, dow = 0, 0
-    if isinstance(incident, (_dt.datetime,)):
-        hour, dow = incident.hour, incident.weekday()
-    elif hasattr(incident, "hour"):  # pandas Timestamp
+    if isinstance(incident, _dt.datetime):  # pandas Timestamp subclasses datetime too
         hour, dow = int(incident.hour), int(incident.weekday())
     cell = None
     if lat is not None and lon is not None:
