@@ -104,6 +104,7 @@ class GraphCache:
         self.g: nx.Graph | None = None
         self.comms: list[set] | None = None
         self._comm_of: dict[str, int] = {}
+        self.centrality: dict[str, float] = {}
 
     def ensure(self, con) -> None:
         if self.g is None:
@@ -117,6 +118,13 @@ class GraphCache:
         for i, c in enumerate(self.comms):
             for pk in c:
                 self._comm_of[pk] = i
+        if p.number_of_nodes():
+            k = min(p.number_of_nodes(), 200)  # sample for speed on large graphs
+            raw = nx.betweenness_centrality(p, k=k, seed=42, normalized=True)
+            mx = max(raw.values()) or 1.0
+            self.centrality = {n: v / mx for n, v in raw.items()}  # scale to [0,1]
+        else:
+            self.centrality = {}
 
     def community_index(self, person_key: str) -> int | None:
         return self._comm_of.get(person_key)

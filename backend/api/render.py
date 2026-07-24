@@ -70,6 +70,43 @@ def _fallback(columns, rows, lang: str) -> str:
             else f"Returned {len(rows)} rows.")
 
 
+def graph_spec(gr: dict, title: str = "Network") -> dict:
+    kind_color = {"person": "#3b82f6", "case": "#f59e0b", "location": "#10b981", "ps": "#a78bfa"}
+    nodes = [{"id": n["id"], "name": n["label"],
+              "itemStyle": {"color": kind_color.get(n["kind"], "#94a3b8")},
+              "symbolSize": 30 if n["kind"] == "person" else 14}
+             for n in gr["nodes"]]
+    links = [{"source": e["a"], "target": e["b"]} for e in gr["edges"]]
+    return {"type": "graph", "title": title, "echarts_option": {
+        "tooltip": {}, "series": [{"type": "graph", "layout": "force", "roam": True,
+                                   "label": {"show": True, "fontSize": 9},
+                                   "force": {"repulsion": 120, "edgeLength": 60},
+                                   "data": nodes, "links": links}]}}
+
+
+def map_spec(cells: list[dict], title: str = "Hotspots") -> dict:
+    points = [[c["lat"], c["lon"], c["intensity"]] for c in cells]
+    center = ([sum(p[0] for p in points) / len(points),
+               sum(p[1] for p in points) / len(points)] if points else [12.97, 77.59])
+    return {"type": "map", "title": title,
+            "leaflet_spec": {"center": center, "zoom": 11,
+                             "layers": [{"kind": "heat", "points": points}]}}
+
+
+def forecast_spec(fc: dict, title: str = "Forecast") -> dict:
+    hist = fc.get("history", [])[-26:]
+    fut = fc.get("forecast", [])
+    x = [h["week"] for h in hist] + [f["week"] for f in fut]
+    hist_y = [h["count"] for h in hist] + [None] * len(fut)
+    fut_y = [None] * len(hist) + [f["mean"] for f in fut]
+    return {"type": "line", "title": title, "echarts_option": {
+        "tooltip": {"trigger": "axis"}, "legend": {"data": ["history", "forecast"]},
+        "xAxis": {"type": "category", "data": x}, "yAxis": {"type": "value"},
+        "series": [{"name": "history", "type": "line", "data": hist_y},
+                   {"name": "forecast", "type": "line", "smooth": True, "data": fut_y,
+                    "lineStyle": {"type": "dashed"}}]}}
+
+
 def compose_answer(question: str, columns: list[str], rows: list, lang: str) -> str:
     """Narrate the verified result (LLM composes; numbers come only from `rows`)."""
     if not rows:
