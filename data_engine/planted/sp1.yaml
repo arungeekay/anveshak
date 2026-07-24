@@ -1,0 +1,25 @@
+# SP-1 / SH-07 — chain-snatching serial (flagship discovery). See demo_story.md.
+series_id: SH-07
+name: "Two-wheeler chain-snatching series — Bengaluru/Tumakuru/Mandya"
+subhead: "Chain Snatching"
+total_cases: 14
+kn_count: 5                 # 9 EN + 5 KN
+window: {from: "2026-01-14", to: "2026-07-05"}
+hours: [18, 21]             # 18:00–21:00
+distribution:              # district -> number of cases
+  "Bengaluru City": 8
+  "Tumakuru": 3
+  "Mandya": 3
+# Bengaluru cases cluster in 3 southern PS jurisdictions
+southern_ps: ["Jayanagar PS", "Basavanagudi PS", "J P Nagar PS"]
+ring:
+  - {key: "P-004412", name: "Ravi K", age: 28}
+  - {key: "P-004413", name: "Manju S", age: 31}
+  - {key: "P-004414", name: "Third Accused", age: 30}
+# The two cases that were "solved" (arrests) but never linked:
+solved:
+  - {seq: 4, district: "Tumakuru", arrested: "P-004412"}   # SP1-04, Feb
+  - {seq: 9, district: "Bengaluru City", arrested: "P-004413"}  # SP1-09, Apr
+priors:
+  ramanagara_theft_2024: 2   # Ravi & Manju co-accused in two 2024 Ramanagara thefts
+  ravi_arrest_2023: true     # Ravi arrested once 2023 (theft, chargesheeted)

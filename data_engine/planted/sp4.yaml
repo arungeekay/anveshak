@@ -1,0 +1,20 @@
+# SP-4 — "Suresh B" escalating repeat offender (profiling showcase). demo_story.md.
+person: {key: "P-005555", name: "Suresh B", age: 34}
+home: {area: "Peenya", district: "Bengaluru City", lat: 13.029, lon: 77.519}
+# 6-case escalation trajectory (chronological)
+trajectory:
+  - {year: 2023, subhead: "Theft", note: "bicycle", status: 2}
+  - {year: 2023, subhead: "Theft", note: "mobile", status: 2}
+  - {year: 2024, subhead: "House Burglary (Night)", note: "rear-window", status: 2}
+  - {year: 2024, subhead: "House Burglary (Night)", note: "rear-window", status: 2}
+  - {year: 2025, subhead: "Robbery", note: "knife", status: 2, arrest_month: 11}
+release:
+  arrested: "2025-11-20"
+  released_bail: "2026-05-10"
+fresh_cluster:
+  subhead: "House Burglary (Night)"
+  count: 4
+  window: {from: "2026-06-15", to: "2026-07-15"}
+  radius_km: 2.5
+  mo: "rear-window; pre-midnight; occupants away"
+  status: 1                    # unsolved

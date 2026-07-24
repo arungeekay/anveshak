@@ -1,0 +1,17 @@
+# SP-2 / "The Prakash web" — investment-fraud hub (graph showcase). See demo_story.md.
+name: "Investment-fraud hub — Prakash Rao"
+subhead: "Cheating / Online Fraud"
+total_cases: 22
+window: {from: "2025-08-01", to: "2026-06-30"}
+distribution:
+  "Bengaluru City": 9
+  "Mysuru": 5
+  "Dakshina Kannada": 4
+  "Dharwad": 2
+  "Udupi": 2
+hub: {key: "P-007001", name: "Prakash Rao", age: 41}
+named_in: 14                 # Prakash is a named accused in 14
+phone_link_in: 8             # in 8 more he appears via the same mule-account phone in narrative
+mule_phone: "98861-4XXXX"
+app_names: ["QuickWealth Pro", "GrowRupee", "TradeMax Elite"]
+aggregate_loss_cr: 3.4       # ₹3.4 crore narrative total

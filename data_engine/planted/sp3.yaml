@@ -1,0 +1,16 @@
+# SP-3 — festival burglary wave + live Whitefield mini-spike (patrol/forecast). demo_story.md.
+subhead: "House Burglary (Night)"
+districts: ["Bengaluru City", "Mysuru", "Belagavi", "Dharwad"]
+baseline_per_week: 2.1        # per district
+seasonal:
+  months: [10, 11]            # Oct–Nov (Dasara -> Deepavali)
+  years: [2023, 2024, 2025]
+  multiplier: [2.8, 3.3]      # 2.8x–3.3x for ~6 weeks
+  weeks: 6
+live_spike:
+  district: "Bengaluru City"
+  station: "Whitefield PS"
+  window_days: 14             # last 14 days of the dataset
+  end: "2026-07-20"
+  extra_cases: 9              # ~3.1x baseline
+  mo: "empty-house; occupants away; rear-window entry"
