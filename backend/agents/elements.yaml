@@ -1,0 +1,25 @@
+# Ingredients-of-offence library for the ~demo-relevant sections (legal_advisor step).
+"BNS 304(2)":
+  desc: "Snatching"
+  elements: ["Sudden/quick seizure of movable property", "From the person or possession of the victim", "Without consent"]
+"BNS 3(5)":
+  desc: "Acts by several persons in furtherance of common intention"
+  elements: ["Two or more persons", "Pre-arranged/shared intention", "Act done in furtherance of that intention"]
+"BNS 318(4)":
+  desc: "Cheating and dishonestly inducing delivery of property"
+  elements: ["Deception of the victim", "Dishonest inducement", "Delivery of property / wrongful loss"]
+"BNS 331(4)":
+  desc: "House-breaking by night"
+  elements: ["House-trespass", "Committed after sunset and before sunrise", "Entry by breaking/climbing"]
+"BNS 305":
+  desc: "Theft in a dwelling house"
+  elements: ["Dishonest taking of movable property", "Out of possession without consent", "From a dwelling/place of custody"]
+"BNS 103":
+  desc: "Punishment for murder"
+  elements: ["Act causing death", "Intention or knowledge", "Not covered by a general/special exception"]
+"BNS 309":
+  desc: "Robbery"
+  elements: ["Theft or extortion", "With force or fear of instant hurt", "At or immediately before/after the act"]
+"ITAct 66D":
+  desc: "Cheating by personation using a computer resource"
+  elements: ["Use of a communication device / computer resource", "Personation / impersonation", "Cheating thereby"]

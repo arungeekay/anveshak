@@ -34,3 +34,36 @@
 
 - question: "How many night house burglaries occurred statewide in October-November 2024?"
   sql: "SELECT COUNT(*) FROM vw_case_360 WHERE crime_sub_head='House Burglary (Night)' AND year(CrimeRegisteredDate)=2024 AND month(CrimeRegisteredDate) IN (10,11)"
+
+# --- Kannada crime-term -> exact English enum mappings (T11) ---
+- question: "ಈ ವರ್ಷ ಬೆಂಗಳೂರು ನಗರದಲ್ಲಿ ಎಷ್ಟು ಸರಗಳ್ಳತನ ಪ್ರಕರಣಗಳು ದಾಖಲಾಗಿವೆ?"
+  sql: "SELECT COUNT(*) FROM vw_case_360 WHERE crime_sub_head='Chain Snatching' AND district='Bengaluru City' AND year(CrimeRegisteredDate)=2026"
+
+- question: "2024 ರಲ್ಲಿ ಮೈಸೂರಿನಲ್ಲಿ ಎಷ್ಟು ಕೊಲೆ ಪ್ರಕರಣಗಳು ದಾಖಲಾದವು?"
+  sql: "SELECT COUNT(*) FROM vw_case_360 WHERE crime_sub_head='Murder' AND district='Mysuru' AND year(CrimeRegisteredDate)=2024"
+
+- question: "ಸುರೇಶ್ ಬಿ ಎಷ್ಟು ಪ್ರಕರಣಗಳಲ್ಲಿ ಆರೋಪಿಯಾಗಿದ್ದಾರೆ?"
+  sql: "SELECT COUNT(DISTINCT CaseMasterID) FROM vw_accused_history WHERE full_name='Suresh B'"
+
+- question: "2026 ರಲ್ಲಿ ಯಾವ ಜಿಲ್ಲೆಗಳಲ್ಲಿ ಸರಗಳ್ಳತನ ನಡೆದಿದೆ?"
+  sql: "SELECT DISTINCT district FROM vw_case_360 WHERE crime_sub_head='Chain Snatching' AND year(CrimeRegisteredDate)=2026 ORDER BY district"
+
+- question: "2026 ರಲ್ಲಿ ಬೆಂಗಳೂರು ನಗರದ ಅತಿ ಹೆಚ್ಚು ಪ್ರಕರಣಗಳಿರುವ 5 ಠಾಣೆಗಳು ಯಾವುವು?"
+  sql: "SELECT police_station, COUNT(*) c FROM vw_case_360 WHERE district='Bengaluru City' AND year(CrimeRegisteredDate)=2026 GROUP BY police_station ORDER BY c DESC, police_station LIMIT 5"
+
+# Kannada glossary: ಸರಗಳ್ಳತನ=Chain Snatching, ಕೊಲೆ=Murder, ಕಳ್ಳತನ=Theft, ದರೋಡೆ=Robbery,
+# ಮನೆ ಕನ್ನ=House Burglary (Night), ಆನ್‌ಲೈನ್ ವಂಚನೆ=Cheating / Online Fraud, ಜಿಲ್ಲೆ=district,
+# ಠಾಣೆ=police_station, ಘೋರ=Heinous, ತನಿಖೆಯಲ್ಲಿ=Under Investigation.
+
+# --- Tricky EN patterns from the failure set (joins / enums / final reports) ---
+- question: "How many female victims were recorded in 2026?"
+  sql: "SELECT COUNT(*) FROM Victim v JOIN CaseMaster c ON c.CaseMasterID=v.CaseMasterID WHERE v.GenderID=2 AND year(c.CrimeRegisteredDate)=2026"
+
+- question: "How many cases were closed as undetected (final report C)?"
+  sql: "SELECT COUNT(*) FROM vw_case_360 WHERE final_report_type='C'"
+
+- question: "How many cases invoke IT Act section 66D?"
+  sql: "SELECT COUNT(DISTINCT CaseMasterID) FROM ActSectionAssociation WHERE ActID='ITAct' AND SectionID='66D'"
+
+- question: "In which districts did chain snatching occur in 2026?"
+  sql: "SELECT DISTINCT district FROM vw_case_360 WHERE crime_sub_head='Chain Snatching' AND year(CrimeRegisteredDate)=2026 ORDER BY district"

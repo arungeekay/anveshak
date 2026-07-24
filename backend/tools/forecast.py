@@ -49,7 +49,7 @@ def forecast(district: str, crime_sub_head: str, horizon_weeks: int = 8, con=Non
         # method='nm' avoids the scipy>=1.15 / statsmodels lbfgs `disp` incompatibility.
         return SARIMAX(endog, order=(1, 1, 1), seasonal_order=(1, 0, 1, 52),
                        enforce_stationarity=False, enforce_invertibility=False
-                       ).fit(method="nm", maxiter=400, disp=False)
+                       ).fit(method="nm", maxiter=250, disp=False)
 
     holdout = horizon_weeks
     train, test = series.iloc[:-holdout], series.iloc[-holdout:]
