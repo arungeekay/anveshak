@@ -1,0 +1,36 @@
+# Seed NL->SQL few-shots (12). Humans extend this at T11. Keep them diverse.
+- question: "How many chain snatching cases were registered in Bengaluru City in 2026?"
+  sql: "SELECT COUNT(*) FROM vw_case_360 WHERE crime_sub_head='Chain Snatching' AND district='Bengaluru City' AND year(CrimeRegisteredDate)=2026"
+
+- question: "How many FIRs were registered statewide in 2025?"
+  sql: "SELECT COUNT(*) FROM vw_case_360 WHERE case_category='FIR' AND year(CrimeRegisteredDate)=2025"
+
+- question: "Show the monthly trend of chain snatching in Bengaluru City for 2026."
+  sql: "SELECT date_trunc('month', CrimeRegisteredDate) AS ym, COUNT(*) FROM vw_case_360 WHERE crime_sub_head='Chain Snatching' AND district='Bengaluru City' AND year(CrimeRegisteredDate)=2026 GROUP BY ym ORDER BY ym"
+
+- question: "Which police stations in Bengaluru City are worst affected in 2026 (top 5)?"
+  sql: "SELECT police_station, COUNT(*) c FROM vw_case_360 WHERE district='Bengaluru City' AND year(CrimeRegisteredDate)=2026 GROUP BY police_station ORDER BY c DESC, police_station LIMIT 5"
+
+- question: "How many heinous cases were registered statewide in 2026?"
+  sql: "SELECT COUNT(*) FROM vw_case_360 WHERE gravity='Heinous' AND year(CrimeRegisteredDate)=2026"
+
+- question: "How many cases are under investigation in Tumakuru?"
+  sql: "SELECT COUNT(*) FROM vw_case_360 WHERE case_status='Under Investigation' AND district='Tumakuru'"
+
+- question: "How many UDR cases were registered in 2025?"
+  sql: "SELECT COUNT(*) FROM vw_case_360 WHERE case_category='UDR' AND year(CrimeRegisteredDate)=2025"
+
+- question: "In how many cases is Prakash Rao named as an accused?"
+  sql: "SELECT COUNT(DISTINCT CaseMasterID) FROM vw_accused_history WHERE full_name='Prakash Rao'"
+
+- question: "How many cases invoke BNS section 304(2)?"
+  sql: "SELECT COUNT(DISTINCT CaseMasterID) FROM ActSectionAssociation WHERE ActID='BNS' AND SectionID='304(2)'"
+
+- question: "Break down cases by crime head statewide for 2026."
+  sql: "SELECT crime_head, COUNT(*) c FROM vw_case_360 WHERE year(CrimeRegisteredDate)=2026 GROUP BY crime_head ORDER BY c DESC, crime_head"
+
+- question: "Number of cases registered each year."
+  sql: "SELECT year(CrimeRegisteredDate) yr, COUNT(*) c FROM vw_case_360 GROUP BY yr ORDER BY yr"
+
+- question: "How many night house burglaries occurred statewide in October-November 2024?"
+  sql: "SELECT COUNT(*) FROM vw_case_360 WHERE crime_sub_head='House Burglary (Night)' AND year(CrimeRegisteredDate)=2024 AND month(CrimeRegisteredDate) IN (10,11)"
