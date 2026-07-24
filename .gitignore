@@ -1,0 +1,86 @@
+# ============================================================================
+# ANVESHAK .gitignore
+# The public GitHub repo is a JUDGED ARTIFACT. Only reviewable engineering goes
+# public: source code, schema, contracts, eval harness, README.
+# Strategy, orchestration and demo choreography stay local-only.
+# NOTE: these files still exist on disk (Claude Code reads them fine) — they are
+# simply never staged. Back the private set up via the kit zip / private Drive.
+# ============================================================================
+
+# ---- Private: strategy & autopilot orchestration (never push) ----
+CLAUDE.md
+AUTOPILOT.md
+PLAN.md
+PLAN_PHASE2.md
+PROGRESS.log
+prompts.md
+demo_story.md
+demo_path.md
+deploy.md
+compliance.md
+submission/
+kit_README.md
+
+# ---- Private: pasted vendor documentation (also a copyright concern) ----
+docs/catalyst/
+
+# ---- Claude Code local state ----
+.claude/
+*.local.md
+
+# ---- Secrets & environment ----
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+catalyst-secret*
+
+# ---- Python ----
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+
+# ---- Node / frontend ----
+node_modules/
+frontend/dist/
+.vite/
+
+# ---- Data & model artifacts (rebuildable via data_engine) ----
+build/
+*.duckdb
+*.duckdb.wal
+data_engine/output/
+.cache/
+hf_cache/
+models/
+*.gguf
+*.safetensors
+*.onnx
+
+# ---- Demo recordings (huge; the final video lives on YouTube/Drive) ----
+recordings/
+*.mp4
+*.mov
+*.webm
+
+# ---- OS / editor ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# ============================================================================
+# STAYS PUBLIC on purpose (do NOT add these):
+#   backend/ frontend/ data_engine/ eval/ scripts/ schema/ contracts.md
+#   README.md .env.example catalyst config files (no secrets in them)
+#   data_engine/planted/*.yaml  <- ground-truth series configs stay public:
+#     the README reports linkage precision measured against them, and judges
+#     can only trust that number if the ground truth is inspectable.
+#     (The demo CHOREOGRAPHY — demo_story.md beats, golden path — stays private.)
+# ============================================================================
