@@ -1,0 +1,21 @@
+# Linkage weights + filters (tunable without code changes). Weights sum to 1.0.
+# Weighted toward language-agnostic structured MO (vehicle/tod) because the
+# multilingual embedding scores EN<->KN paraphrases low (~0.32); embedding still
+# binds same-language cases, structured features bridge across languages.
+weights:
+  embedding: 0.20
+  vehicle: 0.40
+  target: 0.05
+  tod: 0.20
+  dow: 0.00
+  geo: 0.15
+filters:
+  max_days: 180
+  max_km: 120
+  geo_scale_km: 120
+cluster:
+  min_cluster_size: 4
+  min_samples: 1
+  selection_epsilon: 0.35   # merge clusters whose members are within this distance
+  max_subset: 4000          # skip clustering a sub-head larger than this (perf guard)
+confidence_floor: 0.55

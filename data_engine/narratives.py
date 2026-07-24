@@ -59,15 +59,15 @@ def _time_str(rng: random.Random, lo: int = 6, hi: int = 23) -> str:
 
 # EN template families keyed by sub-head. {slots} filled by brief_facts().
 _EN: dict[str, list[str]] = {
+    # Generic background chain-snatching (deliberately varied; the SP-1 serial has its
+    # own distinctive recurring MO in planted.py so the linkage engine can separate it).
     "Chain Snatching": [
-        ("The complainant, {name}, aged {age}, was walking near {area} at about {time} hrs "
-         "when two unknown persons on a black {bike} motorcycle approached from behind. The "
-         "pillion rider snatched her gold chain weighing approx. {weight} grams and the riders "
-         "sped away towards {direction} against one-way traffic. Both wore helmets with visors down."),
-        ("At around {time} hrs, {name} ({age}) was returning home along {area}. Two men riding a "
-         "black {bike} came from behind; the person seated behind pulled away her gold chain "
-         "(about {weight} g) and they escaped towards {direction}. The riders had covered their "
-         "faces with helmets."),
+        ("The complainant {name} ({age}) reported that her gold chain was snatched near {area} "
+         "at about {time} hrs by an unknown person who fled the spot."),
+        ("Near {area}, an unidentified person snatched the chain of {name} ({age}) at around "
+         "{time} hrs and escaped into the crowd."),
+        ("{name} ({age}) stated that a passer-by grabbed her chain near {area} around {time} hrs "
+         "and ran away before anyone could react."),
     ],
     "House Burglary (Night)": [
         ("The complainant {name} ({age}) reported that on the intervening night, unknown persons "
@@ -101,10 +101,10 @@ _EN: dict[str, list[str]] = {
 
 _KN: dict[str, list[str]] = {
     "Chain Snatching": [
-        ("ದೂರುದಾರರಾದ {name}, ವಯಸ್ಸು {age}, {area} ಬಳಿ {time} ಗಂಟೆಗೆ ನಡೆದುಕೊಂಡು ಹೋಗುತ್ತಿದ್ದಾಗ, "
-         "ಕಪ್ಪು ಬಣ್ಣದ {bike} ಮೋಟಾರ್ ಸೈಕಲ್‌ನಲ್ಲಿ ಬಂದ ಇಬ್ಬರು ಅಪರಿಚಿತರು ಹಿಂದಿನಿಂದ ಬಂದು, ಹಿಂಬದಿ ಸವಾರನು "
-         "ಸುಮಾರು {weight} ಗ್ರಾಂ ತೂಕದ ಚಿನ್ನದ ಸರವನ್ನು ಕಿತ್ತುಕೊಂಡು {direction} ಕಡೆಗೆ ಪರಾರಿಯಾದರು. "
-         "ಇಬ್ಬರೂ ಹೆಲ್ಮೆಟ್ ಧರಿಸಿದ್ದರು."),
+        ("ದೂರುದಾರರಾದ {name} ({age}) ರವರ ಚಿನ್ನದ ಸರವನ್ನು {area} ಬಳಿ {time} ಗಂಟೆಗೆ ಅಪರಿಚಿತ ವ್ಯಕ್ತಿ "
+         "ಕಿತ್ತುಕೊಂಡು ಪರಾರಿಯಾಗಿದ್ದಾನೆ."),
+        ("{area} ಬಳಿ {time} ಗಂಟೆಗೆ {name} ({age}) ರವರ ಸರವನ್ನು ಗುರುತಿಸಲಾಗದ ವ್ಯಕ್ತಿ ಕಿತ್ತು "
+         "ಜನಸಂದಣಿಯಲ್ಲಿ ಮರೆಯಾಗಿದ್ದಾನೆ."),
     ],
     "House Burglary (Night)": [
         ("ದೂರುದಾರರಾದ {name} ({age}) ರವರ ಪ್ರಕಾರ, ರಾತ್ರಿ ವೇಳೆ ಮನೆಯವರು ಹೊರಗಿದ್ದಾಗ ಅಪರಿಚಿತರು {area} "

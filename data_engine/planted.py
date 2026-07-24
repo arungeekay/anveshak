@@ -18,6 +18,29 @@ from .generator import Ctx, emit_case
 
 PLANTED_DIR = Path(__file__).parent / "planted"
 
+# Distinctive SP-1/SH-07 serial MO (varied slots, invariant signature) — kept separate
+# from the generic background chain-snatching narratives so linkage can isolate it.
+_SP1_EN = (
+    "The complainant, {name}, aged {age}, was walking alone near {area} at about {time} hrs "
+    "when two men on a black motorcycle approached from behind. The pillion rider snatched her "
+    "gold chain weighing approx. {weight} grams and they sped away against one-way traffic. "
+    "Both wore full-face helmets with visors down."
+)
+_SP1_KN = (
+    "ದೂರುದಾರರಾದ {name}, ವಯಸ್ಸು {age}, {area} ಬಳಿ {time} ಗಂಟೆಗೆ ಒಬ್ಬಂಟಿಯಾಗಿ ನಡೆದುಕೊಂಡು "
+    "ಹೋಗುತ್ತಿದ್ದಾಗ, ಕಪ್ಪು ಬಣ್ಣದ ಮೋಟಾರ್ ಸೈಕಲ್‌ನಲ್ಲಿ ಬಂದ ಇಬ್ಬರು ವ್ಯಕ್ತಿಗಳಲ್ಲಿ ಹಿಂಬದಿ ಸವಾರನು ಸುಮಾರು "
+    "{weight} ಗ್ರಾಂ ತೂಕದ ಚಿನ್ನದ ಸರವನ್ನು ಕಿತ್ತುಕೊಂಡು ಏಕಮುಖ ಸಂಚಾರದ ವಿರುದ್ಧ ಪರಾರಿಯಾದರು. "
+    "ಇಬ್ಬರೂ ವೈಸರ್ ಇಳಿಸಿದ ಹೆಲ್ಮೆಟ್ ಧರಿಸಿದ್ದರು."
+)
+
+
+def _sp1_brief(ctx: Ctx, lang: str, name: str) -> str:
+    tmpl = _SP1_KN if lang == "kn" else _SP1_EN
+    return tmpl.format(name=name, age=ctx.rng.randint(22, 62),
+                       area=(ctx.rng.choice(N._AREAS_KN) if lang == "kn" else ctx.rng.choice(N._AREAS_EN)),
+                       time=f"{ctx.rng.randint(18, 20):02d}:{ctx.rng.choice([0, 15, 30, 45]):02d}",
+                       weight=ctx.rng.choice([16, 20, 24, 28, 32, 40]))
+
 # Approx coords for the 3 southern Bengaluru PS jurisdictions (arterial-adjacent).
 _SOUTH_BLR = {
     "Jayanagar PS": (12.930, 77.583),
@@ -113,12 +136,13 @@ def _plant_sp1(ctx: Ctx, by_name, by_district) -> dict:
         else:
             lat, lon = _near(ctx, d.lat, d.lon, 3.0)
         victim = N.full_name(ctx.rng, lang)
-        brief = N.brief_facts("Chain Snatching", lang, ctx.rng, victim)
+        brief = _sp1_brief(ctx, lang, victim)
         status = 2 if arrested else 1
         cid = emit_case(
             ctx, d=d, unit_id=unit_id, cat=1, sub=sub, reg_dt=reg_dt, status=status,
             lang=lang, accused_pks=[arrested] if arrested else [], comp_name=victim,
-            lat=lat, lon=lon, arrest=bool(arrested),
+            lat=lat, lon=lon, incident_from=reg_dt,  # incident IS the evening crime time
+            arrest=bool(arrested),
             arrest_date=reg_dt.date() + timedelta(days=ctx.rng.randint(10, 45)),
             brief=brief, add_victim=True,
         )
