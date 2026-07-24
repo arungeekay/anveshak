@@ -1,0 +1,21 @@
+[project]
+name = "anveshak"
+version = "0.1.0"
+description = "Autonomous AI investigation bureau for the Karnataka State Police (KSP Datathon 2026)."
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = [".venv", "build", "frontend", "node_modules"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP", "B"]
+ignore = ["E501"]  # line length handled by formatter; long SQL strings are fine
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests", "data_engine/tests", "eval"]
+python_files = ["test_*.py"]
+addopts = "-q"
+asyncio_default_fixture_loop_scope = "function"
+filterwarnings = ["ignore::DeprecationWarning"]

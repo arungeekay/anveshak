@@ -1,0 +1,6 @@
+# Normalize line endings; the deploy target (Catalyst AppSail) is Linux.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.pdf binary
+*.duckdb binary
