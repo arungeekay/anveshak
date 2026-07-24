@@ -1,0 +1,364 @@
+# 60 questions (45 EN / 15 KN). gold_sql targets the analyst views (contracts.md §9).
+# expect: scalar | rows | chart. Scoring is execution-match (order-insensitive).
+
+# ---------------- English (45) ----------------
+- id: q01
+  lang: en
+  question: "How many chain snatching cases were registered in Bengaluru City in 2026?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE crime_sub_head='Chain Snatching' AND district='Bengaluru City' AND year(CrimeRegisteredDate)=2026"
+
+- id: q02
+  lang: en
+  question: "How many FIRs were registered statewide in 2025?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE case_category='FIR' AND year(CrimeRegisteredDate)=2025"
+
+- id: q03
+  lang: en
+  question: "How many murder cases were registered in Mysuru in 2024?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE crime_sub_head='Murder' AND district='Mysuru' AND year(CrimeRegisteredDate)=2024"
+
+- id: q04
+  lang: en
+  question: "Show the monthly trend of chain snatching in Bengaluru City for 2026."
+  expect: chart
+  gold_sql: "SELECT date_trunc('month', CrimeRegisteredDate) AS ym, COUNT(*) FROM vw_case_360 WHERE crime_sub_head='Chain Snatching' AND district='Bengaluru City' AND year(CrimeRegisteredDate)=2026 GROUP BY ym ORDER BY ym"
+
+- id: q05
+  lang: en
+  question: "Which police stations in Bengaluru City are worst affected in 2026 (top 5 by cases)?"
+  expect: rows
+  gold_sql: "SELECT police_station, COUNT(*) c FROM vw_case_360 WHERE district='Bengaluru City' AND year(CrimeRegisteredDate)=2026 GROUP BY police_station ORDER BY c DESC, police_station LIMIT 5"
+
+- id: q06
+  lang: en
+  question: "Top 5 districts by total number of cases (all years)."
+  expect: rows
+  gold_sql: "SELECT district, COUNT(*) c FROM vw_case_360 GROUP BY district ORDER BY c DESC, district LIMIT 5"
+
+- id: q07
+  lang: en
+  question: "How many heinous cases were registered statewide in 2026?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE gravity='Heinous' AND year(CrimeRegisteredDate)=2026"
+
+- id: q08
+  lang: en
+  question: "How many night house burglaries occurred in Whitefield PS since 1 July 2026?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE crime_sub_head='House Burglary (Night)' AND police_station='Whitefield PS' AND CrimeRegisteredDate >= DATE '2026-07-01'"
+
+- id: q09
+  lang: en
+  question: "How many UDR cases were registered in 2025?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE case_category='UDR' AND year(CrimeRegisteredDate)=2025"
+
+- id: q10
+  lang: en
+  question: "How many PAR cases are there in the database?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE case_category='PAR'"
+
+- id: q11
+  lang: en
+  question: "How many Zero FIR cases are there?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE case_category='Zero FIR'"
+
+- id: q12
+  lang: en
+  question: "How many cases are under investigation in Tumakuru?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE case_status='Under Investigation' AND district='Tumakuru'"
+
+- id: q13
+  lang: en
+  question: "How many charge sheeted cases were there in Mandya in 2025?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE case_status='Charge Sheeted' AND district='Mandya' AND year(CrimeRegisteredDate)=2025"
+
+- id: q14
+  lang: en
+  question: "Break down cases by crime head statewide for 2026."
+  expect: rows
+  gold_sql: "SELECT crime_head, COUNT(*) c FROM vw_case_360 WHERE year(CrimeRegisteredDate)=2026 GROUP BY crime_head ORDER BY c DESC, crime_head"
+
+- id: q15
+  lang: en
+  question: "How many robbery cases in Bengaluru City in 2026?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE crime_sub_head='Robbery' AND district='Bengaluru City' AND year(CrimeRegisteredDate)=2026"
+
+- id: q16
+  lang: en
+  question: "How many theft cases in Mysuru in 2025?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE crime_sub_head='Theft' AND district='Mysuru' AND year(CrimeRegisteredDate)=2025"
+
+- id: q17
+  lang: en
+  question: "How many online fraud cases statewide in 2026?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE crime_sub_head='Cheating / Online Fraud' AND year(CrimeRegisteredDate)=2026"
+
+- id: q18
+  lang: en
+  question: "How many cases invoke BNS section 304(2)?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(DISTINCT CaseMasterID) FROM ActSectionAssociation WHERE ActID='BNS' AND SectionID='304(2)'"
+
+- id: q19
+  lang: en
+  question: "How many cases invoke IT Act section 66D?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(DISTINCT CaseMasterID) FROM ActSectionAssociation WHERE ActID='ITAct' AND SectionID='66D'"
+
+- id: q20
+  lang: en
+  question: "In how many cases is Prakash Rao named as an accused?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(DISTINCT CaseMasterID) FROM vw_accused_history WHERE full_name='Prakash Rao'"
+
+- id: q21
+  lang: en
+  question: "In how many cases is Suresh B named as an accused?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(DISTINCT CaseMasterID) FROM vw_accused_history WHERE full_name='Suresh B'"
+
+- id: q22
+  lang: en
+  question: "Which crime sub-heads has Suresh B been involved in?"
+  expect: rows
+  gold_sql: "SELECT DISTINCT crime_sub_head FROM vw_accused_history WHERE full_name='Suresh B' ORDER BY crime_sub_head"
+
+- id: q23
+  lang: en
+  question: "In which districts did chain snatching occur in 2026?"
+  expect: rows
+  gold_sql: "SELECT DISTINCT district FROM vw_case_360 WHERE crime_sub_head='Chain Snatching' AND year(CrimeRegisteredDate)=2026 ORDER BY district"
+
+- id: q24
+  lang: en
+  question: "Monthly trend of night house burglary in Bengaluru City for 2025."
+  expect: chart
+  gold_sql: "SELECT date_trunc('month', CrimeRegisteredDate) AS ym, COUNT(*) FROM vw_case_360 WHERE crime_sub_head='House Burglary (Night)' AND district='Bengaluru City' AND year(CrimeRegisteredDate)=2025 GROUP BY ym ORDER BY ym"
+
+- id: q25
+  lang: en
+  question: "In how many cases has at least one arrest been made?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(DISTINCT CaseMasterID) FROM ArrestSurrender"
+
+- id: q26
+  lang: en
+  question: "How many cases have two or more accused persons?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE accused_count >= 2"
+
+- id: q27
+  lang: en
+  question: "How many female victims were recorded in 2026?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM Victim v JOIN CaseMaster c ON c.CaseMasterID=v.CaseMasterID WHERE v.GenderID=2 AND year(c.CrimeRegisteredDate)=2026"
+
+- id: q28
+  lang: en
+  question: "Top 5 crime sub-heads statewide in 2026."
+  expect: rows
+  gold_sql: "SELECT crime_sub_head, COUNT(*) c FROM vw_case_360 WHERE year(CrimeRegisteredDate)=2026 GROUP BY crime_sub_head ORDER BY c DESC, crime_sub_head LIMIT 5"
+
+- id: q29
+  lang: en
+  question: "How many cases were registered at Jayanagar PS in 2026?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE police_station='Jayanagar PS' AND year(CrimeRegisteredDate)=2026"
+
+- id: q30
+  lang: en
+  question: "How many cases registered before 20 May 2026 are still under investigation?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE case_status='Under Investigation' AND CrimeRegisteredDate < DATE '2026-05-20'"
+
+- id: q31
+  lang: en
+  question: "How many cases were closed as undetected (final report C)?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE final_report_type='C'"
+
+- id: q32
+  lang: en
+  question: "How many cases were closed as false (final report B)?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE final_report_type='B'"
+
+- id: q33
+  lang: en
+  question: "Heinous vs non-heinous breakdown for 2026."
+  expect: rows
+  gold_sql: "SELECT gravity, COUNT(*) c FROM vw_case_360 WHERE year(CrimeRegisteredDate)=2026 GROUP BY gravity ORDER BY gravity"
+
+- id: q34
+  lang: en
+  question: "Number of cases per case category in 2026."
+  expect: rows
+  gold_sql: "SELECT case_category, COUNT(*) c FROM vw_case_360 WHERE year(CrimeRegisteredDate)=2026 GROUP BY case_category ORDER BY case_category"
+
+- id: q35
+  lang: en
+  question: "How many distinct police stations recorded at least one murder in 2024?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(DISTINCT police_station) FROM vw_case_360 WHERE crime_sub_head='Murder' AND year(CrimeRegisteredDate)=2024"
+
+- id: q36
+  lang: en
+  question: "How many cases at Mandya East PS in 2026?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE police_station='Mandya East PS' AND year(CrimeRegisteredDate)=2026"
+
+- id: q37
+  lang: en
+  question: "How many cases are in the database in total?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360"
+
+- id: q38
+  lang: en
+  question: "Number of cases registered each year."
+  expect: rows
+  gold_sql: "SELECT year(CrimeRegisteredDate) yr, COUNT(*) c FROM vw_case_360 GROUP BY yr ORDER BY yr"
+
+- id: q39
+  lang: en
+  question: "Who is the single most frequently accused person (by case count)?"
+  expect: rows
+  gold_sql: "SELECT person_key, COUNT(*) c FROM vw_accused_history GROUP BY person_key ORDER BY c DESC, person_key LIMIT 1"
+
+- id: q40
+  lang: en
+  question: "How many chain snatching cases across Bengaluru City, Tumakuru and Mandya in 2026?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE crime_sub_head='Chain Snatching' AND district IN ('Bengaluru City','Tumakuru','Mandya') AND year(CrimeRegisteredDate)=2026"
+
+- id: q41
+  lang: en
+  question: "How many case narratives mention a motorcycle?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE lower(BriefFacts) LIKE '%motorcycle%'"
+
+- id: q42
+  lang: en
+  question: "How many night house burglaries occurred statewide in October-November 2024?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE crime_sub_head='House Burglary (Night)' AND year(CrimeRegisteredDate)=2024 AND month(CrimeRegisteredDate) IN (10,11)"
+
+- id: q43
+  lang: en
+  question: "How many cases are assigned to the Bengaluru City District & Sessions Court?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE court='Bengaluru City District & Sessions Court'"
+
+- id: q44
+  lang: en
+  question: "How many NDPS cases are there statewide?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE crime_sub_head='NDPS'"
+
+- id: q45
+  lang: en
+  question: "List the number of cases by status for 2026."
+  expect: rows
+  gold_sql: "SELECT case_status, COUNT(*) c FROM vw_case_360 WHERE year(CrimeRegisteredDate)=2026 GROUP BY case_status ORDER BY case_status"
+
+# ---------------- Kannada (15) ----------------
+- id: q46
+  lang: kn
+  question: "ಈ ವರ್ಷ ಬೆಂಗಳೂರು ನಗರದಲ್ಲಿ ಎಷ್ಟು ಸರಗಳ್ಳತನ ಪ್ರಕರಣಗಳು ದಾಖಲಾಗಿವೆ?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE crime_sub_head='Chain Snatching' AND district='Bengaluru City' AND year(CrimeRegisteredDate)=2026"
+
+- id: q47
+  lang: kn
+  question: "2024 ರಲ್ಲಿ ಮೈಸೂರಿನಲ್ಲಿ ಎಷ್ಟು ಕೊಲೆ ಪ್ರಕರಣಗಳು ದಾಖಲಾದವು?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE crime_sub_head='Murder' AND district='Mysuru' AND year(CrimeRegisteredDate)=2024"
+
+- id: q48
+  lang: kn
+  question: "2025 ರಲ್ಲಿ ರಾಜ್ಯಾದ್ಯಂತ ಎಷ್ಟು ಎಫ್‌ಐಆರ್‌ಗಳು ದಾಖಲಾದವು?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE case_category='FIR' AND year(CrimeRegisteredDate)=2025"
+
+- id: q49
+  lang: kn
+  question: "2026 ರಲ್ಲಿ ರಾಜ್ಯಾದ್ಯಂತ ಎಷ್ಟು ಘೋರ ಅಪರಾಧ ಪ್ರಕರಣಗಳಿವೆ?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE gravity='Heinous' AND year(CrimeRegisteredDate)=2026"
+
+- id: q50
+  lang: kn
+  question: "2026 ರಲ್ಲಿ ಬೆಂಗಳೂರು ನಗರದಲ್ಲಿ ಎಷ್ಟು ಕಳ್ಳತನ ಪ್ರಕರಣಗಳಿವೆ?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE crime_sub_head='Theft' AND district='Bengaluru City' AND year(CrimeRegisteredDate)=2026"
+
+- id: q51
+  lang: kn
+  question: "2026 ರಲ್ಲಿ ರಾಜ್ಯಾದ್ಯಂತ ಎಷ್ಟು ಆನ್‌ಲೈನ್ ವಂಚನೆ ಪ್ರಕರಣಗಳಿವೆ?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE crime_sub_head='Cheating / Online Fraud' AND year(CrimeRegisteredDate)=2026"
+
+- id: q52
+  lang: kn
+  question: "2025 ರಲ್ಲಿ ಬೆಂಗಳೂರು ನಗರದಲ್ಲಿ ಎಷ್ಟು ರಾತ್ರಿ ಮನೆ ಕನ್ನ ಪ್ರಕರಣಗಳಿವೆ?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE crime_sub_head='House Burglary (Night)' AND district='Bengaluru City' AND year(CrimeRegisteredDate)=2025"
+
+- id: q53
+  lang: kn
+  question: "ತುಮಕೂರಿನಲ್ಲಿ ಎಷ್ಟು ಪ್ರಕರಣಗಳು ತನಿಖೆಯಲ್ಲಿವೆ?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE case_status='Under Investigation' AND district='Tumakuru'"
+
+- id: q54
+  lang: kn
+  question: "2026 ರಲ್ಲಿ ಯಾವ ಜಿಲ್ಲೆಗಳಲ್ಲಿ ಸರಗಳ್ಳತನ ನಡೆದಿದೆ?"
+  expect: rows
+  gold_sql: "SELECT DISTINCT district FROM vw_case_360 WHERE crime_sub_head='Chain Snatching' AND year(CrimeRegisteredDate)=2026 ORDER BY district"
+
+- id: q55
+  lang: kn
+  question: "2026 ರಲ್ಲಿ ಬೆಂಗಳೂರು ನಗರದ ಅತಿ ಹೆಚ್ಚು ಪ್ರಕರಣಗಳಿರುವ 5 ಠಾಣೆಗಳು ಯಾವುವು?"
+  expect: rows
+  gold_sql: "SELECT police_station, COUNT(*) c FROM vw_case_360 WHERE district='Bengaluru City' AND year(CrimeRegisteredDate)=2026 GROUP BY police_station ORDER BY c DESC, police_station LIMIT 5"
+
+- id: q56
+  lang: kn
+  question: "2025 ರಲ್ಲಿ ಮೈಸೂರಿನಲ್ಲಿ ಎಷ್ಟು ದರೋಡೆ ಪ್ರಕರಣಗಳಿವೆ?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE crime_sub_head='Robbery' AND district='Mysuru' AND year(CrimeRegisteredDate)=2025"
+
+- id: q57
+  lang: kn
+  question: "2026 ರಲ್ಲಿ ರಾಜ್ಯಾದ್ಯಂತ ಒಟ್ಟು ಎಷ್ಟು ಪ್ರಕರಣಗಳು ದಾಖಲಾಗಿವೆ?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(*) FROM vw_case_360 WHERE year(CrimeRegisteredDate)=2026"
+
+- id: q58
+  lang: kn
+  question: "ಪ್ರಕಾಶ್ ರಾವ್ ಎಷ್ಟು ಪ್ರಕರಣಗಳಲ್ಲಿ ಆರೋಪಿಯಾಗಿದ್ದಾರೆ?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(DISTINCT CaseMasterID) FROM vw_accused_history WHERE full_name='Prakash Rao'"
+
+- id: q59
+  lang: kn
+  question: "ಸುರೇಶ್ ಬಿ ಎಷ್ಟು ಪ್ರಕರಣಗಳಲ್ಲಿ ಆರೋಪಿಯಾಗಿದ್ದಾರೆ?"
+  expect: scalar
+  gold_sql: "SELECT COUNT(DISTINCT CaseMasterID) FROM vw_accused_history WHERE full_name='Suresh B'"
+
+- id: q60
+  lang: kn
+  question: "2026 ರಲ್ಲಿ ಬೆಂಗಳೂರು ನಗರದ ಸರಗಳ್ಳತನದ ಮಾಸಿಕ ಪ್ರವೃತ್ತಿಯನ್ನು ತೋರಿಸಿ."
+  expect: chart
+  gold_sql: "SELECT date_trunc('month', CrimeRegisteredDate) AS ym, COUNT(*) FROM vw_case_360 WHERE crime_sub_head='Chain Snatching' AND district='Bengaluru City' AND year(CrimeRegisteredDate)=2026 GROUP BY ym ORDER BY ym"
