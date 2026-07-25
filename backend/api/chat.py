@@ -11,6 +11,7 @@ from fastapi import APIRouter
 
 from ..audit import write_audit
 from ..db import db_status, get_connection
+from ..llm.adapter import LLMError
 from ..models import ChatRequest
 from ..nl2sql import engine
 from ..nl2sql.router import route
@@ -45,6 +46,11 @@ def _resp(answer, specs, tool, *, sql=None, row_count=0, case_ids=None, params=N
 def _run_sql_path(con, req: ChatRequest, audit) -> dict:
     try:
         nl = engine.run(con, req.message)
+    except LLMError as exc:
+        log.warning("LLM unavailable for chat: %s", exc)
+        return {"error": "The language model is not reachable right now.",
+                "suggestion": "The database, series, graph, and patrol features still work. "
+                              "Try again shortly."}
     except engine.EngineError as exc:
         log.info("nl2sql failed for %r: %s", req.message, exc)
         return {"error": "I couldn't translate that into a database query.",

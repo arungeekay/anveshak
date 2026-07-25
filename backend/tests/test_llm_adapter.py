@@ -18,7 +18,7 @@ def test_ollama_response_parsing(monkeypatch):
 def test_openai_style_extract(monkeypatch):
     fake = {"choices": [{"message": {"content": "hello"}}], "usage": {"prompt_tokens": 5, "completion_tokens": 2}}
     monkeypatch.setattr(adapter.settings, "quickml_endpoint", "https://example.invalid/serve")
-    monkeypatch.setattr(adapter, "_post_with_retry", lambda *a, **k: fake)
+    monkeypatch.setattr(adapter, "_quickml_via_sdk", lambda *a, **k: fake)
     res = adapter.chat([{"role": "user", "content": "hi"}], backend="quickml")
     assert res.text == "hello"
     assert res.backend == "quickml"

@@ -100,26 +100,49 @@ def _quickml_token() -> str:
         return ""
 
 
+def _quickml_via_sdk(payload: dict, org: str) -> dict | None:
+    """Call the GLM endpoint through the Catalyst SDK's authorized client, which
+    injects the Zoho OAuth token automatically inside AppSail. Returns None if the
+    SDK/app context is unavailable (e.g. local dev)."""
+    try:
+        import zcatalyst_sdk
+        from zcatalyst_sdk._http_client import AuthorizedHttpClient
+        from zcatalyst_sdk.quick_ml import CatalystService, CredentialUser
+
+        app = zcatalyst_sdk.initialize()
+        client = AuthorizedHttpClient(app)
+        resp = client.request(
+            method="POST", url=settings.quickml_endpoint,
+            user=CredentialUser.ADMIN, catalyst_service=CatalystService.QUICK_ML,
+            external=True, json=payload,
+            headers={"Content-Type": "application/json", "CATALYST-ORG": org},
+        )
+        return resp.response_json
+    except Exception as exc:
+        log.warning("QuickML SDK path unavailable (%s); trying manual token", exc)
+        return None
+
+
 def _quickml_chat(msgs: list[Message], temperature: float, max_tokens: int) -> ChatResult:
     if not settings.quickml_endpoint:
         raise LLMNotConfigured("QUICKML_ENDPOINT not set. See docs/catalyst/quickml.md.")
-    token = _quickml_token()
-    if not token:
-        raise LLMNotConfigured(
-            "No Zoho OAuth token for QuickML. Set QUICKML_TOKEN (local: `catalyst "
-            "token:generate`) or run inside AppSail where the SDK supplies it."
-        )
-    headers = {
-        "Content-Type": "application/json",
-        "CATALYST-ORG": settings.quickml_org or settings.catalyst_project_id,
-        "Authorization": f"Zoho-oauthtoken {token}",
-    }
+    org = settings.quickml_org or settings.catalyst_project_id
     payload = {
         "model": settings.quickml_model, "messages": msgs, "max_tokens": max_tokens,
         "temperature": temperature, "stream": False,
         "chat_template_kwargs": {"enable_thinking": settings.quickml_thinking},
     }
-    data = _post_with_retry(settings.quickml_endpoint, payload, headers=headers)
+    data = _quickml_via_sdk(payload, org)
+    if data is None:  # fallback: explicit token (env / Self-Client)
+        token = _quickml_token()
+        if not token:
+            raise LLMNotConfigured(
+                "QuickML auth unavailable: the Catalyst SDK could not supply a token and "
+                "QUICKML_TOKEN is unset. Runs automatically inside AppSail."
+            )
+        data = _post_with_retry(settings.quickml_endpoint, payload, headers={
+            "Content-Type": "application/json", "CATALYST-ORG": org,
+            "Authorization": f"Zoho-oauthtoken {token}"})
     usage = data.get("usage", {}) if isinstance(data, dict) else {}
     text = _extract_text(data)  # OpenAI-style choices[0].message.content
     log.info("quickml chat model=%s prompt_tokens=%s completion_tokens=%s",
