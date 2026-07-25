@@ -108,11 +108,13 @@ def forecast_spec(fc: dict, title: str = "Forecast") -> dict:
                     "lineStyle": {"type": "dashed"}}]}}
 
 
-def _only_number_is(text: str, value) -> bool:
-    """True if every numeric token in `text` equals `value` (ADR-2 anti-hallucination)."""
-    target = str(value).replace(",", "")
+def _no_invented_numbers(text: str, value, question: str) -> bool:
+    """True if every numeric token in `text` is the tool value or already appears in the
+    question (e.g. a year) — i.e. the narration invented no figures (ADR-2)."""
+    allowed = {str(value).replace(",", "")}
+    allowed |= {t.replace(",", "") for t in re.findall(r"\d[\d,]*", question)}
     for tok in re.findall(r"\d[\d,]*", text):
-        if tok.replace(",", "") != target:
+        if tok.replace(",", "") not in allowed:
             return False
     return True
 
@@ -144,7 +146,7 @@ def compose_answer(question: str, columns: list[str], rows: list, lang: str) -> 
         text = (res.text or "").strip()
         if not text:
             return _fallback(columns, rows, lang)
-        if scalar and not _only_number_is(text, rows[0][0]):
+        if scalar and not _no_invented_numbers(text, rows[0][0], question):
             log.warning("scalar narration introduced extra numbers; using template")
             return _fallback(columns, rows, lang)
         return text
