@@ -1,0 +1,8 @@
+frontend/
+eval/
+docs/
+submission/
+build/csv/
+.venv/
+__pycache__/
+*.pyc

@@ -1,8 +1,7 @@
 {
   "command": "uvicorn backend.main:app --host 0.0.0.0 --port $X_ZOHO_CATALYST_LISTEN_PORT",
-  "buildPath": ".",
-  "stack": "python3.12",
-  "memory": 1024,
+  "build_path": ".",
+  "stack": "python_3_12",
   "env_variables": {
     "ENVIRONMENT": "prod",
     "LLM_BACKEND": "quickml",
@@ -11,5 +10,7 @@
     "DUCKDB_PATH": "build/anveshak.duckdb",
     "AGENTS_RUNNER": "local",
     "DEMO_MODE": "true"
-  }
+  },
+  "memory": 1024,
+  "scripts": {}
 }
