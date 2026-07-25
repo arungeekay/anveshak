@@ -1,5 +1,5 @@
 {
-  "command": "uvicorn backend.main:app --host 0.0.0.0 --port $X_ZOHO_CATALYST_LISTEN_PORT",
+  "command": "python backend/serve.py",
   "build_path": ".",
   "stack": "python_3_12",
   "env_variables": {
