@@ -84,3 +84,4 @@ Thumbs.db
 #     can only trust that number if the ground truth is inspectable.
 #     (The demo CHOREOGRAPHY — demo_story.md beats, golden path — stays private.)
 # ============================================================================
+client/assets/

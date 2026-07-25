@@ -4,6 +4,8 @@ import react from "@vitejs/plugin-react";
 // Dev proxy forwards /api to the local FastAPI backend so the frontend can call
 // same-origin. In production, VITE_API_BASE points at the Catalyst API Gateway.
 export default defineConfig({
+  // Served under /app/ on Catalyst Web Hosting -> relative asset paths.
+  base: "./",
   plugins: [react()],
   server: {
     port: 5173,
