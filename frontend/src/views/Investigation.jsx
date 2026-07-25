@@ -15,10 +15,18 @@ export default function Investigation() {
   const [steps, setSteps] = useState({});
   const [pack, setPack] = useState(null);
   const [running, setRunning] = useState(false);
+  const [err, setErr] = useState(null);
 
   async function start() {
-    setSteps({}); setPack(null); setRunning(true);
-    const { run_id } = await apiPost("/api/investigate", { series_id: seriesId });
+    setSteps({}); setPack(null); setErr(null); setRunning(true);
+    let run_id;
+    try {
+      ({ run_id } = await apiPost("/api/investigate", { series_id: seriesId }));
+    } catch (e) {
+      setErr(`Could not start investigation: ${e.message}`);
+      setRunning(false);
+      return;
+    }
     openInvestigationStream(run_id,
       (name, data) => {
         if (name === "agent_step") {
@@ -39,6 +47,7 @@ export default function Investigation() {
         <button onClick={start} disabled={running}
           className="rounded-lg bg-accent px-3 py-1 text-white disabled:opacity-50">
           {running ? "Streaming…" : "Investigate"}</button>
+        {err && <span className="text-sm text-red-400">{err}</span>}
       </div>
 
       <div className="grid gap-4 md:grid-cols-[300px_1fr]">
@@ -82,24 +91,24 @@ function PackView({ pack, pdfUrl }) {
       <p className="text-sm text-slate-300">{pack.summary}</p>
 
       <Section title="Ranked Suspects">
-        {pack.suspects_ranked.slice(0, 5).map((s) => (
+        {(pack.suspects_ranked || []).slice(0, 5).map((s) => (
           <div key={s.person_key} className="mb-1 flex items-center justify-between text-sm">
             <span>{s.name} <span className="text-xs text-slate-500">{s.person_key}</span></span>
-            <span className="font-semibold text-red-400">risk {s.risk.score}</span>
+            <span className="font-semibold text-red-400">risk {s.risk?.score}</span>
           </div>
         ))}
       </Section>
 
       <Section title="Leads">
         <ol className="list-decimal pl-5 text-sm text-slate-300">
-          {pack.leads.map((l, i) => <li key={i}>{l.lead}</li>)}
+          {(pack.leads || []).map((l, i) => <li key={i}>{l.lead}</li>)}
         </ol>
       </Section>
 
       <Section title="Legal — sections & element checks">
-        <p className="text-xs text-slate-400">{pack.legal.sections_invoked.map((s) => `${s.act} ${s.section}`).join(", ")}</p>
+        <p className="text-xs text-slate-400">{(pack.legal?.sections_invoked || []).map((s) => `${s.act} ${s.section}`).join(", ")}</p>
         <ul className="mt-1 text-xs">
-          {pack.legal.elements_check.slice(0, 8).map((e, i) => (
+          {(pack.legal?.elements_check || []).slice(0, 8).map((e, i) => (
             <li key={i} className={e.status === "missing" ? "text-red-400" : "text-emerald-400"}>
               {e.status === "missing" ? "✗" : "✓"} {e.element}
             </li>
@@ -108,7 +117,7 @@ function PackView({ pack, pdfUrl }) {
       </Section>
 
       <Section title="Forecast">
-        <p className="text-sm text-slate-300">Next window: <b>{pack.forecast.next_window}</b></p>
+        <p className="text-sm text-slate-300">Next window: <b>{pack.forecast?.next_window}</b></p>
       </Section>
     </div>
   );

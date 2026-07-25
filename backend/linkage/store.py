@@ -5,6 +5,8 @@ hypothesis status and is retained as a label (used for future supervised tuning)
 """
 from __future__ import annotations
 
+import threading
+
 from .engine import discover
 
 
@@ -12,15 +14,24 @@ class SeriesStore:
     def __init__(self) -> None:
         self._series: dict[str, dict] = {}
         self._loaded = False
+        # Discovery (HDBSCAN over ~15k cases) takes tens of seconds. Serialize it so
+        # concurrent cold requests don't stampede into N parallel full scans; the
+        # first caller computes, the rest wait and reuse the cached result.
+        self._lock = threading.Lock()
 
     def rescan(self, con) -> list[dict]:
-        self._series = {h["series_id"]: h for h in discover(con)}
-        self._loaded = True
+        with self._lock:
+            self._series = {h["series_id"]: h for h in discover(con)}
+            self._loaded = True
         return self.all(con)
 
     def ensure(self, con) -> None:
-        if not self._loaded:
-            self.rescan(con)
+        if self._loaded:
+            return
+        with self._lock:
+            if not self._loaded:  # double-checked: another thread may have loaded it
+                self._series = {h["series_id"]: h for h in discover(con)}
+                self._loaded = True
 
     def all(self, con) -> list[dict]:
         self.ensure(con)

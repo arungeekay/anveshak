@@ -4,6 +4,7 @@ from __future__ import annotations
 import itertools
 import json
 
+import anyio
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
@@ -42,7 +43,25 @@ async def stream(run_id: str):
     con = get_connection()
 
     async def gen():
-        for event, data in investigate(con, series_id):
+        # investigate() is a synchronous generator that runs heavy CPU work (SARIMA,
+        # HDBSCAN, betweenness) between yields. Stepping it inline would block the
+        # event loop and stall health checks / other tabs for the whole run, so we
+        # advance it one step at a time in a worker thread. Steps are awaited
+        # sequentially, so the shared DuckDB cursor is never touched concurrently.
+        it = investigate(con, series_id)
+        _END = object()
+
+        def _step():
+            try:
+                return next(it)
+            except StopIteration:
+                return _END
+
+        while True:
+            item = await anyio.to_thread.run_sync(_step)
+            if item is _END:
+                break
+            event, data = item
             if event == "pack_ready" and data.get("pack"):
                 _packs[series_id] = data["pack"]
             yield {"event": event, "data": json.dumps(data)}

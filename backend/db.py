@@ -14,15 +14,21 @@ from .config import settings
 
 _lock = threading.Lock()
 _conn: duckdb.DuckDBPyConnection | None = None
+_generation = 0
+_local = threading.local()
 
 
 def get_connection() -> duckdb.DuckDBPyConnection:
-    """Return a process-wide DuckDB connection (created lazily).
+    """Return a **per-thread** DuckDB cursor over the process-wide database.
 
-    If the DB file does not exist yet, an in-memory connection is returned so the
-    app still boots (health reports db: not_loaded).
+    A single ``DuckDBPyConnection`` is NOT thread-safe: FastAPI runs sync endpoints
+    in a threadpool, so concurrent requests sharing one connection race and return
+    corrupt/empty results. The documented fix is one cursor per thread (each cursor
+    is an independent execution context over the same shared database), which is what
+    we hand back here. If the DB file does not exist yet, an in-memory connection is
+    used so the app still boots (health reports db: not_loaded).
     """
-    global _conn
+    global _conn, _generation
     with _lock:
         if _conn is None:
             path = Path(settings.duckdb_path)
@@ -30,7 +36,16 @@ def get_connection() -> duckdb.DuckDBPyConnection:
                 _conn = duckdb.connect(str(path), read_only=False)
             else:
                 _conn = duckdb.connect(":memory:")
-        return _conn
+            _generation += 1
+        gen = _generation
+        cur = getattr(_local, "cursor", None)
+        if cur is None or getattr(_local, "gen", None) != gen:
+            # Create the per-thread cursor under the lock so it can't race with a
+            # concurrent reset/re-open of the base connection.
+            cur = _conn.cursor()
+            _local.cursor = cur
+            _local.gen = gen
+        return cur
 
 
 def db_status() -> dict:

@@ -9,6 +9,7 @@ narrative). Communities via Louvain; canned queries return GraphResult
 from __future__ import annotations
 
 import re
+import threading
 from collections import defaultdict
 
 import networkx as nx
@@ -105,12 +106,20 @@ class GraphCache:
         self.comms: list[set] | None = None
         self._comm_of: dict[str, int] = {}
         self.centrality: dict[str, float] = {}
+        self._lock = threading.Lock()
 
     def ensure(self, con) -> None:
-        if self.g is None:
-            self.rebuild(con)
+        if self.g is not None:
+            return
+        with self._lock:
+            if self.g is None:  # double-checked under lock; avoid concurrent rebuilds
+                self._rebuild_locked(con)
 
     def rebuild(self, con) -> None:
+        with self._lock:
+            self._rebuild_locked(con)
+
+    def _rebuild_locked(self, con) -> None:
         self.g = build_graph(con)
         p = _person_graph(self.g)
         self.comms = louvain_communities(p, seed=42) if p.number_of_nodes() else []

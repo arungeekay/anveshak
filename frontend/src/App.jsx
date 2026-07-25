@@ -49,7 +49,7 @@ export default function App() {
         <div className="flex flex-1 flex-col">
           <header className="flex items-center justify-between border-b border-navy-800 bg-navy-900/60 px-6 py-3">
             <span className="text-sm text-slate-400">Autonomous AI Investigation Bureau</span>
-            <label className="flex items-center gap-2 text-sm">
+            <label className="flex items-center gap-2 text-sm" title="Role-based access control (RBAC) scope injection is designed per ADR-8; server-side enforcement lands with Catalyst Auth.">
               <span className="text-slate-400">Role</span>
               <select
                 value={role}
@@ -60,6 +60,7 @@ export default function App() {
                   <option key={r}>{r}</option>
                 ))}
               </select>
+              <span className="rounded bg-navy-700 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-slate-400">preview</span>
             </label>
           </header>
 

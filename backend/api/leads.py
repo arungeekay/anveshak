@@ -17,7 +17,5 @@ def run() -> dict:
 
 @router.get("/api/leads")
 def list_leads(limit: int = 50) -> list[dict]:
-    leads = leads_store.all()
-    if not leads:  # lazily run detectors on first access
-        leads = leads_store.run(get_connection())
-    return leads[:limit]
+    # ensure() runs the detectors once (stampede-locked) and caches the result.
+    return leads_store.ensure(get_connection())[:limit]
