@@ -127,10 +127,16 @@ def _build_hypothesis(members_local: list[int], ctx: dict, data: dict, cfg: dict
     combined = ctx["combined"]
     cos = ctx["cos"]
 
-    # confidence = mean pairwise combined similarity within the cluster
+    # confidence = mean over members of each member's STRONGEST link to another member.
+    # (A series is defined by every case having a strong tie to the group, not by all
+    # pairs being similar — the latter is unfairly dragged down by EN<->KN embedding gaps.)
     pairs = [(a, b) for i, a in enumerate(members_local) for b in members_local[i + 1:]]
-    sims = [combined[a, b] for a, b in pairs]
-    confidence = float(np.mean(sims)) if sims else 0.0
+    best = []
+    for i in members_local:
+        others = [combined[i, j] for j in members_local if j != i]
+        if others:
+            best.append(max(others))
+    confidence = float(np.mean(best)) if best else 0.0
 
     # top links by embedding cosine
     links = []

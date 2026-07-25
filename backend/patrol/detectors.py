@@ -90,6 +90,11 @@ def _series_growth(con) -> list[dict]:
 def _repeat_offender(con) -> list[dict]:
     cutoff = DATA_END - _dt.timedelta(days=45)
     inactive_before = DATA_END - _dt.timedelta(days=60)
+    # Only offenders who were actually arrested (i.e. could have been released).
+    arrested = {r[0] for r in con.execute("""
+        SELECT DISTINCT m.person_key FROM ArrestSurrender ar
+        JOIN AccusedPersonMap m ON m.AccusedMasterID = ar.AccusedMasterID
+    """).fetchall()}
     # Offenders with >=3 priors, a home cell, and no very-recent attributed case.
     offenders = con.execute("""
         SELECT h.person_key, pr.home_h3, MAX(h.CrimeRegisteredDate) last_seen, COUNT(*) n
@@ -100,8 +105,12 @@ def _repeat_offender(con) -> list[dict]:
     """, [inactive_before]).fetchall()
     leads = []
     for pk, home_h3, _last, _n in offenders:
+        if pk not in arrested:
+            continue
+        # sub-heads the offender has a real pattern in (>=2 priors)
         subs = [r[0] for r in con.execute(
-            "SELECT DISTINCT crime_sub_head FROM vw_accused_history WHERE person_key=?", [pk]
+            "SELECT crime_sub_head FROM vw_accused_history WHERE person_key=? "
+            "GROUP BY crime_sub_head HAVING COUNT(*) >= 2", [pk]
         ).fetchall()]
         if not subs:
             continue
@@ -115,7 +124,7 @@ def _repeat_offender(con) -> list[dict]:
         """, [*subs, cutoff]).fetchall()
         near = [int(c) for c, lat, lon in fresh
                 if lat is not None and _haversine(hlat, hlon, lat, lon) <= 3.0]
-        if len(near) >= 3:
+        if len(near) >= 4:
             name = con.execute("SELECT full_name FROM PersonRegistry WHERE person_key=?", [pk]).fetchone()
             leads.append({
                 "type": "repeat_offender",
