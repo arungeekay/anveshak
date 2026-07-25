@@ -1,7 +1,7 @@
 """ANVESHAK FastAPI application entrypoint (Catalyst AppSail)."""
 from __future__ import annotations
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from . import __version__
@@ -55,38 +55,6 @@ def health() -> dict:
         "llm_backend": settings.llm_backend,
         **status,
     }
-
-
-@app.get("/internal/llm/diag")
-def llm_diag(request: Request) -> dict:
-    """TEMP diagnostic: surface exactly why the QuickML/GLM SDK call fails in AppSail."""
-    import traceback
-
-    from .llm.adapter import _HeaderReq
-
-    out: dict = {"model": settings.quickml_model, "endpoint": settings.quickml_endpoint}
-    try:
-        import zcatalyst_sdk
-        from zcatalyst_sdk._http_client import AuthorizedHttpClient
-        from zcatalyst_sdk.quick_ml import CatalystService, CredentialUser
-
-        zapp = zcatalyst_sdk.initialize(req=_HeaderReq(request.headers.raw))
-        out["initialize"] = "ok"
-        client = AuthorizedHttpClient(zapp)
-        payload = {"model": settings.quickml_model,
-                   "messages": [{"role": "user", "content": "Reply with: OK"}],
-                   "max_tokens": 10, "temperature": 0, "stream": False,
-                   "chat_template_kwargs": {"enable_thinking": False}}
-        resp = client.request(
-            method="POST", url=settings.quickml_endpoint, user=CredentialUser.ADMIN,
-            catalyst_service=CatalystService.QUICK_ML, external=True, json=payload,
-            headers={"Content-Type": "application/json", "CATALYST-ORG": settings.quickml_org})
-        out["ok"] = True
-        out["response"] = str(resp.response_json)[:600]
-    except Exception as exc:  # noqa: BLE001
-        out["error"] = f"{type(exc).__name__}: {exc}"
-        out["trace"] = traceback.format_exc()[-1800:]
-    return out
 
 
 @app.post("/internal/mirror/rebuild")

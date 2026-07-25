@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import datetime as _dt
 import logging
+import re
 
 from ..llm import adapter
 
@@ -107,25 +108,46 @@ def forecast_spec(fc: dict, title: str = "Forecast") -> dict:
                     "lineStyle": {"type": "dashed"}}]}}
 
 
+def _only_number_is(text: str, value) -> bool:
+    """True if every numeric token in `text` equals `value` (ADR-2 anti-hallucination)."""
+    target = str(value).replace(",", "")
+    for tok in re.findall(r"\d[\d,]*", text):
+        if tok.replace(",", "") != target:
+            return False
+    return True
+
+
 def compose_answer(question: str, columns: list[str], rows: list, lang: str) -> str:
-    """Narrate the verified result (LLM composes; numbers come only from `rows`)."""
+    """Narrate the verified result. Numbers come ONLY from `rows`; a scalar answer is
+    guarded so the LLM cannot introduce any figure other than the tool's value."""
     if not rows:
         return _fallback(columns, rows, lang)
     lang_name = "Kannada" if lang == "kn" else "English"
-    if len(rows) == 1 and len(columns) == 1:
-        payload = f"Result value: {rows[0][0]}"
+    scalar = len(rows) == 1 and len(columns) == 1
+    if scalar:
+        value = rows[0][0]
+        payload = f"The answer is exactly: {value}"
+        rule = (f"Write ONE short factual sentence in {lang_name} answering the question, "
+                f"containing the number {value}. Do NOT include any other number, "
+                f"percentage, rate, per-lakh/per-capita figure, or population — only {value}.")
     else:
         preview = "; ".join(str(tuple(r)) for r in rows[:10])
         payload = f"Columns: {columns}\nRows (up to 10): {preview}"
-    prompt = (f"Question: {question}\n{payload}\n\n"
-              f"Write a concise 1-2 sentence answer in {lang_name}. Use ONLY the values "
-              f"above; do not invent numbers.")
+        rule = (f"Write a concise 1-2 sentence answer in {lang_name} using ONLY the values "
+                f"above. Do not invent numbers.")
     try:
-        res = adapter.chat([{"role": "user", "content": prompt}],
-                           system="You are a Karnataka State Police crime-data analyst. "
-                                  "Answer briefly and factually using only the provided values.",
-                           temperature=0.2, max_tokens=140)
-        return res.text or _fallback(columns, rows, lang)
+        res = adapter.chat(
+            [{"role": "user", "content": f"Question: {question}\n{payload}\n\n{rule}"}],
+            system="You are a Karnataka State Police crime-data analyst. Use only the "
+                   "provided values; never invent statistics.",
+            temperature=0.0, max_tokens=140)
+        text = (res.text or "").strip()
+        if not text:
+            return _fallback(columns, rows, lang)
+        if scalar and not _only_number_is(text, rows[0][0]):
+            log.warning("scalar narration introduced extra numbers; using template")
+            return _fallback(columns, rows, lang)
+        return text
     except Exception as exc:  # never surface a stack trace
         log.warning("compose_answer LLM failed: %s", exc)
         return _fallback(columns, rows, lang)
