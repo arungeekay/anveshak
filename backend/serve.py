@@ -35,6 +35,18 @@ def _prewarm() -> None:
         from .patrol.store import leads_store
         leads_store.ensure(con)
         log.info("prewarm: patrol produced %d leads", len(leads_store.all()))
+        # Warm the primary demo series' Investigation Pack so "Open pack" is instant
+        # even if a viewer navigates straight to the pack URL without streaming first.
+        # This runs the 6-agent pipeline (LLM-dependent); it's the last, fully optional
+        # warm step — a failure here never affects anything else.
+        demo_series = os.getenv("PREWARM_PACK_SERIES", "SH-07")
+        if demo_series:
+            try:
+                from .api.investigate import _build_pack
+                _build_pack(con, demo_series)
+                log.info("prewarm: investigation pack ready for %s", demo_series)
+            except Exception as exc:  # noqa: BLE001
+                log.warning("prewarm pack (%s) skipped: %s", demo_series, exc)
     except Exception as exc:  # noqa: BLE001 - never let warming crash the server
         log.warning("prewarm failed (endpoints will compute lazily): %s", exc)
 
