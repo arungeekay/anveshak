@@ -1,5 +1,5 @@
 {
-  "command": "python backend/serve.py",
+  "command": "python -m backend.serve",
   "build_path": ".",
   "stack": "python_3_12",
   "env_variables": {
