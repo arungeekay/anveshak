@@ -1,0 +1,17 @@
+{
+  "command": "uvicorn backend.main:app --host 0.0.0.0 --port $X_ZOHO_CATALYST_LISTEN_PORT",
+  "buildPath": "../",
+  "stack": "python3.12",
+  "memory": 1024,
+  "env_variables": {
+    "ENVIRONMENT": "prod",
+    "LLM_BACKEND": "quickml",
+    "EMBED_MODEL": "paraphrase-multilingual-MiniLM-L12-v2",
+    "DUCKDB_PATH": "build/anveshak.duckdb",
+    "AGENTS_RUNNER": "local",
+    "DEMO_MODE": "true"
+  },
+  "scripts": {
+    "predeploy": "pip install -r backend/requirements.txt"
+  }
+}

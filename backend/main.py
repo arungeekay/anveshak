@@ -49,3 +49,14 @@ def health() -> dict:
         "llm_backend": settings.llm_backend,
         **status,
     }
+
+
+@app.post("/internal/mirror/rebuild")
+def mirror_rebuild() -> dict:
+    """Re-open the DuckDB analytical mirror (ADR-1). In production this is where the
+    Data Store -> DuckDB refresh runs; here it re-attaches the connection so a fresh
+    build/anveshak.duckdb is picked up without a restart."""
+    from .db import reset_connection
+
+    reset_connection()
+    return {"status": "rebuilt", **db_status()}
