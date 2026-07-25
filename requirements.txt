@@ -1,5 +1,6 @@
-# ANVESHAK backend + data_engine runtime deps (Python 3.11/3.12)
-# Web
+# RUNTIME deps (AppSail deploy + backend). Lean on purpose: MO embeddings are
+# PRECOMPUTED into the DuckDB mirror at build time, so torch/sentence-transformers
+# are NOT needed at runtime. Heavy ML libs live in requirements-ml.txt (data build).
 fastapi==0.115.6
 uvicorn[standard]==0.34.0
 pydantic==2.10.4
@@ -8,16 +9,16 @@ python-dotenv==1.0.1
 sse-starlette==2.1.3
 httpx==0.28.1
 
-# Data / SQL
 duckdb==1.1.3
 pandas==2.2.3
 numpy==2.1.3
 sqlglot==26.0.1
 pyyaml==6.0.2
 
-# ML / analytics
-sentence-transformers==3.3.1
 scikit-learn==1.6.0
 statsmodels==0.14.4
 h3==4.1.2
 networkx==3.4.2
+
+# Catalyst platform SDK (Data Store, SmartBrowz, Cache, Mail, ...)
+zcatalyst-sdk

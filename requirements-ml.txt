@@ -1,0 +1,4 @@
+# Heavy ML deps needed ONLY to BUILD the dataset (data_engine: MO embeddings).
+# The deployed AppSail runtime does NOT need these (embeddings are precomputed).
+-r requirements.txt
+sentence-transformers==3.3.1

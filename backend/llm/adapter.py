@@ -13,6 +13,7 @@ until QUICKML_ENDPOINT/KEY are configured.
 from __future__ import annotations
 
 import logging
+import os
 import time
 from dataclasses import dataclass
 
@@ -82,24 +83,45 @@ def _extract_text(data: dict) -> str:
     return str(data)
 
 
+def _quickml_token() -> str:
+    """Zoho OAuth token for QuickML. From env/config, or the AppSail app context (SDK)."""
+    if settings.quickml_token:
+        return settings.quickml_token
+    tok = os.getenv("ZOHO_OAUTH_TOKEN", "")
+    if tok:
+        return tok
+    try:  # inside AppSail the SDK can mint an app-scoped token
+        import zcatalyst_sdk
+
+        app = zcatalyst_sdk.initialize()
+        cred = app.credential()
+        return cred.token() if hasattr(cred, "token") else ""
+    except Exception:
+        return ""
+
+
 def _quickml_chat(msgs: list[Message], temperature: float, max_tokens: int) -> ChatResult:
     if not settings.quickml_endpoint:
+        raise LLMNotConfigured("QUICKML_ENDPOINT not set. See docs/catalyst/quickml.md.")
+    token = _quickml_token()
+    if not token:
         raise LLMNotConfigured(
-            "QUICKML_ENDPOINT not set. Copy the LLM Serving endpoint URL + key from the "
-            "Catalyst console (QuickML > your deployment > API Details) into .env. See "
-            "docs/catalyst/quickml.md."
+            "No Zoho OAuth token for QuickML. Set QUICKML_TOKEN (local: `catalyst "
+            "token:generate`) or run inside AppSail where the SDK supplies it."
         )
     headers = {
         "Content-Type": "application/json",
-        "X-QUICKML-ENDPOINT-KEY": settings.quickml_api_key,
         "CATALYST-ORG": settings.quickml_org or settings.catalyst_project_id,
-        "Environment": "Development",
+        "Authorization": f"Zoho-oauthtoken {token}",
     }
-    payload = {"model": settings.quickml_model, "messages": msgs,
-               "temperature": temperature, "max_tokens": max_tokens}
+    payload = {
+        "model": settings.quickml_model, "messages": msgs, "max_tokens": max_tokens,
+        "temperature": temperature, "stream": False,
+        "chat_template_kwargs": {"enable_thinking": settings.quickml_thinking},
+    }
     data = _post_with_retry(settings.quickml_endpoint, payload, headers=headers)
     usage = data.get("usage", {}) if isinstance(data, dict) else {}
-    text = _extract_text(data)
+    text = _extract_text(data)  # OpenAI-style choices[0].message.content
     log.info("quickml chat model=%s prompt_tokens=%s completion_tokens=%s",
              settings.quickml_model, usage.get("prompt_tokens"), usage.get("completion_tokens"))
     return ChatResult(text=text, backend="quickml", model=settings.quickml_model,

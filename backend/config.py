@@ -27,10 +27,16 @@ class Settings(BaseSettings):
     llm_backend: str = "ollama"
     ollama_host: str = "http://localhost:11434"
     ollama_model: str = "qwen2.5:7b"
-    quickml_endpoint: str = ""
-    quickml_api_key: str = ""
-    quickml_model: str = "glm-4.7-flash"
-    quickml_org: str = ""
+    # GLM-4.7-Flash is a shared Zoho-hosted QuickML model (India DC): no serving instance,
+    # OpenAI-chat-compatible, authenticated with a Zoho OAuth token (not an endpoint key).
+    quickml_endpoint: str = (
+        "https://api.catalyst.zoho.in/quickml/v1/project/54121000000013049/glm/chat"
+    )
+    quickml_model: str = "crm-di-glm47b_30b_it"
+    quickml_org: str = "60079941787"
+    quickml_token: str = ""       # Zoho OAuth access token (env: QUICKML_TOKEN); or via SDK in AppSail
+    quickml_thinking: bool = False  # GLM "thinking" mode — off for terse, direct SQL/answers
+    quickml_api_key: str = ""     # legacy: only for custom-deployed QuickML endpoints
 
     # Embeddings (ADR-5)
     embed_model: str = "paraphrase-multilingual-MiniLM-L12-v2"
