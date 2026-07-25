@@ -1,5 +1,6 @@
 {
   "name": "anveshak-web",
-  "version": "0.0.1",
-  "homepage": "index.html"
+  "version": "0.0.2",
+  "homepage": "index.html",
+  "404": "404.html"
 }
