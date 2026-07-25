@@ -22,11 +22,15 @@ class Settings(BaseSettings):
     data_seed: int = 42
 
     # LLM (ADR-4). backend = quickml | ollama
+    # NOTE: Qwen 2.5-14B is deprecated on QuickML (migrate by 2026-07-31); the platform's
+    # recommended replacement is GLM-4.7-Flash. Still the mandated Catalyst QuickML path.
     llm_backend: str = "ollama"
     ollama_host: str = "http://localhost:11434"
     ollama_model: str = "qwen2.5:7b"
     quickml_endpoint: str = ""
     quickml_api_key: str = ""
+    quickml_model: str = "glm-4.7-flash"
+    quickml_org: str = ""
 
     # Embeddings (ADR-5)
     embed_model: str = "paraphrase-multilingual-MiniLM-L12-v2"

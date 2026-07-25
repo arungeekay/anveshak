@@ -6,6 +6,7 @@
   "env_variables": {
     "ENVIRONMENT": "prod",
     "LLM_BACKEND": "quickml",
+    "QUICKML_MODEL": "glm-4.7-flash",
     "EMBED_MODEL": "paraphrase-multilingual-MiniLM-L12-v2",
     "DUCKDB_PATH": "build/anveshak.duckdb",
     "AGENTS_RUNNER": "local",

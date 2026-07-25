@@ -92,16 +92,17 @@ def _quickml_chat(msgs: list[Message], temperature: float, max_tokens: int) -> C
     headers = {
         "Content-Type": "application/json",
         "X-QUICKML-ENDPOINT-KEY": settings.quickml_api_key,
-        "CATALYST-ORG": settings.catalyst_project_id,
+        "CATALYST-ORG": settings.quickml_org or settings.catalyst_project_id,
         "Environment": "Development",
     }
-    payload = {"messages": msgs, "temperature": temperature, "max_tokens": max_tokens}
+    payload = {"model": settings.quickml_model, "messages": msgs,
+               "temperature": temperature, "max_tokens": max_tokens}
     data = _post_with_retry(settings.quickml_endpoint, payload, headers=headers)
     usage = data.get("usage", {}) if isinstance(data, dict) else {}
     text = _extract_text(data)
-    log.info("quickml chat prompt_tokens=%s completion_tokens=%s",
-             usage.get("prompt_tokens"), usage.get("completion_tokens"))
-    return ChatResult(text=text, backend="quickml", model="qwen2.5-14b-instruct",
+    log.info("quickml chat model=%s prompt_tokens=%s completion_tokens=%s",
+             settings.quickml_model, usage.get("prompt_tokens"), usage.get("completion_tokens"))
+    return ChatResult(text=text, backend="quickml", model=settings.quickml_model,
                       prompt_tokens=int(usage.get("prompt_tokens", 0)),
                       completion_tokens=int(usage.get("completion_tokens", 0)))
 

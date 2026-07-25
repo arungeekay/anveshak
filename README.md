@@ -26,7 +26,7 @@ flowchart LR
   TOOLS --> DUCK
   BE <-->|system of record| DS[(Catalyst Data Store)]
   DS -->|boot mirror| DUCK
-  NL --> LLM[LLM adapter → QuickML Qwen2.5-14B / Ollama dev]
+  NL --> LLM[LLM adapter → QuickML GLM-4.7-Flash / Ollama dev]
   BE --> AG[6-agent Investigation Cell · SSE]
   AG --> PDF[SmartBrowz → Investigation Pack PDF]
   CRON[Cron · Night Patrol] --> BE
@@ -91,9 +91,10 @@ python -m eval.harness               # NL→SQL gold-vs-gold sanity (100%)
 ```
 
 **LLM backend (ADR-4):** set `LLM_BACKEND=quickml` with the Catalyst QuickML LLM-Serving
-endpoint (Qwen 2.5-14B Instruct) for the deployed app; `LLM_BACKEND=ollama`
-(`qwen2.5:7b`) is the local dev fallback. No external inference API is ever called from
-the deployed app.
+endpoint for the deployed app; `LLM_BACKEND=ollama` (`qwen2.5:7b`) is the local dev
+fallback. No external inference API is ever called from the deployed app. *(Model note:
+Qwen 2.5-14B was deprecated on QuickML mid-2026; ANVESHAK serves the platform's
+recommended replacement, **GLM-4.7-Flash**, via the same QuickML LLM-Serving path.)*
 
 ## Catalyst services
 
