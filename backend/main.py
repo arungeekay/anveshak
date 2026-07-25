@@ -1,7 +1,7 @@
 """ANVESHAK FastAPI application entrypoint (Catalyst AppSail)."""
 from __future__ import annotations
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from . import __version__
@@ -58,9 +58,11 @@ def health() -> dict:
 
 
 @app.get("/internal/llm/diag")
-def llm_diag() -> dict:
+def llm_diag(request: Request) -> dict:
     """TEMP diagnostic: surface exactly why the QuickML/GLM SDK call fails in AppSail."""
     import traceback
+
+    from .llm.adapter import _HeaderReq
 
     out: dict = {"model": settings.quickml_model, "endpoint": settings.quickml_endpoint}
     try:
@@ -68,7 +70,7 @@ def llm_diag() -> dict:
         from zcatalyst_sdk._http_client import AuthorizedHttpClient
         from zcatalyst_sdk.quick_ml import CatalystService, CredentialUser
 
-        zapp = zcatalyst_sdk.initialize()
+        zapp = zcatalyst_sdk.initialize(req=_HeaderReq(request.headers.raw))
         out["initialize"] = "ok"
         client = AuthorizedHttpClient(zapp)
         payload = {"model": settings.quickml_model,

@@ -7,11 +7,12 @@ from __future__ import annotations
 
 import logging
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 
 from ..audit import write_audit
 from ..db import db_status, get_connection
 from ..llm.adapter import LLMError
+from ..llm.request_ctx import current_request
 from ..models import ChatRequest
 from ..nl2sql import engine
 from ..nl2sql.router import route
@@ -65,7 +66,8 @@ def _run_sql_path(con, req: ChatRequest, audit) -> dict:
 
 
 @router.post("/api/chat")
-def chat(req: ChatRequest) -> dict:
+def chat(req: ChatRequest, request: Request) -> dict:
+    current_request.set(request)  # lets the LLM adapter reach Catalyst auth headers
     if db_status()["db"] != "loaded":
         return {"error": "The crime database is not loaded on this server.",
                 "suggestion": "Build the DuckDB mirror (data_engine) or restart the app."}

@@ -100,16 +100,29 @@ def _quickml_token() -> str:
         return ""
 
 
+class _HeaderReq:
+    """Minimal request wrapper exposing .headers with the ORIGINAL header case, so the
+    SDK's `dict(request.headers)` sees Catalyst's headers exactly as sent."""
+
+    def __init__(self, raw_headers) -> None:
+        self.headers = {k.decode("latin-1"): v.decode("latin-1") for k, v in raw_headers}
+
+
 def _quickml_via_sdk(payload: dict, org: str) -> dict | None:
     """Call the GLM endpoint through the Catalyst SDK's authorized client, which
-    injects the Zoho OAuth token automatically inside AppSail. Returns None if the
-    SDK/app context is unavailable (e.g. local dev)."""
+    injects the admin OAuth token (from the incoming request's Catalyst headers)
+    automatically inside AppSail. Returns None if no request context / SDK is present."""
+    from .request_ctx import current_request
+
+    req = current_request.get()
+    if req is None:
+        return None
     try:
         import zcatalyst_sdk
         from zcatalyst_sdk._http_client import AuthorizedHttpClient
         from zcatalyst_sdk.quick_ml import CatalystService, CredentialUser
 
-        app = zcatalyst_sdk.initialize()
+        app = zcatalyst_sdk.initialize(req=_HeaderReq(req.headers.raw))
         client = AuthorizedHttpClient(app)
         resp = client.request(
             method="POST", url=settings.quickml_endpoint,
