@@ -28,10 +28,20 @@ def _find(message: str, options: list[str]) -> str | None:
 
 def resolve_person(con, message: str) -> str | None:
     low = message.lower()
-    for pk, name in con.execute("SELECT person_key, full_name FROM PersonRegistry").fetchall():
-        if name and name.lower() in low:
-            return pk
-    return None
+    matches = [pk for pk, name in
+               con.execute("SELECT person_key, full_name FROM PersonRegistry").fetchall()
+               if name and name.lower() in low]
+    if not matches:
+        return None
+    if len(matches) == 1:
+        return matches[0]
+    # Name shared by several people -> pick the most-connected (the notable one),
+    # so "Prakash Rao" resolves to the 14-case fraud hub, not a background namesake.
+    ph = ",".join("?" for _ in matches)
+    ranked = con.execute(
+        f"SELECT person_key, COUNT(*) n FROM vw_accused_history WHERE person_key IN ({ph}) "
+        f"GROUP BY person_key ORDER BY n DESC", matches).fetchall()
+    return ranked[0][0] if ranked else matches[0]
 
 
 def route(con, message: str) -> tuple[str, dict]:

@@ -126,6 +126,10 @@ def compose_answer(question: str, columns: list[str], rows: list, lang: str) -> 
         return _fallback(columns, rows, lang)
     lang_name = "Kannada" if lang == "kn" else "English"
     scalar = len(rows) == 1 and len(columns) == 1
+    if scalar and lang == "kn":
+        # GLM's Kannada free-form narration is unreliable (can swap the subject); use a
+        # safe template. The evidence drawer + chart carry the full context.
+        return f"ಫಲಿತಾಂಶ: {rows[0][0]}"
     if scalar:
         value = rows[0][0]
         payload = f"The answer is exactly: {value}"
