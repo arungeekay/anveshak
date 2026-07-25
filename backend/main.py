@@ -66,3 +66,19 @@ def mirror_rebuild() -> dict:
 
     reset_connection()
     return {"status": "rebuilt", **db_status()}
+
+
+# --- Frontend (SPA) served from the AppSail origin ------------------------------
+# Catalyst Web Client Hosting sits behind an API Gateway that intercepts every .html
+# request on the *.catalystserverless.in domain, so the SPA cannot be served there
+# while the gateway is enabled. The AppSail domain (*.catalystappsail.in) is raw
+# FastAPI with no such interception, so we additionally serve the built bundle here
+# at /ui. The bundle calls the API same-origin (relative /api/*), so no CORS hop.
+# Guarded: if the dist folder isn't bundled, the API still runs unaffected.
+import os as _os  # noqa: E402
+
+from fastapi.staticfiles import StaticFiles  # noqa: E402
+
+_UI_DIR = _os.getenv("UI_DIR", "frontend/dist")
+if _os.path.isdir(_UI_DIR):
+    app.mount("/ui", StaticFiles(directory=_UI_DIR, html=True), name="ui")

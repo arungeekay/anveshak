@@ -21,6 +21,9 @@ COPY backend ./backend
 COPY data_engine ./data_engine
 COPY schema ./schema
 COPY build/anveshak.duckdb ./build/anveshak.duckdb
+# Built SPA bundle, served by FastAPI at /ui (Web Client Hosting is blocked by the
+# API Gateway's .html interception; the AppSail domain serves it cleanly).
+COPY frontend/dist ./frontend/dist
 
 ENV DUCKDB_PATH=build/anveshak.duckdb \
     LLM_BACKEND=quickml \
