@@ -15,7 +15,6 @@ from pathlib import Path
 
 import numpy as np
 import yaml
-from sklearn.cluster import HDBSCAN
 
 CONFIG_PATH = Path(__file__).resolve().parent / "config.yaml"
 SP1_DISTRICTS = {"Bengaluru City", "Tumakuru", "Mandya"}
@@ -102,6 +101,8 @@ def _cluster_subhead(idx: list[int], data: dict, cfg: dict) -> dict[int, list[in
     dist = np.clip(1.0 - combined, 0.0, 1.0)
     dist = (dist + dist.T) / 2
     np.fill_diagonal(dist, 0.0)
+
+    from sklearn.cluster import HDBSCAN  # lazy import: keeps app startup fast for AppSail
 
     labels = HDBSCAN(
         metric="precomputed",

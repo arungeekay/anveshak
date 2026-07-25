@@ -38,6 +38,12 @@ app.include_router(leads_api.router)
 app.include_router(audit_api.router)
 
 
+@app.get("/")
+def root() -> dict:
+    """Root route — Catalyst's readiness probe hits '/', so it must return 200."""
+    return {"service": "anveshak-api", "status": "ok", "docs": "/api/health"}
+
+
 @app.get("/api/health")
 def health() -> dict:
     """Liveness + data-layer status."""
