@@ -91,3 +91,5 @@ video/node_modules/
 video/frames/
 video/package-lock.json
 video/out/
+deck_png/
+video/shots-tmp/

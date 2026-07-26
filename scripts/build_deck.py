@@ -14,6 +14,7 @@ import copy
 
 from pptx import Presentation
 from pptx.dml.color import RGBColor
+from pptx.enum.text import PP_ALIGN
 from pptx.util import Emu, Pt
 
 TEMPLATE = "KSP Datathon 2026 _ Prototype Submission Template (1).pptx"
@@ -23,17 +24,28 @@ LIVE_URL = "https://anveshak-api-50044329134.development.catalystappsail.in/ui/"
 API_URL = "https://anveshak-api-50044329134.development.catalystappsail.in"
 GITHUB = "https://github.com/arungeekay/anveshak"
 
-WHITE = RGBColor(0xFF, 0xFF, 0xFF)
-BODY = RGBColor(0xCF, 0xD8, 0xE6)     # light slate
-ACCENT = RGBColor(0x5A, 0xB0, 0xFF)   # blue — for metrics / emphasis
-MUTED = RGBColor(0x8A, 0x97, 0xA8)    # placeholders / captions
-GOOD = RGBColor(0x5A, 0xD6, 0x9C)     # green — live / confirmed
+# Palette tuned for the template's WHITE content background (dark text on white).
+# (Names kept for minimal churn; "WHITE" now means the dark emphasis ink.)
+WHITE = RGBColor(0x0B, 0x1F, 0x3A)    # dark navy — headings / emphasis
+BODY = RGBColor(0x2B, 0x37, 0x4B)     # dark slate — body copy
+ACCENT = RGBColor(0x1D, 0x4E, 0xD8)   # blue-700 — metrics / links / emphasis
+MUTED = RGBColor(0x64, 0x74, 0x8B)    # slate-500 — captions / placeholders
+GOOD = RGBColor(0x04, 0x78, 0x55)     # emerald-700 — live / confirmed
 
 # body text box geometry (below the heading), in inches
 BODY_LEFT, BODY_TOP, BODY_W, BODY_H = 0.55, 1.55, 8.95, 3.75
 
 
 def add_body(slide):
+    # The template's prompt box sometimes carries multi-line guidance (e.g. the
+    # Opportunities sub-questions, the Links numbered list) that would sit right where
+    # our body goes. Trim that box to just its first line (the section title) so our
+    # body never collides with leftover prompt text.
+    for sh in slide.shapes:
+        if sh.has_text_frame and sh.text_frame.text.strip():
+            for p in list(sh.text_frame.paragraphs)[1:]:
+                p._p.getparent().remove(p._p)
+            break
     tb = slide.shapes.add_textbox(
         Emu(int(BODY_LEFT * 914400)), Emu(int(BODY_TOP * 914400)),
         Emu(int(BODY_W * 914400)), Emu(int(BODY_H * 914400)))
@@ -62,6 +74,51 @@ def para(tf, text, *, size=12, color=BODY, bold=False, level=0, bullet=False,
         r.font.bold = b
         r.font.name = "Calibri"
     return p
+
+
+SHOTS = [
+    ("video/shots/01_leadfeed.png", "Night Patrol — proactive leads"),
+    ("video/shots/02_chat_evidence.png", "Chat — answer + evidence (SQL)"),
+    ("video/shots/03_series.png", "Serial linkage — SH-07"),
+    ("video/shots/04_pack.png", "Investigation Pack — 6 agents"),
+    ("video/shots/05_graph.png", "CrimeGraph — fraud hub"),
+    ("video/shots/06_kannada.png", "Bilingual — ಕನ್ನಡ + English"),
+]
+
+
+def _place_shots(slide):
+    """Lay the six live-app screenshots in a 3x2 grid with captions under each."""
+    import os as _os
+    EMU = 914400
+    cols, gap = 3, 0.18
+    left0, top0 = 0.35, 1.48
+    iw = (9.3 - gap * (cols - 1)) / cols          # image width in inches
+    ih = iw * 9 / 16                               # 16:9
+    cap_h, row_gap = 0.26, 0.16
+    for i, (path, caption) in enumerate(SHOTS):
+        if not _os.path.exists(path):
+            continue
+        r, c = divmod(i, cols)
+        x = left0 + c * (iw + gap)
+        y = top0 + r * (ih + cap_h + row_gap)
+        slide.shapes.add_picture(path, Emu(int(x * EMU)), Emu(int(y * EMU)),
+                                 Emu(int(iw * EMU)), Emu(int(ih * EMU)))
+        tb = slide.shapes.add_textbox(Emu(int(x * EMU)), Emu(int((y + ih + 0.01) * EMU)),
+                                      Emu(int(iw * EMU)), Emu(int(cap_h * EMU)))
+        p = tb.text_frame.paragraphs[0]
+        p.alignment = PP_ALIGN.CENTER
+        r0 = p.add_run(); r0.text = caption
+        r0.font.size = Pt(9.5); r0.font.color.rgb = BODY; r0.font.name = "Calibri"
+
+
+def _delete_slide_by_text(prs, marker):
+    """Remove the first slide whose text equals `marker` (e.g. the 'Blank slide')."""
+    for i, s in enumerate(prs.slides):
+        if any(sh.has_text_frame and sh.text_frame.text.strip() == marker for sh in s.shapes):
+            lst = prs.slides._sldIdLst
+            lst.remove(list(lst)[i])
+            return True
+    return False
 
 
 def fill_team(slide):
@@ -247,20 +304,8 @@ def main():
     para(tf, "Embeddings are precomputed at data-generation time, so runtime needs no "
              "GPU / heavy inference for search.", bullet=True)
 
-    # Slide 10 — Snapshots
-    tf = add_body(S[10])
-    para(tf, "Add screenshots from the live prototype (suggested captures):", size=12,
-         color=WHITE, bold=True, first=True, space=8)
-    for cap in [
-        "Chat — English answer + evidence drawer (SQL, rows, case IDs).",
-        "Chat — a Kannada question answered.",
-        "Series — SH-07 discovered (confidence 0.88, 15 linked cases).",
-        "CrimeGraph — the Prakash Rao hub network.",
-        "Investigation Room — six agents streaming, then the assembled pack.",
-        "Lead Feed — Whitefield spike + repeat-offender Lead Cards.",
-    ]:
-        para(tf, cap, bullet=True, size=11.5, color=BODY)
-    para(tf, f"Live app: {LIVE_URL}", size=11, color=ACCENT, space=2)
+    # Slide 10 — Snapshots (real screenshots of the live app in a 3x2 grid)
+    _place_shots(S[10])
 
     # Slide 11 — Performance / benchmarking
     tf = add_body(S[11])
@@ -302,8 +347,9 @@ def main():
     ]:
         para(tf, line, bullet=True, size=11.5, color=BODY)
 
+    removed = _delete_slide_by_text(prs, "Blank slide")
     prs.save(OUT)
-    print(f"wrote {OUT}  ({len(S)} slides)")
+    print(f"wrote {OUT}  ({len(prs.slides)} slides, blank removed={removed})")
 
 
 if __name__ == "__main__":
