@@ -80,6 +80,20 @@ async def stream(run_id: str):
     return EventSourceResponse(gen())
 
 
+@router.get("/api/investigate/{series_id}/pack")
+def get_pack(series_id: str) -> dict:
+    """Return the assembled pack for a series (JSON), matching the SSE pack_ready
+    payload. The AppSail gateway can sever a long SSE before pack_ready fires, but the
+    stream's worker thread finishes and caches the pack here — so the UI falls back to
+    polling this endpoint. Returns pack=None while it's still being assembled."""
+    pack = _packs.get(series_id)
+    return {
+        "pack_id": None,
+        "pdf_url": f"/api/investigate/pack/{series_id}.html" if pack else None,
+        "pack": pack,
+    }
+
+
 def _build_pack(con, series_id: str) -> dict | None:
     for event, data in investigate(con, series_id):
         if event == "pack_ready":

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { apiBase, apiPost, openInvestigationStream } from "../lib/api.js";
+import { apiBase, apiGet, apiPost, openInvestigationStream } from "../lib/api.js";
 
 const AGENTS = ["case_officer", "records_analyst", "network_specialist",
   "crime_historian", "legal_advisor", "forecaster"];
@@ -19,23 +19,40 @@ export default function Investigation() {
 
   async function start() {
     setSteps({}); setPack(null); setErr(null); setRunning(true);
+    const sid = seriesId;
     let run_id;
     try {
-      ({ run_id } = await apiPost("/api/investigate", { series_id: seriesId }));
+      ({ run_id } = await apiPost("/api/investigate", { series_id: sid }));
     } catch (e) {
       setErr(`Could not start investigation: ${e.message}`);
       setRunning(false);
       return;
     }
+    const markAllDone = () =>
+      setSteps((s) => Object.fromEntries(AGENTS.map((a) => [a, { ...(s[a] || {}), status: "done" }])));
+    let gotPack = false;
+    const landPack = (data) => { gotPack = true; markAllDone(); setPack(data); setRunning(false); };
     openInvestigationStream(run_id,
       (name, data) => {
         if (name === "agent_step") {
           setSteps((s) => ({ ...s, [data.agent]: { ...(s[data.agent] || {}), status: data.status, thought: data.thought_summary || s[data.agent]?.thought } }));
-        } else if (name === "pack_ready") {
-          setPack(data); setRunning(false);
+        } else if (name === "pack_ready" && data.pack) {
+          landPack(data);
         }
       },
-      () => setRunning(false));
+      // The gateway can cut a long SSE before pack_ready fires; the pack is still
+      // being assembled server-side. Poll the cached pack as a fallback.
+      async () => {
+        if (gotPack) return;
+        for (let i = 0; i < 24 && !gotPack; i++) {
+          await new Promise((r) => setTimeout(r, 3000));
+          try {
+            const p = await apiGet(`/api/investigate/${sid}/pack`);
+            if (p && p.pack) { landPack(p); return; }
+          } catch { /* keep polling */ }
+        }
+        setRunning(false);
+      });
   }
 
   return (
