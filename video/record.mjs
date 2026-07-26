@@ -64,8 +64,14 @@ async function card(page, { kicker = '', head = '', para = '', foot = '' }, ms =
   await sleep(450);
 }
 async function nav(page, label) {
-  await page.locator('nav a', { hasText: label }).first().click();
+  const link = page.locator('nav a', { hasText: label }).first();
+  await link.waitFor({ state: 'visible', timeout: 30000 });
+  await link.click();
   await sleep(800);
+}
+async function scene(name, fn) {
+  try { await fn(); }
+  catch (e) { console.log(`scene "${name}" issue: ${e.message.split('\n')[0]}`); }
 }
 
 async function main() {
@@ -78,8 +84,12 @@ async function main() {
   page.setDefaultTimeout(90000);
 
   await page.goto(BASE, { waitUntil: 'networkidle' });
+  // Ensure the SPA has actually rendered (nav present) before driving it.
+  await page.locator('nav a').first().waitFor({ state: 'visible', timeout: 60000 });
   await installOverlay(page);
 
+  let shown = false; // whether the Investigation Pack rendered (scene 5)
+  try {
   // ===== INTRO CARD =====
   await card(page, {
     kicker: 'KSP Datathon 2026 · Challenge 1',
@@ -134,7 +144,6 @@ async function main() {
   // Poll for the actual pack heading (an <h3> — won't collide with caption text).
   const packHeading = page.locator('h3', { hasText: 'Investigation Pack' });
   const t0 = Date.now();
-  let shown = false;
   while (Date.now() - t0 < 85000) {
     if (await packHeading.count() > 0) { shown = true; break; }
     await sleep(1500);
@@ -182,10 +191,13 @@ async function main() {
     para: 'Faster answers · serial crime caught across districts · court-ready packs in minutes · proactive leads every morning',
     foot: 'Team Zen — Hiran Vikraman S R · Arun G K   |   github.com/arungeekay/anveshak   |   100% on Zoho Catalyst',
   }, 6500);
-
-  await page.close();
-  await ctx.close();
-  await browser.close();
+  } catch (e) {
+    console.log('scene error (finalizing anyway):', e.message.split('\n')[0]);
+  } finally {
+    await page.close().catch(() => {});
+    await ctx.close().catch(() => {});
+    await browser.close().catch(() => {});
+  }
   const files = fs.readdirSync(OUT).filter((f) => f.endsWith('.webm'));
   if (files.length) {
     const newest = files.map((f) => ({ f, t: fs.statSync(`${OUT}/${f}`).mtimeMs }))
