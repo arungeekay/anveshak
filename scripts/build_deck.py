@@ -72,8 +72,8 @@ def fill_team(slide):
         ("Team Details", WHITE, True, 17),
         ("", BODY, False, 6),
         ("Team name:  Team Zen", BODY, False, 14),
-        ("Team leader name:  (add before submitting)", MUTED, False, 14),
-        ("Team size:  (add before submitting)", MUTED, False, 14),
+        ("Team leader name:  Hiran Vikraman S R", BODY, False, 14),
+        ("Team size:  2   (Hiran Vikraman S R · Arun G K)", BODY, False, 14),
         ("Problem Statement:  Challenge 1 — Intelligent Conversational AI for the "
          "KSP Crime Database. Enable officers to query the FIR/crime database in "
          "natural language (English & Kannada) and get accurate, evidence-grounded "
@@ -92,20 +92,23 @@ def main():
 
     # Slide 1 — Brief about the solution
     tf = add_body(S[1])
-    para(tf, [("ANVESHAK (ಅನ್ವೇಷಕ", WHITE, True), (" = “the investigator”) is an "
-              "autonomous AI investigation bureau over the KSP crime database — not just "
-              "a chatbot.", BODY, False)], size=13, first=True, space=8)
-    para(tf, "Officers ask in Kannada or English, by voice or text. Every answer is "
-             "grounded in verified SQL with a visible evidence drawer (SQL + rows + case IDs).",
-         bullet=True)
+    para(tf, [("ANVESHAK (ಅನ್ವೇಷಕ", WHITE, True), (" = “the investigator”) turns the KSP "
+              "crime database into an ", BODY, False),
+              ("AI investigation partner", WHITE, True),
+              (" — not just a chatbot.", BODY, False)], size=13, first=True, space=8)
+    para(tf, [("Ask in Kannada or English, by voice or text — get an answer in seconds, ", BODY, False),
+              ("with the evidence", WHITE, True), (" (SQL + rows + case IDs) attached. No SQL "
+              "skills, no analyst queue.", BODY, False)], bullet=True)
     para(tf, [("Deterministic tools compute; the LLM only narrates", WHITE, True),
-              (" — so every number traces to a tool result. No hallucinated statistics.", BODY, False)],
+              (" — every number traces to a tool result. Zero hallucinated statistics — "
+               "essential for policing.", BODY, False)], bullet=True)
+    para(tf, "It doesn’t stop at answers — it works cases: links serial crime across "
+             "districts, runs a 6-agent cell that assembles court-ready packs, traverses a "
+             "crime knowledge graph, and sweeps overnight to raise leads before anyone asks.",
          bullet=True)
-    para(tf, "Beyond Q&A it works cases: cross-district serial-crime linkage, a 6-agent "
-             "investigation cell that assembles court-ready packs, a crime knowledge graph, "
-             "and an autonomous Night Patrol that raises leads before anyone asks.", bullet=True)
-    para(tf, [("Runs 100% on Zoho Catalyst.", GOOD, True),
-              (f"  Live: {LIVE_URL}", ACCENT, False)], bullet=True, space=2)
+    para(tf, [("Impact: minutes instead of days, catches siloed records miss, and "
+               "proactive leads every morning. ", WHITE, True),
+              ("Runs 100% on Zoho Catalyst.", GOOD, True)], bullet=True, space=2)
 
     # Slide 2 — Opportunities / differentiation / USP
     tf = add_body(S[2])
@@ -124,9 +127,14 @@ def main():
     para(tf, [("Built for real officers: ", WHITE, True),
               ("bilingual (Kannada + English) with browser voice, government-grade UI.", BODY, False)],
          bullet=True)
+    para(tf, [("Where it makes a difference: ", WHITE, True),
+              ("a constable at a rural station gets a statewide answer in Kannada in "
+               "seconds · an SP spots a serial ring crossing Mandya into Bengaluru before "
+               "the next strike · an IO gets a first-draft, court-ready pack in minutes · "
+               "a control room sees tomorrow’s hotspot tonight.", BODY, False)], size=11, space=6)
     para(tf, [("USP:  ", ACCENT, True),
               ("“Ask a question, get a verified answer with evidence — and let the AI "
-               "work the case end-to-end to a court-ready pack.”", WHITE, False)], space=2)
+               "work the case end-to-end to a court-ready pack.”", WHITE, False)], size=11.5, space=2)
 
     # Slide 3 — List of features
     tf = add_body(S[3])

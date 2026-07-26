@@ -85,3 +85,8 @@ Thumbs.db
 #     (The demo CHOREOGRAPHY — demo_story.md beats, golden path — stays private.)
 # ============================================================================
 client/assets/
+
+# demo video tooling
+video/node_modules/
+video/frames/
+video/package-lock.json
