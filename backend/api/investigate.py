@@ -1,10 +1,12 @@
 """Investigation Cell endpoints (contracts.md §4): POST /api/investigate + SSE stream."""
 from __future__ import annotations
 
+import asyncio
 import itertools
 import json
+import logging
+import threading
 
-import anyio
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
@@ -15,6 +17,7 @@ from ..db import get_connection
 from ..pdf.pack_render import render_pack_html
 
 router = APIRouter()
+log = logging.getLogger("anveshak.investigate")
 
 _counter = itertools.count(1)
 _runs: dict[str, str] = {}     # run_id -> series_id
@@ -40,30 +43,38 @@ async def stream(run_id: str):
     series_id = _runs.get(run_id)
     if not series_id:
         raise HTTPException(status_code=404, detail="unknown run_id")
-    con = get_connection()
 
     async def gen():
         # investigate() is a synchronous generator that runs heavy CPU work (SARIMA,
-        # HDBSCAN, betweenness) between yields. Stepping it inline would block the
-        # event loop and stall health checks / other tabs for the whole run, so we
-        # advance it one step at a time in a worker thread. Steps are awaited
-        # sequentially, so the shared DuckDB cursor is never touched concurrently.
-        it = investigate(con, series_id)
+        # HDBSCAN, betweenness) between yields. Run the WHOLE generator in one
+        # dedicated worker thread and hand events to the event loop via a thread-safe
+        # queue. One thread => the generator opens its own thread-local DuckDB cursor
+        # (get_connection is called inside the worker) and never shares a cursor
+        # across threads; the event loop stays free the entire run.
+        loop = asyncio.get_running_loop()
+        q: asyncio.Queue = asyncio.Queue()
         _END = object()
 
-        def _step():
+        def worker():
             try:
-                return next(it)
-            except StopIteration:
-                return _END
+                con = get_connection()  # cursor bound to THIS worker thread
+                for event, data in investigate(con, series_id):
+                    if event == "pack_ready" and data.get("pack"):
+                        _packs[series_id] = data["pack"]
+                    loop.call_soon_threadsafe(q.put_nowait, (event, data))
+            except Exception as exc:  # noqa: BLE001 - surface as a stream error, don't hang
+                log.warning("investigation stream failed for %s: %s", series_id, exc)
+                loop.call_soon_threadsafe(
+                    q.put_nowait, ("error", {"detail": "investigation failed"}))
+            finally:
+                loop.call_soon_threadsafe(q.put_nowait, _END)
 
+        threading.Thread(target=worker, name=f"invest-{series_id}", daemon=True).start()
         while True:
-            item = await anyio.to_thread.run_sync(_step)
+            item = await q.get()
             if item is _END:
                 break
             event, data = item
-            if event == "pack_ready" and data.get("pack"):
-                _packs[series_id] = data["pack"]
             yield {"event": event, "data": json.dumps(data)}
 
     return EventSourceResponse(gen())
