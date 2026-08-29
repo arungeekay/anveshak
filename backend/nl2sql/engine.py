@@ -12,8 +12,8 @@ from pathlib import Path
 
 import yaml
 
-from ..llm import adapter
 from ..auth.scope import scope_sql
+from ..llm import adapter
 from . import guardrails, policy
 from .schema_card import build_prompt
 

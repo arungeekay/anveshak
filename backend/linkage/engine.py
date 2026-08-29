@@ -16,6 +16,8 @@ from pathlib import Path
 import numpy as np
 import yaml
 
+from . import naming
+
 CONFIG_PATH = Path(__file__).resolve().parent / "config.yaml"
 SP1_DISTRICTS = {"Bengaluru City", "Tumakuru", "Mandya"}
 
@@ -148,13 +150,25 @@ def _build_hypothesis(members_local: list[int], ctx: dict, data: dict, cfg: dict
         for key in ("vehicle", "target", "tod_bucket"):
             if fa.get(key) and fa.get(key) == fb.get(key):
                 shared.append(f"{key}:{fa[key]}")
+        # Name what the engine matched on, in words an officer can check against
+        # the FIRs — a cosine alone is not auditable evidence (F-15).
+        shared_map = {k.split(":", 1)[0]: k.split(":", 1)[1] for k in shared if ":" in k}
         links.append({
             "case_a": int(data["case_id"][ga]), "case_b": int(data["case_id"][gb]),
             "cosine": round(float(cos[a, b]), 3), "shared_features": shared,
+            "explanation": naming.explain_link(list(shared_map), shared_map),
             "evidence_phrases": _phrases(data["brief"][ga], data["brief"][gb]),
         })
 
-    return {
+    # The MO features shared by most members — what the series is "about".
+    member_feats = [ctx["feats"][i] for i in members_local]
+    dominant = {}
+    for key in ("vehicle", "target", "entry", "weapon", "tod_bucket"):
+        vals = [f.get(key) for f in member_feats if f.get(key)]
+        if vals:
+            dominant[key] = max(set(vals), key=vals.count)
+
+    hyp = {
         "case_ids": sorted(case_ids),
         "confidence": round(confidence, 3),
         "crime_sub_head": sub_head,
@@ -164,7 +178,9 @@ def _build_hypothesis(members_local: list[int], ctx: dict, data: dict, cfg: dict
         "links": links,
         "status": "open",
         "linked_person_keys": [],
+        "mo_features": dominant,
     }
+    return hyp
 
 
 def _mo_summary(ctx: dict, members_local: list[int]) -> str:
@@ -225,4 +241,8 @@ def discover(con) -> list[dict]:
             h = _build_hypothesis(members, ctx, data, cfg)
             if h["confidence"] >= cfg["confidence_floor"]:
                 hyps.append(h)
-    return _assign_ids(hyps)
+    hyps = _assign_ids(hyps)
+    # Codenames are assigned after ids so collisions can be broken
+    # deterministically (F-15).
+    naming.assign_codenames(hyps)
+    return hyps
