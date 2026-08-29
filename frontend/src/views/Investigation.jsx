@@ -109,10 +109,13 @@ function PackView({ pack, pdfUrl }) {
 
       <Section title="Ranked Suspects">
         {(pack.suspects_ranked || []).slice(0, 5).map((s) => (
-          <div key={s.person_key} className="mb-1 flex items-center justify-between text-sm">
-            <span>{s.name} <span className="text-xs text-slate-500">{s.person_key}</span></span>
+          <a key={s.person_key} href={`#/person/${s.person_key}`}
+            className="mb-1 flex items-center justify-between rounded px-1 text-sm hover:bg-navy-800">
+            <span className="underline decoration-navy-700 underline-offset-2">
+              {s.name} <span className="text-xs text-slate-500">{s.person_key}</span>
+            </span>
             <span className="font-semibold text-red-400">risk {s.risk?.score}</span>
-          </div>
+          </a>
         ))}
       </Section>
 
