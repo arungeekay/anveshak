@@ -73,6 +73,18 @@ def main() -> None:
             os.environ["DUCKDB_PATH"] = dst
         except Exception:  # noqa: BLE001 - fall back to the read-only bundled path
             pass
+        # Fail loudly at boot if the bundled database is unusable. A torn copy
+        # (the image built while something held the file open) otherwise presents
+        # as every endpoint 500ing with no obvious cause.
+        try:
+            import duckdb
+            probe = duckdb.connect(os.environ.get("DUCKDB_PATH", src), read_only=True)
+            n = probe.execute("SELECT COUNT(*) FROM CaseMaster").fetchone()[0]
+            probe.close()
+            log.info("database ok: %s cases", n)
+        except Exception as exc:  # noqa: BLE001
+            log.error("BUNDLED DATABASE IS UNUSABLE (%s) — the image was probably "
+                      "built from a mid-write copy; re-run scripts/stage_db.py", exc)
     # Kick off cache warming so the container is demo-ready shortly after boot; the
     # server starts serving immediately (health/root respond while warming runs).
     threading.Thread(target=_prewarm, name="prewarm", daemon=True).start()

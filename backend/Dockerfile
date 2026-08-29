@@ -20,7 +20,11 @@ RUN pip install -r requirements.txt
 COPY backend ./backend
 COPY data_engine ./data_engine
 COPY schema ./schema
-COPY build/anveshak.duckdb ./build/anveshak.duckdb
+# Ship the VERIFIED SNAPSHOT, never the live build/anveshak.duckdb: that file is
+# the one local tests and dev servers write to, and a build started while anything
+# held it open once baked a torn database into the image (deployed app came up with
+# db: error, cases: 0). `python scripts/stage_db.py` verifies before staging.
+COPY build/deploy/anveshak.duckdb ./build/anveshak.duckdb
 # Built SPA bundle, served by FastAPI at /ui (Web Client Hosting is blocked by the
 # API Gateway's .html interception; the AppSail domain serves it cleanly).
 COPY frontend/dist ./frontend/dist

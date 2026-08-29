@@ -94,3 +94,4 @@ video/out/
 deck_png/
 video/shots-tmp/
 catalyst-debug.log
+build/deploy/
