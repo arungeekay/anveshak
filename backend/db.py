@@ -5,6 +5,7 @@ Catalyst Data Store on AppSail startup. Runtime queries (NL->SQL, tools) run her
 """
 from __future__ import annotations
 
+import datetime as _dt
 import threading
 from pathlib import Path
 
@@ -46,6 +47,39 @@ def get_connection() -> duckdb.DuckDBPyConnection:
             _local.cursor = cur
             _local.gen = gen
         return cur
+
+
+_data_max_date: _dt.date | None = None
+
+
+def data_max_date(con=None) -> _dt.date:
+    """The dataset's most recent FIR date — the anchor for every relative window.
+
+    Detectors ("last 14 days"), recency scoring and demo narratives must measure
+    from the data's own end, never from the wall clock: the corpus ends 2026-07-20,
+    so a wall-clock anchor would find an empty window at any later demo date
+    (FINALE_PLAN F-02). Derived from the data rather than hardcoded so that FIR
+    intake (F-06) extending the corpus shifts the anchor automatically.
+
+    Cached; call reset_connection() (or reset_data_max_date()) after inserts.
+    """
+    global _data_max_date
+    if _data_max_date is None:
+        con = con or get_connection()
+        row = con.execute("SELECT MAX(CrimeRegisteredDate) FROM CaseMaster").fetchone()
+        val = row[0] if row else None
+        # DuckDB may hand back a datetime; normalise to date. Duck-typed rather than
+        # isinstance() so a monkeypatched datetime class (tests) still converts.
+        if val is not None and hasattr(val, "date") and callable(val.date):
+            val = val.date()
+        _data_max_date = val or _dt.date(2026, 7, 20)  # fallback: known corpus end
+    return _data_max_date
+
+
+def reset_data_max_date() -> None:
+    """Forget the cached anchor (after intake inserts a newer case)."""
+    global _data_max_date
+    _data_max_date = None
 
 
 def db_status() -> dict:

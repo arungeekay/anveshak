@@ -11,11 +11,18 @@ import math
 
 import h3
 
+from ..db import data_max_date
 from ..linkage.store import store
 
-DATA_END = _dt.date(2026, 7, 20)
 WINDOW_DAYS = 14
 START = _dt.date(2023, 1, 1)
+
+
+def _data_end(con=None) -> _dt.date:
+    """Anchor every relative window to the data's last FIR, not the wall clock —
+    the corpus ends 2026-07-20, so a clock anchor finds nothing at demo time
+    (FINALE_PLAN F-02). Derived, so FIR intake shifts it automatically."""
+    return data_max_date(con)
 
 
 def _haversine(lat1, lon1, lat2, lon2) -> float:
@@ -28,7 +35,7 @@ def _haversine(lat1, lon1, lat2, lon2) -> float:
 
 
 def _spike(con) -> list[dict]:
-    cutoff = DATA_END - _dt.timedelta(days=WINDOW_DAYS)
+    cutoff = _data_end(con) - _dt.timedelta(days=WINDOW_DAYS)
     weeks_hist = max((cutoff - START).days / 7.0, 1.0)
     combos = con.execute("""
         SELECT police_station, district, crime_sub_head, COUNT(*) n
@@ -66,7 +73,7 @@ def _spike(con) -> list[dict]:
 
 
 def _series_growth(con) -> list[dict]:
-    cutoff = DATA_END - _dt.timedelta(days=WINDOW_DAYS)
+    cutoff = _data_end(con) - _dt.timedelta(days=WINDOW_DAYS)
     leads = []
     for s in store.all(con):
         recent = con.execute(f"""
@@ -88,8 +95,8 @@ def _series_growth(con) -> list[dict]:
 
 
 def _repeat_offender(con) -> list[dict]:
-    cutoff = DATA_END - _dt.timedelta(days=45)
-    inactive_before = DATA_END - _dt.timedelta(days=60)
+    cutoff = _data_end(con) - _dt.timedelta(days=45)
+    inactive_before = _data_end(con) - _dt.timedelta(days=60)
     # Only offenders who were actually arrested (i.e. could have been released).
     arrested = {r[0] for r in con.execute("""
         SELECT DISTINCT m.person_key FROM ArrestSurrender ar
@@ -144,5 +151,5 @@ def run_detectors(con) -> list[dict]:
     for i, ld in enumerate(leads, 1):
         ld.pop("_z", None)
         ld["lead_id"] = f"L-{i}"
-        ld["created_at"] = DATA_END.isoformat()
+        ld["created_at"] = _data_end(con).isoformat()
     return leads

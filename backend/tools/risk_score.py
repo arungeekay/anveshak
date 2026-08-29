@@ -8,10 +8,8 @@ from __future__ import annotations
 import datetime as _dt
 import math
 
-from ..db import get_connection
+from ..db import data_max_date, get_connection
 from ..graph import engine as graph_engine
-
-DATA_END = _dt.date(2026, 7, 20)
 
 WEIGHTS = {"recency": 0.30, "frequency": 0.35, "gravity": 0.25, "centrality": 0.10}
 RECENCY_TAU_DAYS = 912.0   # ~2.5y decay
@@ -19,7 +17,9 @@ FREQ_SATURATION = 4.0
 
 
 def _as_date(v) -> _dt.date:
-    if isinstance(v, _dt.datetime):
+    # Duck-typed rather than isinstance(v, _dt.datetime): DuckDB's own datetime
+    # subclasses (and a monkeypatched datetime in tests) must both normalise.
+    if v is not None and hasattr(v, "date") and callable(v.date):
         return v.date()
     return v
 
@@ -39,7 +39,8 @@ def risk_score(person_key: str, con=None) -> dict:
     dates = [_as_date(r[1]) for r in rows]
     heinous = sum(1 for r in rows if r[2] == "Heinous")
 
-    days_since = (DATA_END - max(dates)).days
+    # Recency is measured from the data's last FIR, never the wall clock (F-02).
+    days_since = (data_max_date(con) - max(dates)).days
     recency = math.exp(-days_since / RECENCY_TAU_DAYS)   # 1 = very recent
     frequency = min(1.0, len(case_ids) / FREQ_SATURATION)
     gravity = 1.0 if heinous > 0 else 0.5                # any heinous prior => high
