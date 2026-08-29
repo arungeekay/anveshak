@@ -7,13 +7,14 @@ import json
 import logging
 import threading
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
 
 from ..agents.pipeline import investigate
 from ..db import get_connection
+from ..llm.request_ctx import current_request
 from ..pdf.pack_render import render_pack_html
 
 router = APIRouter()
@@ -101,6 +102,31 @@ def _build_pack(con, series_id: str) -> dict | None:
                 _packs[series_id] = data["pack"]
             return data.get("pack")
     return None
+
+
+@router.get("/api/investigate/pack/{series_id}.pdf")
+def pack_pdf_route(series_id: str, request: Request):
+    """Court-ready PDF of the Investigation Pack, rendered by Catalyst SmartBrowz.
+
+    Falls back to the HTML pack (which carries print CSS) when SmartBrowz is
+    unavailable, so the download button is never dead in front of a jury.
+    """
+    from fastapi.responses import RedirectResponse, Response
+
+    from ..pdf.smartbrowz import SmartBrowzUnavailable, pack_pdf
+
+    current_request.set(request)  # SmartBrowz needs the incoming Catalyst headers
+    pack = _packs.get(series_id) or _build_pack(get_connection(), series_id)
+    if not pack:
+        raise HTTPException(status_code=404, detail=f"unknown series {series_id}")
+    try:
+        data = pack_pdf(series_id, render_pack_html(pack))
+    except SmartBrowzUnavailable as exc:
+        log.warning("pack pdf unavailable (%s); serving HTML instead", exc)
+        return RedirectResponse(url=f"/api/investigate/pack/{series_id}.html",
+                                status_code=302)
+    return Response(content=data, media_type="application/pdf", headers={
+        "Content-Disposition": f'inline; filename="ANVESHAK_pack_{series_id}.pdf"'})
 
 
 @router.get("/api/investigate/pack/{series_id}.html", response_class=HTMLResponse)

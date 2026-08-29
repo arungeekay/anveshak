@@ -160,6 +160,19 @@ def intake(req: IntakeRequest, request: Request) -> dict:
             [case_id, [float(x) for x in vec],
              features_json(req.narrative, occurred, lat, lon), "onnx-minilm-runtime"])
 
+    # ADR-1: the Data Store is the system of record, so the new FIR goes there too.
+    # Best-effort — the mirror already holds it and the demo must not depend on the
+    # console tables existing.
+    from ..datastore import insert_case
+    from ..llm.request_ctx import current_request
+    current_request.set(request)
+    datastore_written = insert_case({
+        "CaseMasterID": case_id, "CrimeNo": crime_no,
+        "CrimeRegisteredDate": occurred.isoformat(),
+        "PoliceStationID": unit_id, "CrimeMinorHeadID": sub_head_id,
+        "CaseStatusID": STATUS_UNDER_INVESTIGATION, "BriefFacts": req.narrative,
+    })
+
     # Keep the in-memory search index and the date anchor consistent with the write.
     matrix.add(con, case_id, vec)
     reset_data_max_date()
@@ -193,6 +206,7 @@ def intake(req: IntakeRequest, request: Request) -> dict:
         "crime_sub_head": sub_head_name,
         "registered_on": occurred.isoformat(timespec="seconds"),
         "embedded": True,
+        "datastore_written": datastore_written,
         "joined_series": joined,
         "series": series_detail,
         "rescan_ms": rescan_ms,

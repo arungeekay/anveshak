@@ -102,8 +102,15 @@ function PackView({ pack, pdfUrl }) {
     <div className="space-y-4 rounded-lg border border-navy-700 bg-navy-900 p-4">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-white">Investigation Pack · {pack.series_id}</h3>
-        {pdfUrl && <a href={`${apiBase}${pdfUrl}`} target="_blank" rel="noreferrer"
-          className="rounded-lg bg-accent px-3 py-1 text-sm text-white">Open pack ↗</a>}
+        <div className="flex gap-2">
+          {pdfUrl && <a href={`${apiBase}${pdfUrl}`} target="_blank" rel="noreferrer"
+            className="rounded-lg bg-accent px-3 py-1 text-sm text-white">Open pack ↗</a>}
+          <a href={`${apiBase}/api/investigate/pack/${pack.series_id}.pdf`}
+            target="_blank" rel="noreferrer"
+            className="rounded-lg border border-navy-700 px-3 py-1 text-sm hover:bg-navy-800">
+            Download PDF ⬇
+          </a>
+        </div>
       </div>
       <p className="text-sm text-slate-300">{pack.summary}</p>
 

@@ -54,6 +54,15 @@ def render_pack_html(pack: dict) -> str:
     .bar{{display:inline-block;width:120px;font-size:10px;color:#334155;margin:2px 6px 2px 0}}
     .bar i{{display:block;height:5px;background:#3b82f6;border-radius:3px}}
     tr.missing{{background:#fef2f2}} tr.present{{background:#f0fdf4}}
+    /* Print/PDF: keep the court-ready look when SmartBrowz renders it, and when an
+       officer simply prints the HTML pack as the fallback. */
+    @page{{size:A4;margin:16mm}}
+    @media print{{
+      body{{margin:0;font-size:11.5px}}
+      h2{{page-break-after:avoid}}
+      .suspect,table{{page-break-inside:avoid}}
+      .no-print{{display:none}}
+    }}
     </style></head><body>
     <div class="header"><h1>ANVESHAK · Investigation Pack</h1>
       <span class="badge">Karnataka State Police · ಕರ್ನಾಟಕ ರಾಜ್ಯ ಪೊಲೀಸ್</span></div>

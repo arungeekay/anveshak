@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import logging
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from . import __version__
@@ -135,6 +135,18 @@ def warm() -> dict:
             "packs": sorted(_packs.keys()),
         },
     }
+
+
+@app.get("/api/datastore/status")
+def datastore_status(request: Request) -> dict:
+    """Live Catalyst Data Store connectivity (ADR-1). Reports 'bundled-mirror'
+    honestly when the console tables have not been created — never a fake
+    'connected'."""
+    from .datastore import status as ds_status
+    from .llm.request_ctx import current_request
+
+    current_request.set(request)  # the SDK authorises from the request headers
+    return ds_status()
 
 
 @app.post("/internal/mirror/rebuild")
