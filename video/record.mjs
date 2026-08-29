@@ -115,9 +115,9 @@ try {
       'Which station, which hours, which offence, and the tools each recommendation came from');
     await page.locator('button', { hasText: 'Generate' }).first().click();
     await page.locator('text=Whitefield PS').first().waitFor({ timeout: 60000 }).catch(() => {});
-    await page.mouse.wheel(0, 600);
+    await page.evaluate(() => document.querySelector('main')?.scrollBy({ top: 600, behavior: 'smooth' }));
     await sleep(4600);
-    await page.mouse.wheel(0, -600);
+    await page.evaluate(() => document.querySelector('main')?.scrollBy({ top: -600, behavior: 'smooth' }));
   });
 
   // ===== 3. Chat + evidence =====
@@ -154,11 +154,17 @@ try {
     await page.locator('button', { hasText: 'Verify chain' }).first().click();
     await sleep(3600);
     // The platform claim, generated from the running process rather than asserted.
+    // Centre the panel in the viewport: the caption bar covers the bottom ~120px,
+    // and a smooth scroll to the page end left the panel underneath it.
+    await page.evaluate(() => {
+      const el = [...document.querySelectorAll("div")].find(
+        (d) => d.textContent.trim().startsWith("Built on Zoho Catalyst"));
+      el?.scrollIntoView({ block: "center", behavior: "instant" });
+    });
+    await sleep(700);
     await cap(page, 'Built entirely on Zoho Catalyst',
       'AppSail, QuickML, Data Store, SmartBrowz and more. The app reports its own platform status.');
-    await page.locator('text=Built on Zoho Catalyst').first()
-      .scrollIntoViewIfNeeded().catch(() => {});
-    await sleep(6500);
+    await sleep(6200);
   });
 
   // ===== 5. Live FIR intake (the flagship) =====
@@ -187,7 +193,7 @@ try {
     await cap(page, 'Operation Gold Chain Black Visor',
       'Each link states what the engine matched on, in words an officer can check against the FIRs');
     await sleep(5600);
-    await page.mouse.wheel(0, 420);
+    await page.evaluate(() => document.querySelector('main')?.scrollBy({ top: 420, behavior: 'smooth' }));
     await cap(page, 'What it would have changed',
       'Detectable at case 6. Nine further offences across three districts followed over 142 days.');
     await sleep(6000);
@@ -216,8 +222,8 @@ try {
       'Ranked suspects, evidence-cited leads, legal element checks, and a next-strike forecast');
     if (packShown) {
       await sleep(4800);
-      await page.mouse.wheel(0, 380); await sleep(4000);
-      await page.mouse.wheel(0, 380); await sleep(3600);
+      await page.evaluate(() => document.querySelector('main')?.scrollBy({ top: 380, behavior: 'smooth' })); await sleep(4000);
+      await page.evaluate(() => document.querySelector('main')?.scrollBy({ top: 380, behavior: 'smooth' })); await sleep(3600);
     } else { await sleep(4800); }
   });
 
@@ -231,7 +237,7 @@ try {
     await sleep(1600);
     await page.locator('button', { hasText: 'Prakash Rao' }).first().click().catch(() => {});
     await sleep(5600);
-    await page.mouse.wheel(0, 400);
+    await page.evaluate(() => document.querySelector('main')?.scrollBy({ top: 400, behavior: 'smooth' }));
     await sleep(4000);
   });
 

@@ -1,6 +1,6 @@
 # Demo video: editing brief
 
-**Source file:** `ANVESHAK_demo.webm` (1600x900, 2 min 38 s, no audio)
+**Source file:** `ANVESHAK_demo.webm` (1600x900, 2 min 43 s, no audio)
 **Deliver:** MP4, 1920x1080, H.264, **under 3 minutes** (hard rule, see constraints)
 
 ---
@@ -24,7 +24,7 @@ software really works.**
 
 ## Hard constraints (breaking any of these can disqualify the entry)
 
-1. **Under 3:00.** Currently 2:38, so there are about 20 seconds of headroom.
+1. **Under 3:00.** Currently 2:43, so there are about 15 seconds of headroom.
 2. **Do not alter anything on screen that states a fact.** Numbers, case IDs,
    confidence percentages, SQL, names. You may zoom, crop, highlight, or slow
    down. You may **not** retouch, retype or "clean up" a value. These are real
@@ -50,7 +50,8 @@ software really works.**
 | 0:20 - 0:33 | Patrol plan | Generates tonight's deployment: station, hours, offence | Medium |
 | 0:33 - 0:48 | Chat and evidence | Question answered, then the SQL evidence drawer opens | **High: zoom on the evidence** |
 | 0:48 - 0:58 | Red-team: prompt injection | An attack is refused, and the blocked statement is shown | **High** |
-| 0:58 - 1:03 | Audit chain verify | The tamper-evident log verifies | Medium |
+| 0:58 - 1:02 | Audit chain verify | The tamper-evident log verifies | Medium |
+| 0:44 - 0:52 | **Built on Zoho Catalyst** | The platform panel: all twelve services with live status | **High: the sponsor moment** |
 | 1:03 - 1:12 | New FIR being filed | An officer's plain-words narrative | Speed up slightly |
 | **1:12 - 1:22** | **FIR joins the series** | "now 16 linked cases" appears | **HIGHEST: this is the hero shot** |
 | 1:22 - 1:32 | Series and codename | Link explanations, "Operation Gold Chain Black Visor" | High |
@@ -224,6 +225,7 @@ and consistent. Never cover the number itself.
 | 0:24 | The answer `47`, then the SQL in the evidence drawer | Proof it does not invent numbers |
 | 0:34 | `BLOCKED` and the extracted `DROP TABLE CaseMaster` | An attack, caught and shown |
 | 0:44 | `chain intact` | Tamper-evident audit |
+| 0:47 | The green `LIVE` tags beside AppSail, QuickML and API Gateway | Runs entirely on Zoho Catalyst |
 | **1:06** | **`now 16 linked cases`** | **The single most important frame in the video** |
 | 1:14 | `case #6`, `9 further offences`, `142 days` | The cost of not having this |
 | 1:26 | `3 districts` as the replay crosses borders | Cross-district reach |
@@ -256,3 +258,27 @@ wording stays accurate. Do not write and record one unprompted.
 **Music: yes.** Restrained, investigative, documentary tone. Low in the mix. Let
 it lift slightly at the FIR-joins-the-series moment (1:06) and settle for the
 counterfactual (1:14).
+
+
+---
+
+## Zoho Catalyst (the sponsor platform): please give this a beat
+
+The whole system is required to run on **Zoho Catalyst**, and Zoho engineers are
+among the judges, so this scene matters more than its length suggests.
+
+At about **0:44 to 0:52** the app shows a panel titled *Built on Zoho Catalyst*
+listing each service it uses, with a status tag against each one. Suggestions:
+
+- Punch in on the panel so the service names and the green `LIVE` tags are
+  legible.
+- Highlight the `LIVE` tags on **AppSail** and **QuickML** in particular.
+- If you add a graphic here, the Zoho logo would be appropriate and welcome.
+
+Approved line if you want text on screen for this scene:
+
+- "Runs entirely on Zoho Catalyst. No external AI service is ever called."
+
+Please do not overstate it beyond that phrasing. The panel deliberately marks some
+services as *integrated* or *configured* rather than *live*, and that honesty is
+intentional.
