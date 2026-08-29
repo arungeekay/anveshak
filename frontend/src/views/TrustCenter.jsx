@@ -181,6 +181,44 @@ export default function TrustCenter() {
         )}
       </div>
 
+
+      {/* Catalyst platform */}
+      {m?.catalyst && (
+        <div className="mt-4 rounded-lg border border-navy-700 bg-navy-900 p-4">
+          <div className="mb-1 flex items-center justify-between">
+            <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+              Built on {m.catalyst.platform}
+            </div>
+            <div className="text-[11px] text-slate-400">
+              <span className="text-emerald-400">{m.catalyst.counts.live} live</span>
+              {" · "}
+              <span className="text-accent">{m.catalyst.counts.integrated} integrated</span>
+              {" · "}
+              <span className="text-slate-500">{m.catalyst.counts.configured} configured</span>
+            </div>
+          </div>
+          <p className="mb-3 text-sm text-slate-300">{m.catalyst.mandate}</p>
+          <div className="grid gap-2 md:grid-cols-2">
+            {m.catalyst.services.map((sv) => (
+              <div key={sv.service} className="rounded-lg border border-navy-800 bg-navy-950/40 p-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-white">{sv.service}</span>
+                  <span className={`rounded px-1.5 py-0.5 text-[10px] uppercase tracking-wide ${
+                    sv.status === "live" ? "bg-emerald-950/60 text-emerald-300"
+                      : sv.status === "integrated" ? "bg-blue-950/60 text-blue-300"
+                      : "bg-navy-800 text-slate-400"}`}>
+                    {sv.status}
+                  </span>
+                </div>
+                <p className="mt-0.5 text-[11px] text-slate-400">{sv.used_for}</p>
+                <p className="mt-0.5 text-[10px] text-slate-600">{sv.detail}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-2 text-[11px] text-slate-500">{m.catalyst.note}</p>
+        </div>
+      )}
+
       {/* Guardrail detail */}
       {m && (
         <div className="mt-4 rounded-lg border border-navy-700 bg-navy-900 p-4">

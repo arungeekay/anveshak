@@ -311,21 +311,37 @@ def main():
 
     # Slide 8: Catalyst services
     tf = add_body(S[8])
-    para(tf, [("Live now:  ", GOOD, True),
-              ("AppSail (FastAPI, custom Docker runtime), QuickML LLM Serving "
-               "(GLM-4.7-Flash), Web Client Hosting, Authentication, API Gateway, "
-               "SmartBrowz for the Investigation Pack PDF.", BODY, False)],
-         size=11.5, first=True, space=8)
-    para(tf, [("Integrated, with an honest status:  ", ACCENT, True),
-              ("Data Store as the system of record. The app reports its live "
-               "connection state rather than assuming it, and FIR intake writes there "
-               "as well as to the analytical mirror.", BODY, False)], size=11.5, space=8)
-    para(tf, [("In the architecture:  ", ACCENT, True),
-              ("NoSQL for graph snapshots, Cron for Night Patrol, Signals and Mail for "
-               "lead digests, Cache, and Stratus for pack storage.", BODY, False)],
-         size=11.5, space=8)
-    para(tf, "Deployment is exclusively on Zoho Catalyst, per the competition mandate.",
-         size=11, color=WHITE, bold=True, space=2)
+    para(tf, "Every part of ANVESHAK runs on Catalyst. The app reports its own "
+             "platform status, so this is inspectable rather than asserted:",
+         size=11.5, color=WHITE, bold=True, first=True, space=7)
+    rows = [
+        ("AppSail", "runs the FastAPI backend and serves the React app, on a custom "
+                    "Docker runtime carrying the scientific stack and the embedding "
+                    "model", GOOD, "LIVE"),
+        ("QuickML (LLM Serving)", "serves GLM-4.7-Flash for question understanding "
+                                  "and narration", GOOD, "LIVE"),
+        ("API Gateway", "fronts the deployment", GOOD, "LIVE"),
+        ("Data Store", "system of record for cases and new FIR intake; the "
+                       "analytical mirror is rebuilt from it", ACCENT, "INTEGRATED"),
+        ("SmartBrowz", "renders the court-ready Investigation Pack to PDF",
+         ACCENT, "INTEGRATED"),
+        ("Web Client Hosting", "hosts the built React bundle as a client component",
+         MUTED, "CONFIGURED"),
+        ("Authentication", "officer identity, feeding the role scopes the app "
+                           "already enforces server-side", MUTED, "CONFIGURED"),
+        ("Cron", "the overnight Night Patrol sweep, and cache warming",
+         MUTED, "CONFIGURED"),
+        ("NoSQL · Signals · Mail · Cache · Stratus",
+         "graph snapshots, lead digests to district officers, shared state, and "
+         "pack storage", MUTED, "CONFIGURED"),
+    ]
+    for name, purpose, colour, tag in rows:
+        para(tf, [(f"{tag:11}", colour, True), (f"{name}: ", WHITE, True),
+                  (purpose, BODY, False)], size=10, space=3)
+    para(tf, [("No external inference API is ever called from the deployed app. ",
+               WHITE, True),
+              ("Open the Trust Center in the live app to see this table generated "
+               "from the running process.", BODY, False)], size=10.5, space=2)
 
     # Slide 9: Estimated cost (optional)
     tf = add_body(S[9])

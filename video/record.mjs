@@ -106,7 +106,7 @@ try {
     await cap(page, 'The AI works before you ask',
       'An overnight sweep raises ranked leads: crime spikes, repeat offenders, growing series');
     await page.locator('text=Night Patrol').first().waitFor({ timeout: 60000 }).catch(() => {});
-    await sleep(5200);
+    await sleep(4200);
   });
 
   // ===== 2. Patrol plan =====
@@ -116,7 +116,7 @@ try {
     await page.locator('button', { hasText: 'Generate' }).first().click();
     await page.locator('text=Whitefield PS').first().waitFor({ timeout: 60000 }).catch(() => {});
     await page.mouse.wheel(0, 600);
-    await sleep(5600);
+    await sleep(4600);
     await page.mouse.wheel(0, -600);
   });
 
@@ -152,7 +152,13 @@ try {
     await cap(page, 'History cannot be rewritten',
       'Every audited action hashes the one before it, so tampering breaks the chain');
     await page.locator('button', { hasText: 'Verify chain' }).first().click();
-    await sleep(4000);
+    await sleep(3600);
+    // The platform claim, generated from the running process rather than asserted.
+    await cap(page, 'Built entirely on Zoho Catalyst',
+      'AppSail, QuickML, Data Store, SmartBrowz and more. The app reports its own platform status.');
+    await page.locator('text=Built on Zoho Catalyst').first()
+      .scrollIntoViewIfNeeded().catch(() => {});
+    await sleep(6500);
   });
 
   // ===== 5. Live FIR intake (the flagship) =====
