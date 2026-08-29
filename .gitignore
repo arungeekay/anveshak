@@ -93,3 +93,4 @@ video/package-lock.json
 video/out/
 deck_png/
 video/shots-tmp/
+catalyst-debug.log
