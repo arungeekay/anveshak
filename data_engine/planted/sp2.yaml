@@ -1,5 +1,5 @@
-# SP-2 / "The Prakash web" — investment-fraud hub (graph showcase). See demo_story.md.
-name: "Investment-fraud hub — Prakash Rao"
+# SP-2 / "The Prakash web", investment-fraud hub (graph showcase). See demo_story.md.
+name: "Investment-fraud hub, Prakash Rao"
 subhead: "Cheating / Online Fraud"
 total_cases: 22
 window: {from: "2025-08-01", to: "2026-06-30"}

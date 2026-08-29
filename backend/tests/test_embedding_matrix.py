@@ -99,5 +99,5 @@ def test_investigation_fits_gateway_budget(con):
     assert final and final[0] == "pack_ready", f"stream ended on {final[0] if final else None}"
     assert final[1].get("pack"), "no pack assembled"
     assert elapsed < GATEWAY_BUDGET_S, (
-        f"investigation took {elapsed:.1f}s (budget {GATEWAY_BUDGET_S}s) — "
+        f"investigation took {elapsed:.1f}s (budget {GATEWAY_BUDGET_S}s), "
         "the SSE would be severed before pack_ready")

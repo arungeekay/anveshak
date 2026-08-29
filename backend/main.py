@@ -54,7 +54,7 @@ app.include_router(patrol_plan_api.router)
 
 @app.get("/")
 def root() -> dict:
-    """Root route — Catalyst's readiness probe hits '/', so it must return 200."""
+    """Root route, Catalyst's readiness probe hits '/', so it must return 200."""
     return {"service": "anveshak-api", "status": "ok", "docs": "/api/health"}
 
 
@@ -76,7 +76,7 @@ def warm() -> dict:
     """Keep-alive + cache-warm probe (FINALE_PLAN F-01).
 
     AppSail idles the container out after inactivity, and a cold start costs 60-90s
-    of prewarming — unacceptable in front of a jury. A Catalyst Cron hits this every
+    of prewarming, unacceptable in front of a jury. A Catalyst Cron hits this every
     few minutes so the container (and every heavy cache) stays hot.
 
     Also useful right after a deploy: call it until `cold` is false. Each stage is
@@ -140,7 +140,7 @@ def warm() -> dict:
 @app.get("/api/datastore/status")
 def datastore_status(request: Request) -> dict:
     """Live Catalyst Data Store connectivity (ADR-1). Reports 'bundled-mirror'
-    honestly when the console tables have not been created — never a fake
+    honestly when the console tables have not been created, never a fake
     'connected'."""
     from .datastore import status as ds_status
     from .llm.request_ctx import current_request

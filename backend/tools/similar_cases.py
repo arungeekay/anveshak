@@ -1,7 +1,7 @@
 """similar_cases tool (contracts.md §7): cosine over precomputed CaseMOVector.
 
 Vectors come from the process-wide normalised matrix (backend/embeddings/matrix.py)
-rather than being re-read and re-normalised from DuckDB on every call — the
+rather than being re-read and re-normalised from DuckDB on every call, the
 Investigation Cell calls this 16x per run (FINALE_PLAN F-03).
 """
 from __future__ import annotations

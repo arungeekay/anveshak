@@ -2,14 +2,14 @@
 
 Loading + L2-normalising all ~15k vectors from DuckDB costs ~1.5s. `similar_cases`
 used to pay that on EVERY call, and the Investigation Cell calls it 16 times per
-run (~25s) — which pushed the SSE run past the AppSail gateway's ~40s cut
+run (~25s), which pushed the SSE run past the AppSail gateway's ~40s cut
 (FINALE_PLAN F-03). We load once, normalise once, and reuse.
 
 The cache is also the substrate for text-query search (`/api/similar/by_text`,
 FINALE_PLAN F-06): a runtime-embedded narrative is just another query vector.
 
 Thread-safety: built under a lock, then treated as immutable. `add()` appends a
-new case (FIR intake) under the same lock by rebuilding the arrays — appends are
+new case (FIR intake) under the same lock by rebuilding the arrays, appends are
 rare (one per intake) and this keeps readers lock-free on immutable snapshots.
 """
 from __future__ import annotations

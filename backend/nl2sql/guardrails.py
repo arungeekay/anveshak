@@ -28,7 +28,7 @@ _FORBIDDEN = (exp.Insert, exp.Update, exp.Delete, exp.Drop, exp.Create, exp.Alte
 
 # DuckDB file/IO table functions would let a crafted query read arbitrary files off
 # the server (data-exfiltration). They are not tables, so the identifier allowlist
-# misses them — reject them explicitly by name.
+# misses them, reject them explicitly by name.
 _FORBIDDEN_FUNCS = {
     "read_csv", "read_csv_auto", "read_parquet", "parquet_scan", "read_json",
     "read_json_auto", "read_ndjson", "read_ndjson_auto", "read_text", "read_blob",
@@ -76,7 +76,7 @@ def sanitize(sql: str, *, max_limit: int = DEFAULT_LIMIT) -> str:
     if _FORBIDDEN_FUNC_RE.search(cleaned):
         raise GuardrailError("file/IO functions are not permitted")
 
-    # CTE aliases are query-local names, not base tables — exclude them from the
+    # CTE aliases are query-local names, not base tables, exclude them from the
     # allowlist check so legitimate WITH ... SELECT queries aren't wrongly rejected.
     cte_names = {c.alias.lower() for c in tree.find_all(exp.CTE) if c.alias}
     for table in tree.find_all(exp.Table):

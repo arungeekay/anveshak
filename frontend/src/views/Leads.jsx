@@ -19,7 +19,7 @@ export default function Leads() {
   return (
     <div className="mx-auto max-w-4xl">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Night Patrol — Lead Feed</h2>
+        <h2 className="text-lg font-semibold">Night Patrol: Lead Feed</h2>
         <div className="relative flex items-center gap-2">
           <Briefing />
           <button onClick={run} disabled={busy}
@@ -44,7 +44,7 @@ export default function Leads() {
             <p className="mt-2 rounded bg-navy-950/60 p-2 text-xs text-slate-300">➡️ {l.suggested_action}</p>
           </div>
         ))}
-        {leads.length === 0 && <p className="text-slate-500">No leads yet — run the detectors.</p>}
+        {leads.length === 0 && <p className="text-slate-500">No leads yet, run the detectors.</p>}
       </div>
       <PatrolPlan />
     </div>
@@ -52,7 +52,7 @@ export default function Leads() {
 }
 
 // Turns the signals above into tonight's deployment: which station, which window,
-// which offence — and the tools each recommendation came from.
+// which offence, and the tools each recommendation came from.
 function PatrolPlan() {
   const [district, setDistrict] = useState("Bengaluru City");
   const [districts, setDistricts] = useState([]);
@@ -118,7 +118,7 @@ function PatrolPlan() {
 
 // The 7am brief an SP would want, spoken aloud. Text comes from fixed templates
 // filled with detector output (no model-authored numbers); the browser speaks it
-// with a kn-IN / en-IN voice. Captions are shown too — demo halls are loud.
+// with a kn-IN / en-IN voice. Captions are shown too, demo halls are loud.
 function Briefing() {
   const [lang, setLang] = useState("kn");
   const [text, setText] = useState(null);

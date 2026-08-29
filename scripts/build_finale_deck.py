@@ -12,8 +12,6 @@ Out: ANVESHAK_Finale_Pitch.pptx (+ .pdf via PowerPoint, if available)
 """
 from __future__ import annotations
 
-from pathlib import Path
-
 from pptx import Presentation
 from pptx.dml.color import RGBColor
 from pptx.util import Emu, Pt
@@ -98,18 +96,18 @@ def main() -> int:
     S = list(prs.slides)   # 0 title · 1 problem · 2 what · 3 demo · 4 counterfactual
                            # 5 trust · 6 architecture · 7 roadmap · 8 thank you
 
-    # 1 — Title / team
+    # 1, Title / team
     box = next(s for s in S[0].shapes if s.has_text_frame)
     tf = box.text_frame
     tf.clear()
     para(tf, "ANVESHAK · ಅನ್ವೇಷಕ", size=22, color=INK, bold=True, first=True)
-    para(tf, "An AI that doesn't just answer questions — it works cases.",
+    para(tf, "An AI that doesn't just answer questions, it works cases.",
          size=15, color=BODY)
-    para(tf, "Team Zen — Hiran Vikraman S R · Arun G K   |   Challenge 1",
+    para(tf, "Team Zen, Hiran Vikraman S R · Arun G K   |   Challenge 1",
          size=12, color=MUTED)
     para(tf, f"Live: {LIVE}", size=11, color=ACCENT)
 
-    # 2 — The officer's problem
+    # 2, The officer's problem
     set_title(S[1], "One night in Jayanagar")
     tf = add_body(S[1])
     para(tf, "A woman's gold chain is snatched by two men on a motorcycle. "
@@ -120,44 +118,44 @@ def main() -> int:
     para(tf, "Nobody knows. The records sit in three district silos, and no one "
              "has time to read 15,000 narratives looking for a pattern.", bullet=True)
     para(tf, "To even ask 'how many chain snatchings this year?', an officer needs "
-             "someone who writes SQL — and English.", bullet=True)
+             "someone who writes SQL, and English.", bullet=True)
     para(tf, [("This is the gap ANVESHAK closes.", INK, True)], size=14, space=2)
 
-    # 3 — What it does
+    # 3, What it does
     set_title(S[2], "Ask. Then let it work the case.")
     tf = add_body(S[2])
     for h, rest in [
-        ("Ask in Kannada or English", " — voice or text, and every answer arrives "
+        ("Ask in Kannada or English", ", voice or text, and every answer arrives "
          "with its SQL, its rows and its case IDs."),
-        ("Find the ring", " — MO fingerprinting links crimes across district "
+        ("Find the ring", ", MO fingerprinting links crimes across district "
          "boundaries that siloed records never connect."),
-        ("Work the case", " — six specialist agents assemble a court-ready "
+        ("Work the case", ", six specialist agents assemble a court-ready "
          "Investigation Pack in about ten seconds."),
-        ("Patrol tonight", " — an overnight sweep raises ranked leads and turns "
+        ("Patrol tonight", ", an overnight sweep raises ranked leads and turns "
          "them into a deployment plan."),
-        ("Prove it", " — role-scoped access, a tamper-evident audit log, and "
+        ("Prove it", ", role-scoped access, a tamper-evident audit log, and "
          "guardrails you are welcome to attack."),
     ]:
         para(tf, [(h, INK, True), (rest, BODY, False)], size=13, bullet=True,
              first=(h.startswith("Ask")))
 
-    # 4 — LIVE DEMO
+    # 4, LIVE DEMO
     set_title(S[3], "Live demo")
     tf = add_body(S[3])
     para(tf, "From the FIR a constable files, to the pack an IO takes to court.",
          size=16, color=INK, bold=True, first=True, space=12)
     for step in [
-        "The overnight sweep — and the morning briefing, in Kannada",
+        "The overnight sweep, and the morning briefing, in Kannada",
         "A question, answered with its evidence",
         "Try to break it: injection, exfiltration, profiling",
-        "File a new FIR — in your own words — and watch it join the series",
+        "File a new FIR, in your own words, and watch it join the series",
         "Replay the ring crossing three districts",
         "Six agents work the case → the pack → the suspect",
         "Tonight's patrol plan · the same question as SHO, and as Analyst",
     ]:
         para(tf, step, size=12.5, bullet=True, space=5)
 
-    # 5 — The cost of not having it
+    # 5, The cost of not having it
     set_title(S[4], "What it would have changed")
     tf = add_body(S[4])
     para(tf, "SH-07 · Operation Gold Chain Black Visor", size=15, color=INK,
@@ -167,34 +165,34 @@ def main() -> int:
     para(tf, [("Nine further chain snatchings", WARN, True),
               (" across Bengaluru City, Mandya and Tumakuru followed over the next ",
                BODY, False), ("142 days", WARN, True),
-              (" — after the pattern was already visible.", BODY, False)],
+              (", after the pattern was already visible.", BODY, False)],
          size=14, space=10)
     para(tf, "Computed by replaying our own linkage engine over the corpus "
              "truncated at each of the series' case dates. A retrospective replay "
-             "on synthetic data — not a prediction, and not a claim about a real "
+             "on synthetic data, not a prediction, and not a claim about a real "
              "case.", size=11, color=MUTED, space=2)
 
-    # 6 — Why you can trust it
+    # 6, Why you can trust it
     set_title(S[5], "Built to be checked, not believed")
     tf = add_body(S[5])
     for h, rest in [
-        ("The model never computes a number", " — deterministic tools do; the model "
+        ("The model never computes a number", ", deterministic tools do; the model "
          "only narrates. Every figure traces to a tool result and a case ID."),
-        ("Attack it yourself", " — a red-team console in the product. 10 of 10 "
+        ("Attack it yourself", ", a red-team console in the product. 10 of 10 "
          "attack vectors blocked, re-tested on every page load."),
-        ("Religion and caste are never model features", " — a profiling question is "
+        ("Religion and caste are never model features", ", a profiling question is "
          "refused, in English and Kannada, and the refusal is logged."),
-        ("Scope is enforced in the query", " — SHO sees a station, SP a district, "
+        ("Scope is enforced in the query", ", SHO sees a station, SP a district, "
          "Analyst sees masked names. Not hidden in the browser."),
-        ("History cannot be rewritten", " — the audit log is hash-chained; press "
+        ("History cannot be rewritten", ", the audit log is hash-chained; press "
          "'Verify chain' and watch it recompute."),
-        ("Our ground truth is public", " — linkage precision 0.86, recall 12/14, "
+        ("Our ground truth is public", ", linkage precision 0.86, recall 12/14, "
          "checkable against the planted data in the repository."),
     ]:
         para(tf, [(h, INK, True), (rest, BODY, False)], size=12, bullet=True,
              space=5, first=h.startswith("The model"))
 
-    # 7 — Architecture
+    # 7, Architecture
     set_title(S[6], "Runs entirely on Zoho Catalyst")
     tf = add_body(S[6])
     para(tf, "Officer (EN/KN, voice or text) → React SPA → FastAPI on AppSail",
@@ -210,7 +208,7 @@ def main() -> int:
     para(tf, "No external inference API is ever called from the deployed app.",
          size=12, color=GOOD, bold=True, space=2)
 
-    # 8 — Roadmap / ask
+    # 8, Roadmap / ask
     set_title(S[7], "What we would build next")
     tf = add_body(S[7])
     for line in [
@@ -219,10 +217,10 @@ def main() -> int:
         "Catalyst Auth issuing real officer identities into the scope layer that "
         "already enforces them.",
         "Kannada NL→SQL tuning with hand-curated examples from real officer "
-        "phrasing — our clearest measured gap.",
+        "phrasing, our clearest measured gap.",
         "Human-in-the-loop learning: every Confirm/Reject on a series becomes a "
         "label that improves precision.",
-        "A pilot with one district's live data — that is the ask.",
+        "A pilot with one district's live data, that is the ask.",
     ]:
         para(tf, line, size=12.5, bullet=True, space=6,
              first=line.startswith("CCTNS"))

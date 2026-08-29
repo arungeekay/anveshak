@@ -8,7 +8,7 @@ Two honest constraints, both surfaced in the status payload rather than hidden:
 
 * Data Store tables and their column types are defined in the Catalyst **console**
   (see docs/catalyst/datastore.md), so a deployment where they have not been
-  created reports `mode: "bundled-mirror"` — never a fabricated "connected".
+  created reports `mode: "bundled-mirror"`, never a fabricated "connected".
 * The SDK authorises from the *incoming request's* Catalyst headers, which is why
   every function here takes the current request context.
 
@@ -80,7 +80,7 @@ def status() -> dict:
         "errors": errors or None,
         "note": ("Data Store is the system of record; DuckDB mirrors it for "
                  "sub-second analytics (ADR-1)." if connected else
-                 "Data Store tables not found — create them in the console."),
+                 "Data Store tables not found, create them in the console."),
     }
 
 

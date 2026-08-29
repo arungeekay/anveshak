@@ -83,7 +83,7 @@ export default function PersonView() {
 
       <form onSubmit={search} className="mb-4 flex gap-2">
         <input value={q} onChange={(e) => setQ(e.target.value)}
-          placeholder="Search a person by name — e.g. Prakash Rao"
+          placeholder="Search a person by name, e.g. Prakash Rao"
           className="flex-1 rounded-lg border border-navy-700 bg-navy-800 px-3 py-2 text-sm outline-none focus:border-accent" />
         <button className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white">Search</button>
       </form>
@@ -114,8 +114,8 @@ export default function PersonView() {
                 <Stat label="Unsolved" value={p.stats.unsolved} />
                 <Stat label="Arrests" value={p.stats.arrests} />
                 <Stat label="Districts" value={p.stats.districts.length} />
-                <Stat label="DOB" value={p.dob || "—"} />
-                <Stat label="Age on FIRs" value={p.age_recorded || "—"} />
+                <Stat label="DOB" value={p.dob || "-"} />
+                <Stat label="Age on FIRs" value={p.age_recorded || "-"} />
               </div>
               {p.aliases?.length > 0 && (
                 <p className="mt-2 text-xs text-slate-400">Also recorded as: {p.aliases.join(", ")}</p>
@@ -135,7 +135,7 @@ export default function PersonView() {
           </div>
 
           {p.network?.nodes?.length > 0 && (
-            <Section title={`Network — ${p.network.nodes.length} nodes`}>
+            <Section title={`Network, ${p.network.nodes.length} nodes`}>
               <Chart option={graphOption(p.network)} height={360} />
               {p.network.narrative && (
                 <p className="mt-2 text-sm text-slate-300">{p.network.narrative}</p>

@@ -35,7 +35,7 @@ class Settings(BaseSettings):
     quickml_model: str = "crm-di-glm47b_30b_it"
     quickml_org: str = "60079941787"
     quickml_token: str = ""       # Zoho OAuth access token (env: QUICKML_TOKEN); or via SDK in AppSail
-    quickml_thinking: bool = False  # GLM "thinking" mode — off for terse, direct SQL/answers
+    quickml_thinking: bool = False  # GLM "thinking" mode, off for terse, direct SQL/answers
     quickml_api_key: str = ""     # legacy: only for custom-deployed QuickML endpoints
 
     # Embeddings (ADR-5)

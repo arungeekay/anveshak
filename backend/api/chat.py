@@ -1,4 +1,4 @@
-"""POST /api/chat — routes to a deterministic tool or the NL->SQL run_sql path.
+"""POST /api/chat, routes to a deterministic tool or the NL->SQL run_sql path.
 
 Every number in every answer comes from a tool result (ADR-2). The evidence block
 names the tool used so the frontend evidence drawer can show provenance.
@@ -136,7 +136,7 @@ def chat(req: ChatRequest, request: Request) -> dict:
             return _resp(f"Not enough history to forecast {params['crime_sub_head']} in "
                          f"{params['district']}.", [], "forecast", params=params,
                          confidence="low", audit_id=aid)
-        specs = [forecast_spec(fc, title=f"{params['crime_sub_head']} — {params['district']}")]
+        specs = [forecast_spec(fc, title=f"{params['crime_sub_head']}, {params['district']}")]
         nxt = fc["forecast"][0]
         answer = (f"Forecast for {params['crime_sub_head']} in {params['district']}: next week "
                   f"~{nxt['mean']:.0f} cases (backtest MAE {fc['backtest_mae']} vs seasonal-naive "

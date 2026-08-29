@@ -52,7 +52,7 @@ export default function TrustCenter() {
     <div className="mx-auto max-w-4xl">
       <h2 className="mb-1 text-lg font-semibold">Trust Center</h2>
       <p className="mb-4 text-sm text-slate-400">
-        Every claim ANVESHAK makes about itself, computed at request time — and a
+        Every claim ANVESHAK makes about itself, computed at request time, and a
         console to attack it yourself.
       </p>
       {err && <p className="mb-3 text-red-400">{err}</p>}
@@ -60,7 +60,7 @@ export default function TrustCenter() {
       {m && (
         <>
           <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <Tile label="NL→SQL accuracy" value={acc != null ? `${Math.round(acc * 100)}%` : "—"}
+            <Tile label="NL→SQL accuracy" value={acc != null ? `${Math.round(acc * 100)}%` : "-"}
               sub={nl.model || nl.baseline_model} />
             <Tile label="Linkage precision" value={m.linkage.precision_on_planted}
               sub={`recall ${m.linkage.recall_on_planted} · public ground truth`} />
@@ -96,7 +96,7 @@ export default function TrustCenter() {
       {/* Red-team console */}
       <div className="mb-4 rounded-lg border border-navy-700 bg-navy-900 p-4">
         <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
-          Red-team console — try to break it
+          Red-team console, try to break it
         </div>
         <div className="mb-2 flex flex-wrap gap-2">
           {PRESETS.map(([label, p]) => (
@@ -160,7 +160,7 @@ export default function TrustCenter() {
         </div>
         <p className="text-sm text-slate-300">
           Every audited action stores the SHA-256 of the previous entry plus its own
-          content. Editing or deleting any historical row breaks every hash after it —
+          content. Editing or deleting any historical row breaks every hash after it -
           so even an administrator cannot rewrite history undetectably.
         </p>
         {chain && (
@@ -169,7 +169,7 @@ export default function TrustCenter() {
               <span className={chain.chain_ok ? "text-emerald-400" : "text-red-400"}>
                 {chain.chain_ok
                   ? `✓ chain intact across ${chain.rows} entries`
-                  : `✗ chain broken at entry ${chain.broken_at ?? "?"} — ${chain.reason || chain.error}`}
+                  : `✗ chain broken at entry ${chain.broken_at ?? "?"}, ${chain.reason || chain.error}`}
               </span>
             )}
             {chain.head_hash && (

@@ -2,7 +2,7 @@
 
 The AppSail image deliberately ships no torch (the scientific stack already makes it
 1.4GB), so the deployed app cannot embed new text with sentence-transformers. That
-is fine for the corpus — CaseMOVector is precomputed at generation time (ADR-5) —
+is fine for the corpus, CaseMOVector is precomputed at generation time (ADR-5) -
 but it blocks anything a *judge* types on stage: a new FIR narrative joining a
 series, free-text similarity search, duplicate detection.
 
@@ -39,7 +39,7 @@ PROBES = [
 
 
 def to_fp16() -> None:
-    """Halve the model (487MB -> 235MB). **DO NOT USE — see below.**
+    """Halve the model (487MB -> 235MB). **DO NOT USE, see below.**
 
     onnxruntime 1.29 refuses to load the converted graph ("Type (tensor(float16))
     of output arg ... Cast_output_0"), so the deployed app falls back to
@@ -50,7 +50,7 @@ def to_fp16() -> None:
     measured cosine 1.00000 against sentence-transformers on every probe; the cost
     is ~300ms per embed instead of ~1ms (CPUs have no native fp16 ops), which is
     imperceptible next to the ~3s linkage rescan that follows an intake. int8 was
-    rejected earlier — it dropped to 0.988, worst on the chain-snatching narrative
+    rejected earlier, it dropped to 0.988, worst on the chain-snatching narrative
     the flagship demo depends on.
     """
     import onnx
@@ -117,7 +117,7 @@ def main() -> int:
     if args.fp16:
         to_fp16()
     if not OUT_DIR.exists():
-        print(f"missing {OUT_DIR} — run without --check first")
+        print(f"missing {OUT_DIR}, run without --check first")
         return 1
     return 0 if check_parity() else 1
 

@@ -1,7 +1,7 @@
 """Idempotent Data Store loader (ADR-1 · T06): CSV exports -> Catalyst Data Store.
 
 Data Store is the system of record; the DuckDB mirror is derived from it. Tables must
-exist in the console first (Data Store defines column types there — see
+exist in the console first (Data Store defines column types there, see
 docs/catalyst/datastore.md). Run inside AppSail (auth context) or standalone with
 admin scope + Catalyst credentials.
 

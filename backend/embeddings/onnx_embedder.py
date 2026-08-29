@@ -1,7 +1,7 @@
 """Runtime text embedding via ONNX Runtime (FINALE_PLAN F-05).
 
-The deployed image ships no torch, so this is how the live app turns *new* text —
-an FIR narrative a judge types or dictates on stage — into an MO vector comparable
+The deployed image ships no torch, so this is how the live app turns *new* text -
+an FIR narrative a judge types or dictates on stage, into an MO vector comparable
 with the precomputed CaseMOVector corpus (ADR-5).
 
 It must reproduce `sentence_transformers.encode(..., normalize_embeddings=True)`
@@ -86,7 +86,7 @@ def _load_sentence_transformers():
 
 
 def _mean_pool(last_hidden: np.ndarray, mask: np.ndarray) -> np.ndarray:
-    """Mask-aware mean pooling — the pooling sentence-transformers uses here."""
+    """Mask-aware mean pooling, the pooling sentence-transformers uses here."""
     m = mask[..., None].astype(np.float32)
     summed = (last_hidden * m).sum(axis=1)
     counts = np.clip(m.sum(axis=1), 1e-9, None)

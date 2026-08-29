@@ -1,4 +1,4 @@
-# FINALE_PLAN.md — ANVESHAK Grand-Finale Build Plan (Stage 2)
+# FINALE_PLAN.md, ANVESHAK Grand-Finale Build Plan (Stage 2)
 
 > **For the executing model:** Read CLAUDE.md first, then this file top-to-bottom.
 > This plan is the authoritative task list for the finale build. Execute tasks in
@@ -10,7 +10,7 @@
 
 ---
 
-## 0. Mission & context pack (read carefully — hard-won facts)
+## 0. Mission & context pack (read carefully, hard-won facts)
 
 **Situation:** ANVESHAK cleared the prototype stage of KSP Datathon 2026
 (Challenge 1). The next stage is an **in-person Grand Finale / Demo Day in
@@ -19,13 +19,13 @@ of KSP officers, Zoho engineers, and industry. Everything in this plan serves on
 goal: **a flawless, unscripted-feeling live demo + jury-credible trust story.**
 
 **Theme of this build:** stop adding breadth; add **believability**:
-1. *It's real* — judges can throw their own inputs at it (runtime embeddings).
-2. *It's trustworthy* — visible guardrails, tamper-evident audit, measured accuracy.
-3. *It matters* — counterfactual ("detectable at case #4"), patrol plans, Kannada.
+1. *It's real*, judges can throw their own inputs at it (runtime embeddings).
+2. *It's trustworthy*, visible guardrails, tamper-evident audit, measured accuracy.
+3. *It matters*, counterfactual ("detectable at case #4"), patrol plans, Kannada.
 
 ### 0.1 Live system
 - App (SPA + API, same origin): `https://anveshak-api-50044329134.development.catalystappsail.in`
-  — SPA at `/ui/`, API at `/api/*`. Health: `/api/health` →
+ , SPA at `/ui/`, API at `/api/*`. Health: `/api/health` →
   `{"status":"ok","db":"loaded","cases":15405,"llm_backend":"quickml"}`.
 - GitHub: `https://github.com/arungeekay/anveshak` (public, must stay current).
 - LLM: QuickML **GLM-4.7-Flash** (`crm-di-glm47b_30b_it`) via `backend/llm/adapter.py`.
@@ -41,7 +41,7 @@ docker build --platform linux/amd64 -t anveshak-api -f backend/Dockerfile .
 docker save anveshak-api:latest -o build/anveshak-api.tar
 catalyst deploy appsail --name anveshak-api --source docker-archive://build/anveshak-api.tar --port 9000
 ```
-- Rollout lag: **1–2 min AFTER "DEPLOYMENT SUCCESSFUL"** — poll until new behavior is live.
+- Rollout lag: **1–2 min AFTER "DEPLOYMENT SUCCESSFUL"**, poll until new behavior is live.
 - After rollout, the container **prewarms** (series+graph+leads+SH-07 pack ≈ 60–90s).
   Warm-check before any demo/verification:
   ```bash
@@ -56,12 +56,12 @@ catalyst deploy appsail --name anveshak-api --source docker-archive://build/anve
   `backend/api/investigate.py`).
 - **AppSail `/app` is read-only** → DuckDB is copied to `/tmp` at boot (`backend/serve.py`).
   Any new file the app writes at runtime must live under `/tmp`.
-- **Client-hosting domain intercepts all `.html`** (`INVALID_URL`) — that's why the
+- **Client-hosting domain intercepts all `.html`** (`INVALID_URL`), that's why the
   SPA is served from the AppSail origin at `/ui`. Do not move it back.
 - **Container idles out** after inactivity → 60–90 s cold start (fixed by F-01 Cron).
-- **DuckDB is not thread-safe across a shared connection** — `backend/db.py`
+- **DuckDB is not thread-safe across a shared connection**, `backend/db.py`
   hands out per-thread cursors. Never cache a cursor across threads; never step a
-  generator holding a cursor across threadpool threads (that bug is fixed —
+  generator holding a cursor across threadpool threads (that bug is fixed -
   the SSE runs its whole pipeline in ONE worker thread; keep it that way).
 - **This dev machine:** Windows Application Control blocks some native DLLs
   (`greenlet`, `_regex`) → `pytest data_engine/tests` errors locally with
@@ -70,17 +70,17 @@ catalyst deploy appsail --name anveshak-api --source docker-archive://build/anve
   (used for the demo video: `video/record.mjs`, `video/capture.mjs`).
 - **`catalyst apig:disable` is permission-blocked for the agent. Do not attempt.**
   The gateway stays enabled; we architect around it.
-- **PowerShell writes BOMs** — write JSON/config files via bash `printf` or the
+- **PowerShell writes BOMs**, write JSON/config files via bash `printf` or the
   Write tool, never `Set-Content` without `-Encoding`.
 - Tests currently green: `pytest backend eval --ignore=data_engine -q` (46 pass).
   Keep them green; add tests with every feature.
 
-### 0.4 Non-negotiable invariants (from CLAUDE.md — re-read it)
+### 0.4 Non-negotiable invariants (from CLAUDE.md, re-read it)
 - ADR-2: the LLM never computes a number; tools compute, LLM narrates.
 - ADR-4: Catalyst-only inference in prod. ADR-8: RBAC enforced server-side.
 - ADR-9: religion/caste are NEVER model features; F-13 adds visible policy handling.
 - Guardrails: SELECT-only, allowlisted tables, auto-LIMIT, no file/IO functions.
-- Honest framing everywhere — no fake numbers, no pseudo-science. If a metric is
+- Honest framing everywhere, no fake numbers, no pseudo-science. If a metric is
   heuristic, label it heuristic on screen.
 - **Do NOT regenerate the dataset** (seed 42, 15,405 cases). The video, deck,
   eval numbers and planted truths all depend on it. Date problems are fixed by
@@ -88,7 +88,7 @@ catalyst deploy appsail --name anveshak-api --source docker-archive://build/anve
 - Small commits, imperative messages, push after each task. Append one line per
   task to PROGRESS.log (`date | task | pass/fail | detail | commit`).
 
-### 0.5 CONTRACTS — approved amendments to contracts.md
+### 0.5 CONTRACTS, approved amendments to contracts.md
 The user (project owner) has approved adding these routes. Task F-00 records them
 in contracts.md under a new section "§9 Finale additions (Stage 2)":
 ```
@@ -109,17 +109,17 @@ X-Anveshak-Role header         SCRB|SP|SHO|ANALYST (+ X-Anveshak-Unit for SP/SHO
 
 ---
 
-## PHASE P0 — Reliability (nothing else matters if this fails)
+## PHASE P0, Reliability (nothing else matters if this fails)
 
 ### F-01 · Keep-warm via Catalyst Cron  ⚠ human-assisted
 **Why:** container idles → 60–90 s dead app in front of the jury.
 **Do (agent):** add `GET /api/warm` in `backend/main.py` that touches: series store,
 graph cache, leads store, SH-07 pack cache, and one trivial DuckDB query; returns
 timings JSON. Deploy. Verify: `curl $U/api/warm` twice; second call all-cached <1s.
-**Do (human, console — give them these exact steps):** Catalyst console → Cron →
+**Do (human, console, give them these exact steps):** Catalyst console → Cron →
 new Cron, type URL/webhook: `GET https://anveshak-api-50044329134.development.catalystappsail.in/api/warm`,
 every **5 minutes**, enabled. (If console Cron can only target Catalyst functions,
-create the smallest Basic-IO function that fetches the URL — consult
+create the smallest Basic-IO function that fetches the URL, consult
 `docs/catalyst/` first per CLAUDE.md; if the Cron page is missing from docs/,
 ask the human to paste it.)
 **Done when:** app answers `/api/series` in <1 s after 2+ hours untouched.
@@ -137,7 +137,7 @@ add `backend/db.py: def data_max_date() -> date` (cached:
 `SELECT MAX(CrimeRegisteredDate) FROM CaseMaster`) and use it everywhere a
 relative window is computed. Chat/NL2SQL: "2026"-style absolute filters are fine;
 check few-shots for relative phrasings.
-**Verify:** freeze test — `freezegun` or monkeypatch `datetime` to 2026-09-20 in a
+**Verify:** freeze test, `freezegun` or monkeypatch `datetime` to 2026-09-20 in a
 new `backend/tests/test_time_anchor.py`; assert: spike detector still fires
 Whitefield, repeat_offender still fires Suresh B, forecast returns non-empty,
 leads endpoint returns ≥3 leads. Run full suite.
@@ -153,7 +153,7 @@ the live SSE and the fallback poll (kept as belt-and-braces) never triggers.
 accept the prewarmed `engine.cache` (ensure via `cache.ensure(con)`) and reuse
 `cache.centrality` instead of recomputing. Audit the other agent steps for
 recomputation of anything the caches hold (similar_cases embeddings are
-precomputed; forecaster SARIMA fit ~15 s is inherent — acceptable).
+precomputed; forecaster SARIMA fit ~15 s is inherent, acceptable).
 **Verify:** local timed SSE run (pattern exists in prior work): stream
 `/api/investigate/{run}/stream` and assert `pack_ready` < 35 s wall. Then live:
 the stream must complete WITHOUT the pack-poll fallback firing (watch server log
@@ -161,7 +161,7 @@ line or add a `via: stream|fallback` field to the pack payload).
 **Done when:** live SSE shows all six agents + `pack_ready` in one connection.
 
 ### F-04 · Live verification script (used after every deploy in this plan)
-**Do:** `scripts/verify_live.py` — asserts, against `$U`: health ok/15405; `/ui/`
+**Do:** `scripts/verify_live.py`, asserts, against `$U`: health ok/15405; `/ui/`
 200; chat EN D1 answer contains "47"; chat KN returns `ಫಲಿತಾಶ`-prefixed template;
 series SH-07 conf ≥0.85 & 15 cases; graph P-007001 ≥25 nodes; leads ≥3 with all
 three types; pack JSON has ≥5 suspects; 20 concurrent mixed GETs → all 200.
@@ -170,25 +170,25 @@ Exit non-zero on any failure, print a table.
 
 ---
 
-## PHASE P1 — Platform credibility (Zoho engineers are on the jury)
+## PHASE P1, Platform credibility (Zoho engineers are on the jury)
 
-### F-05 · ONNX runtime embeddings (THE unlock — do the spike first)
+### F-05 · ONNX runtime embeddings (THE unlock, do the spike first)
 **Why:** container has no torch, so nothing can embed new text at runtime; every
 "new FIR" demo would be scripted. ONNX MiniLM makes judge-supplied input work.
 **Spike (timebox 0.5 day):** export `paraphrase-multilingual-MiniLM-L12-v2` to
 int8 ONNX **locally** (sentence-transformers + optimum or the pre-exported ONNX on
 the HF repo), run via `onnxruntime` CPU + `tokenizers`; embed 20 narratives whose
 vectors exist in CaseMOVector; require cosine(onnx, stored) ≥ 0.99 for all 20.
-If parity fails with int8, use fp32 ONNX (~450 MB — still fine; image is 1.4 GB).
-**Build:** `backend/embeddings/onnx_embedder.py` — `embed(texts: list[str]) -> np.ndarray`
-(tokenize, run, mean-pool with attention mask, L2-normalize — MUST mirror
+If parity fails with int8, use fp32 ONNX (~450 MB, still fine; image is 1.4 GB).
+**Build:** `backend/embeddings/onnx_embedder.py`, `embed(texts: list[str]) -> np.ndarray`
+(tokenize, run, mean-pool with attention mask, L2-normalize, MUST mirror
 sentence-transformers pooling exactly; that is what the parity test proves).
 Model file bundled via Dockerfile `COPY models/minilm-onnx /app/models/minilm-onnx`;
 lazy-load on first use (adds ~2–3 s once); add `onnxruntime`, `tokenizers` to
 `requirements.txt` (runtime). Keep local dev working without it (fallback to
 sentence-transformers when installed).
 **Verify:** parity test in CI (`backend/tests/test_onnx_embedder.py`, skipped if
-model dir absent locally… no — bundle the model in repo-adjacent `models/` and Git
+model dir absent locally… no, bundle the model in repo-adjacent `models/` and Git
 LFS is NOT set up; instead: model files go in `models/` (≈100–450 MB) and are
 .gitignored; Dockerfile copies them; the build script
 `scripts/fetch_onnx_model.py` downloads/exports deterministically. Document in
@@ -202,16 +202,16 @@ novel narrative in <3 s warm.
 - `POST /api/intake` per §CONTRACTS. Steps: validate (district from masters;
   default PS by district), allocate CaseMasterID = max+1 (write-locked like
   audit), INSERT into CaseMaster mirror (+ minimal child rows so vw_case_360
-  stays consistent — check the view's joins in `schema/schema.sql` and satisfy NOT
+  stays consistent, check the view's joins in `schema/schema.sql` and satisfy NOT
   NULLs), embed narrative via F-05 → INSERT CaseMOVector, then
   `store.rescan(con)` (already stampede-locked) and return which series now
   contain the new case (`store.containing`). Also `write_audit("intake", …)`.
   Runtime budget: embed ~1 s + rescan ~5–10 s warm → within gateway limit; if
   rescan trends >25 s, return `202 {pending:true}` and let the UI poll
-  `/api/series` — decide by measurement.
-- `POST /api/similar/by_text` — embed + cosine against CaseMOVector (numpy dot on
+  `/api/series`, decide by measurement.
+- `POST /api/similar/by_text`, embed + cosine against CaseMOVector (numpy dot on
   the in-memory matrix; cache the matrix at prewarm), top-k with case metadata.
-**Frontend:** `frontend/src/views/Intake.jsx` — form (narrative textarea, district
+**Frontend:** `frontend/src/views/Intake.jsx`, form (narrative textarea, district
 select from a new `/api/masters` or hardcoded list, sub-head optional) + **🎤
 Kannada dictation** into the textarea (reuse Chat's Web Speech `kn-IN` pattern) +
 submit → progress → success panel: "Case C-15406 registered · embedded · joined
@@ -222,7 +222,7 @@ submit → progress → success panel: "Case C-15406 registered · embedded · j
 is **Qwen 3.6-35B VL** available as a shared/deployable model and at what cost?
 If viable, `POST /api/intake/scan` (image → GLM/VL field extraction → prefill the
 form). If not confirmed within 2 days, SKIP and put "photo intake" on the roadmap
-slide — voice + typed are already two modalities.
+slide, voice + typed are already two modalities.
 **Verify:** new test `backend/tests/test_intake.py` with a synthetic
 chain-snatching narrative (copy MO invariants from demo_story.md: two men, black
 motorcycle, pillion snatch, visors, one-way escape, Bengaluru City) → asserts it
@@ -234,25 +234,25 @@ then demo_reset, then verify_live again (back to 15 cases).
 **Why:** ADR-1 claims Data Store is the source of truth; today that's aspirational.
 Zoho judges will ask. Make it provable without endangering the working DuckDB path.
 **Do (agent):** consult `docs/catalyst/` Data Store + ds:import pages (ask human to
-paste if missing). Export core tables to CSV (`data_engine` already writes CSVs —
+paste if missing). Export core tables to CSV (`data_engine` already writes CSVs -
 confirm columns match schema). Load via `catalyst ds:import` (CLI is authed):
 CaseMaster (core columns), District, PersonRegistry, AuditLog schema. Handle Data
-Store column-type limits (dates as ISO strings if needed) — document mapping.
-Backend: `backend/datastore.py` — on boot (background, after prewarm) query row
-counts via zcatalyst SDK (needs request-context? NO — boot has no request; use the
+Store column-type limits (dates as ISO strings if needed), document mapping.
+Backend: `backend/datastore.py`, on boot (background, after prewarm) query row
+counts via zcatalyst SDK (needs request-context? NO, boot has no request; use the
 token/env credential path like `_quickml_token`; consult docs; if SDK-only-with-
 request blocks this, expose `GET /api/datastore/status` that uses the *incoming
-request's* context to fetch counts — that works like GLM does). Health/`/api/trust`
+request's* context to fetch counts, that works like GLM does). Health/`/api/trust`
 reports `datastore: {connected: true, case_rows: 15405}`.
 Write-path: `/api/intake` ALSO writes the new case to Data Store (best-effort,
-same request context), then the mirror — that makes ADR-1's write path literal.
+same request context), then the mirror, that makes ADR-1's write path literal.
 **Do (human):** create the tables in the Data Store console if ds:import requires
 pre-created schemas (give them the column list generated by a script:
 `scripts/datastore_schema.py` prints table+column DDL-equivalents).
 **Done when:** `/api/datastore/status` shows connected + counts on prod, and
 intake writes appear in the console. **If blocked >2 days, ship `/api/datastore/
 status` returning `{connected:false, mode:"bundled-mirror"}` and keep the honest
-framing — do not fake it.**
+framing, do not fake it.**
 
 ### F-08 · SmartBrowz → real Investigation Pack PDF
 **Why:** "court-ready PDF" is claimed; make Open pack download an actual PDF.
@@ -263,7 +263,7 @@ from `adapter.py`. Route: `GET /api/investigate/pack/{series_id}.pdf` → return
 `application/pdf` (cache the bytes in `/tmp/packs/`). UI: PackView gains
 "Download PDF ⬇" next to "Open pack ↗". Graceful: if SmartBrowz errors, button
 falls back to the HTML view with print CSS (`@media print` styles added to
-pack template) — never a dead button.
+pack template), never a dead button.
 **Verify:** curl the .pdf route → `%PDF` magic bytes, >20 KB; open locally once.
 **Done when:** live PDF downloads for SH-07 warm in <10 s.
 
@@ -277,22 +277,22 @@ different answers by role.
 - FastAPI dependency reads `X-Anveshak-Role` (+ `X-Anveshak-Unit` optional
   override); attaches `Scope` to request.state; default SCRB.
 - **Enforcement point = the tool layer** (per ADR-8), not the prompt: in
-  `run_sql`'s execution path inject scope as a WHERE wrapper — implement by
+  `run_sql`'s execution path inject scope as a WHERE wrapper, implement by
   wrapping the sanitized SELECT: `SELECT * FROM (<sanitized>) WHERE District = ?`
   is WRONG (column may be absent). Correct approach: scope injection inside the
   NL2SQL prompt is forbidden (ADR-8 says server-side), so: post-parse with sqlglot,
   find base tables/views that carry DistrictID/District or PoliceStationID
-  columns (vw_case_360 has district + ps names — check schema), and add the
+  columns (vw_case_360 has district + ps names, check schema), and add the
   predicate to the WHERE clause of the outermost SELECT referencing them. Cover
   the analyst views first (NL→SQL targets views per CLAUDE.md); raise a clean
   "out of scope" error if the query has no scopable table. Deterministic tools
   (hotspots/forecast/risk/linkage/network/leads/series/person) each already take
-  district/ps filters or operate on cases — thread `Scope` through their public
+  district/ps filters or operate on cases, thread `Scope` through their public
   entrypoints and filter case sets before computing.
 - ANALYST masking: in `run_sql` result post-processing + `/api/person` +
   pack payloads: name-like columns (`name`, `Name`, `PersonName`, suspects'
   names) → initials ("Ravi K" → "R. K."); person_keys stay (pseudonymous).
-- Audit rows already carry role — now record the *actual* enforced scope.
+- Audit rows already carry role, now record the *actual* enforced scope.
 - Frontend: role switcher sends the header on every call (`lib/api.js` reads a
   module-level `role` set by App.jsx); REMOVE the "preview" chip; add a thin
   banner when scoped: "Viewing as SHO · Jayanagar PS".
@@ -305,18 +305,18 @@ with headers.
 runbook gains the role-switch beat.
 
 ### F-10 · Re-measure NL→SQL on the deployed GLM + few-shot tuning
-**Why:** deck says 76.7% "on the local 7B dev model" — measure the real system.
-**Do:** `eval/live_harness.py` — POST each of the 60 questions to prod `/api/chat`
+**Why:** deck says 76.7% "on the local 7B dev model", measure the real system.
+**Do:** `eval/live_harness.py`, POST each of the 60 questions to prod `/api/chat`
 (EN+KN), score by **execution-match**: run the gold SQL locally against the same
 DuckDB build and compare result sets to the evidence rows/answer the API returned
-(the chat response carries evidence SQL + row counts — compare values, not SQL
+(the chat response carries evidence SQL + row counts, compare values, not SQL
 text). Rate-limit gently (1 rps). Produce `eval/results/live_glm_<date>.json`
 with per-question pass/fail + overall/EN/KN.
 Then: add 10–15 few-shots to `backend/nl2sql/few_shots.yaml` targeting misses and
 *judge-likely* shapes (top-N districts by <crime> in <year>; year-over-year
 comparison; count by month; murders in <district>; "most dangerous police
 station"). KN: add 5 more with strict filter retention (known GLM weakness:
-drops filters — include contrastive examples). Redeploy, re-run, keep the best
+drops filters, include contrastive examples). Redeploy, re-run, keep the best
 number honestly (report both runs).
 **Done when:** live accuracy measured ≥ baseline and recorded in
 `eval/results/`, Trust Center (F-12) reads this JSON, deck number updated with
@@ -324,29 +324,29 @@ number honestly (report both runs).
 
 ---
 
-## PHASE P2 — The standout features
+## PHASE P2, The standout features
 
 ### F-11 · Counterfactual: "detectable at case #4"
-**Why:** the most persuasive computed artifact — quantifies the cost of not
+**Why:** the most persuasive computed artifact, quantifies the cost of not
 having ANVESHAK. Honest: computed by our own engine on truncated data.
-**Do:** `eval/counterfactual.py` (offline, heavy — runs locally, NOT at runtime):
+**Do:** `eval/counterfactual.py` (offline, heavy, runs locally, NOT at runtime):
 for cutoff dates stepping weekly across SH-07's true case span (planted truth in
 `data_engine/planted/`), run `linkage.engine.discover()` on data restricted to
 `CrimeRegisteredDate <= cutoff`; find the earliest cutoff where ≥4 of SH-07's
 planted cases cluster together with confidence ≥ 0.7. Record: detectable-at case
 ordinal (e.g. 4th planted case), its date, how many planted cases (and their
 districts) came after. Output `backend/static_data/counterfactual_SH-07.json`
-(commit it — it's derived data with the method documented inside the JSON).
+(commit it, it's derived data with the method documented inside the JSON).
 Route `GET /api/series/{id}/counterfactual` serves the JSON (404 for others).
 **Frontend:** Series detail (SH-07 expanded) + Investigation Room pack view show
 a banner: "⏱ ANVESHAK detects this series at case **#4** (12 Mar 2026). **11
 crimes across 3 districts happened after the pattern was already visible.**
-[method: retrospective replay on truncated data]". Tooltip explains the method —
+[method: retrospective replay on truncated data]". Tooltip explains the method -
 honesty is the feature.
 **Verify:** unit test that the JSON's case ids ⊂ planted truth; eyeball dates.
 **Done when:** the banner renders live with real computed numbers. If the result
 is unimpressive (e.g. detectable only at case #12), REPORT IT HONESTLY to the
-user and skip the banner — do not massage thresholds to force a story.
+user and skip the banner, do not massage thresholds to force a story.
 
 ### F-12 · Trust Center + red-team console + hash-chained audit
 **Why:** converts the jury's attack instinct into our best moment; procurement-
@@ -361,7 +361,7 @@ grade maturity nobody else will show.
   post-sanitize check: if the parsed query references religion/caste columns or
   masters: allowed ONLY when aggregate (GROUP BY with COUNT/aggregates and no
   person-identifying columns selected); otherwise return a structured policy
-  response `{blocked: true, policy: "ADR-9", reason_en, reason_kn}` — chat renders
+  response `{blocked: true, policy: "ADR-9", reason_en, reason_kn}`, chat renders
   it as a respectful policy card, and it is audited. Unit-test both branches.
 - **`GET /api/trust/metrics`:** serves a JSON assembled at build time + runtime
   bits: eval numbers (from F-10 results file), linkage precision/recall (from
@@ -388,9 +388,9 @@ why it was refused, with an audit id.
 **Why:** investigators think person-first; this composes five existing tools into
 the page a real IO would live in.
 **Do:** `backend/api/person.py`: search (`LIKE` on PersonRegistry name, group by
-person_key, order by case count — reuse `resolve_person` logic from
+person_key, order by case count, reuse `resolve_person` logic from
 `backend/nl2sql/router.py`) + profile: cases (vw_accused_history), risk_score with
-component breakdown (recency/frequency/gravity/centrality — the tool already
+component breakdown (recency/frequency/gravity/centrality, the tool already
 returns pieces; expose them), ego_network(depth=1) graph payload, timeline
 (cases by date), aliases (PersonRegistry variants), districts touched. ANALYST
 masking applies (F-09).
@@ -403,7 +403,7 @@ with breakdown). Live click-through from pack → person.
 **Done when:** search "Prakash Rao" → full profile in <2 s warm.
 
 ### F-14 · Patrol Plan (analytics → an order)
-**Do:** `backend/api/patrol_plan.py`: for a district — hotspots tool (top h3
+**Do:** `backend/api/patrol_plan.py`: for a district, hotspots tool (top h3
 cells, map to nearest PS via masters lat/lon), forecast per top sub-head (next-2-
 week trend), series next-window (forecaster output for series in that district) →
 compose ranked items: `{ps, window:"20:00–23:00", beats:[cell centroids],
@@ -436,26 +436,26 @@ explainable reason string.
   `/api/series/{id}/feedback` (built at T12) → status chip flips to
   "confirmed by analyst" + audited.
 **Verify:** replay payload ordered by date; codename cached & deterministic
-fallback tested; feedback flips status (test exists — extend for UI contract).
+fallback tested; feedback flips status (test exists, extend for UI contract).
 **Done when:** the SH-07 card reads like a case file, not a cluster.
 
 ### F-16 · Spoken Kannada morning briefing
 **Do:** `GET /api/briefing?lang=kn|en`: compose from current leads via FIXED
-Kannada sentence templates (numbers slotted in — GLM's free-form KN is unreliable;
+Kannada sentence templates (numbers slotted in, GLM's free-form KN is unreliable;
 templates keep ADR-2 honesty too). Example structure: greeting + "ನಿನ್ನೆ ರಾತ್ರಿ
 ANVESHAK <n> ಸುಳಿವುಗಳನ್ನು ಪತ್ತೆ ಮಾಡಿದೆ" + one sentence per top-3 lead (template per
 detector type) + sign-off. Return text + cited lead ids.
 **Frontend:** Lead Feed header gains "🔊 ಬೆಳಗಿನ ವರದಿ / Morning briefing" → fetch +
 `speechSynthesis` with `kn-IN` voice (fallback en-IN; show the text as captions
-while speaking — the demo hall may be loud).
+while speaking, the demo hall may be loud).
 **Verify:** unit test the KN template composer (numbers present, no LLM); manual
-voice test on the demo laptop (Chrome + Kannada voice pack installed — add to
+voice test on the demo laptop (Chrome + Kannada voice pack installed, add to
 demo runbook prerequisites).
 **Done when:** one click produces a ~30 s spoken Kannada brief with live lead data.
 
 ---
 
-## PHASE P3 — Finale materials (after features freeze)
+## PHASE P3, Finale materials (after features freeze)
 
 ### F-17 · Demo runbook v2 (`demo_path.md` rewrite)
 The golden path for the finale, in order (≈6 min): Command open on Lead Feed →
@@ -474,7 +474,7 @@ permission, zoom 110%).
 lessons learned): 1 title+team · 2 the officer's problem (story) · 3 LIVE DEMO
 placeholder (bulk of time) · 4 how it's trustworthy (ADR-2/9, evidence, red-team,
 audit chain, measured accuracy from F-10) · 5 counterfactual + impact numbers ·
-6 architecture on Catalyst (all services actually used, live vs provisioned —
+6 architecture on Catalyst (all services actually used, live vs provisioned -
 honest) · 7 roadmap to CCTNS + ask · 8 thank-you/links. Marketing tone from the
 submission deck; every number sourced.
 
@@ -529,5 +529,5 @@ build → unit tests green (`pytest backend eval --ignore=data_engine -q`) →
 deploy → `python scripts/verify_live.py` green → feature-specific live check →
 commit (small, imperative) + push → PROGRESS.log line. If a deploy breaks
 verify_live: rollback = redeploy previous tar (`build/anveshak-api.tar` is
-overwritten each build — start archiving as `build/anveshak-api-<shorthash>.tar`,
+overwritten each build, start archiving as `build/anveshak-api-<shorthash>.tar`,
 keep last 3).

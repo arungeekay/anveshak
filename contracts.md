@@ -1,4 +1,4 @@
-# contracts.md — API & Tool Contracts (FROZEN)
+# contracts.md, API & Tool Contracts (FROZEN)
 
 Any change to this file requires human sign-off. Claude Code sessions build
 **against** these shapes; they do not invent fields.
@@ -51,7 +51,7 @@ Response:
   "audit_id": 991
 }
 ```
-Errors: `{ "error": "explanation", "suggestion": "rephrase hint" }` — never a stack trace.
+Errors: `{ "error": "explanation", "suggestion": "rephrase hint" }`, never a stack trace.
 
 `POST /api/chat/export` `{session_id}` → `{pdf_url}` (SmartBrowz → Stratus).
 
@@ -66,7 +66,7 @@ Errors: `{ "error": "explanation", "suggestion": "rephrase hint" }` — never a 
 ```json
 SeriesHypothesis = {
   "series_id": "SH-07",
-  "name": "Two-wheeler chain-snatching series — Bengaluru/Tumakuru/Mandya",
+  "name": "Two-wheeler chain-snatching series, Bengaluru/Tumakuru/Mandya",
   "case_ids": [/* 12-14 ids */],
   "confidence": 0.91,
   "mo_summary": "Two men on motorcycle; pillion snatches gold chain from women walking alone; 18:00-21:00",
@@ -105,7 +105,7 @@ InvestigationPack = {
   "pack_id": "pk-9",
   "series_id": "SH-07",
   "summary": "...",
-  "timeline": [ {"date": "...", "case_id": 101, "event": "FIR registered — Jayanagar PS"} ],
+  "timeline": [ {"date": "...", "case_id": 101, "event": "FIR registered, Jayanagar PS"} ],
   "network_exhibit": GraphResult,
   "suspects_ranked": [ { "person_key": "P-004412", "name": "...",
                          "risk": {"score": 0.87,
@@ -128,7 +128,7 @@ InvestigationPack = {
 ```json
 LeadCard = {
   "lead_id": "L-31", "type": "spike|series_growth|repeat_offender",
-  "title": "Vehicle theft 3.1x seasonal baseline — Whitefield sub-division",
+  "title": "Vehicle theft 3.1x seasonal baseline, Whitefield sub-division",
   "evidence": {"metric": "stl_residual_z", "value": 3.1, "window": "last 14d", "case_ids": []},
   "confidence": 0.84,
   "suggested_action": "Increase night patrols 22:00-02:00 in cells [...]",
@@ -159,7 +159,7 @@ GraphResult = {
 
 ---
 
-## 7. Tool contracts (internal — the ONLY way agents/chat touch data)
+## 7. Tool contracts (internal, the ONLY way agents/chat touch data)
 
 | tool | params | returns |
 |---|---|---|

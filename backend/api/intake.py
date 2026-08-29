@@ -1,7 +1,7 @@
 """FIR intake + free-text similarity (contracts.md §9, FINALE_PLAN F-06).
 
 The demo beat this exists for: an officer (or a judge on stage) files a *new* FIR in
-their own words — typed or dictated in Kannada — and ANVESHAK embeds it at runtime,
+their own words, typed or dictated in Kannada, and ANVESHAK embeds it at runtime,
 re-runs linkage, and reports that it just joined an existing serial-crime series.
 Detection stops being a claim and becomes an event the room witnesses.
 
@@ -161,7 +161,7 @@ def intake(req: IntakeRequest, request: Request) -> dict:
              features_json(req.narrative, occurred, lat, lon), "onnx-minilm-runtime"])
 
     # ADR-1: the Data Store is the system of record, so the new FIR goes there too.
-    # Best-effort — the mirror already holds it and the demo must not depend on the
+    # Best-effort, the mirror already holds it and the demo must not depend on the
     # console tables existing.
     from ..datastore import insert_case
     from ..llm.request_ctx import current_request
@@ -217,7 +217,7 @@ def intake(req: IntakeRequest, request: Request) -> dict:
 def similar_by_text(req: SimilarByTextRequest) -> dict:
     """Top-k historical cases most similar to an arbitrary narrative.
 
-    Works on text that has never been seen before — paste any FIR and get the cases
+    Works on text that has never been seen before, paste any FIR and get the cases
     with the closest modus operandi.
     """
     con = get_connection()

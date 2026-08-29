@@ -1,4 +1,4 @@
-"""SeriesStore logic (feedback, containing) — deterministic, no DB."""
+"""SeriesStore logic (feedback, containing), deterministic, no DB."""
 from __future__ import annotations
 
 from backend.linkage.store import SeriesStore

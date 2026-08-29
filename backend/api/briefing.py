@@ -4,7 +4,7 @@ One button produces the ~30-second brief a District SP would want at 7am: what t
 overnight sweep found, in Kannada or English. The frontend speaks it with the
 browser's kn-IN voice.
 
-Composed from FIXED templates with tool values slotted in — never free-form LLM
+Composed from FIXED templates with tool values slotted in, never free-form LLM
 Kannada. Two reasons: GLM's unprompted Kannada is unreliable enough to swap a
 subject on stage, and ADR-2 says numbers come from tools, not the model.
 """
@@ -18,18 +18,18 @@ from ..patrol.store import leads_store
 router = APIRouter()
 
 # One sentence per detector type, in both languages. {} slots are filled from the
-# lead's own evidence — no number here is authored by a model.
+# lead's own evidence, no number here is authored by a model.
 _LEAD_TEMPLATES = {
     "spike": {
-        "en": "{title} — {value} times the usual level over the {window}, {cases} cases. Suggested action: {action}",
+        "en": "{title}, {value} times the usual level over the {window}, {cases} cases. Suggested action: {action}",
         "kn": "{ps} ಠಾಣಾ ವ್ಯಾಪ್ತಿಯಲ್ಲಿ ಅಪರಾಧ ಪ್ರಮಾಣ ಸಾಮಾನ್ಯಕ್ಕಿಂತ {value} ಪಟ್ಟು ಹೆಚ್ಚಾಗಿದೆ. {cases} ಪ್ರಕರಣಗಳು ದಾಖಲಾಗಿವೆ.",
     },
     "repeat_offender": {
-        "en": "{title} — {value} unsolved cases match his pattern within 3 km of his residence.",
+        "en": "{title}, {value} unsolved cases match his pattern within 3 km of his residence.",
         "kn": "ಪುನರಾವರ್ತಿತ ಅಪರಾಧಿಯ ಸುಳಿವು: ಅವರ ನಿವಾಸದ 3 ಕಿ.ಮೀ ವ್ಯಾಪ್ತಿಯಲ್ಲಿ {value} ಬಗೆಹರಿಯದ ಪ್ರಕರಣಗಳು ಅವರ ಮಾದರಿಗೆ ಹೊಂದಿಕೆಯಾಗುತ್ತವೆ.",
     },
     "series_growth": {
-        "en": "{title} — the series now spans {cases} linked cases.",
+        "en": "{title}, the series now spans {cases} linked cases.",
         "kn": "ಸರಣಿ ಅಪರಾಧ ಬೆಳೆಯುತ್ತಿದೆ: ಈಗ {cases} ಪ್ರಕರಣಗಳು ಸಂಪರ್ಕ ಹೊಂದಿವೆ.",
     },
 }
@@ -56,7 +56,7 @@ def _sentence(lead: dict, lang: str) -> str:
     title = lead.get("title", "")
     return tpl.format(
         title=title,
-        ps=title.split("—")[-1].strip() if "—" in title else lead.get("district", ""),
+        ps=title.split("-")[-1].strip() if "-" in title else lead.get("district", ""),
         value=ev.get("value", ""),
         window=ev.get("window", ""),
         cases=len(ev.get("case_ids") or []),

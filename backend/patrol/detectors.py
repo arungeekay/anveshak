@@ -19,7 +19,7 @@ START = _dt.date(2023, 1, 1)
 
 
 def _data_end(con=None) -> _dt.date:
-    """Anchor every relative window to the data's last FIR, not the wall clock —
+    """Anchor every relative window to the data's last FIR, not the wall clock -
     the corpus ends 2026-07-20, so a clock anchor finds nothing at demo time
     (FINALE_PLAN F-02). Derived, so FIR intake shifts it automatically."""
     return data_max_date(con)
@@ -61,7 +61,7 @@ def _spike(con) -> list[dict]:
         ratio = recent_rate / max(base_rate, 0.3)
         leads.append({
             "type": "spike",
-            "title": f"{sub} {ratio:.1f}x baseline — {ps}",
+            "title": f"{sub} {ratio:.1f}x baseline, {ps}",
             "evidence": {"metric": "stl_residual_z", "value": round(z, 1),
                          "window": f"last {WINDOW_DAYS}d", "case_ids": cids},
             "confidence": round(min(0.95, 0.6 + z / 30), 2),

@@ -56,7 +56,7 @@ def extract_sql(text: str) -> str:
 
 
 def generate_sql(question: str, few_shots: list[dict] | None = None) -> str:
-    """Single-shot generation (no execution) — used by the eval harness."""
+    """Single-shot generation (no execution), used by the eval harness."""
     prompt = build_prompt(question, few_shots or load_few_shots())
     res = adapter.chat([{"role": "user", "content": prompt}], system=SYSTEM,
                        temperature=0.0, max_tokens=256)
@@ -64,7 +64,7 @@ def generate_sql(question: str, few_shots: list[dict] | None = None) -> str:
 
 
 def run(con, question: str, *, max_repairs: int = 2, scope=None) -> NLResult:
-    """Generate, guardrail, scope, execute — repairing on failure up to max_repairs times."""
+    """Generate, guardrail, scope, execute, repairing on failure up to max_repairs times."""
     messages = [{"role": "user", "content": build_prompt(question, load_few_shots())}]
     last_err: str | None = None
     for attempt in range(max_repairs + 1):
@@ -74,11 +74,11 @@ def run(con, question: str, *, max_repairs: int = 2, scope=None) -> NLResult:
         try:
             safe = guardrails.sanitize(raw)
             # ADR-9: refuse SQL that profiles people by a protected
-            # attribute. Raised past the repair loop deliberately —
+            # attribute. Raised past the repair loop deliberately -
             # this is a policy decision, not a syntax error to retry.
             policy.check_sql(safe)
             # ADR-8: role scope is injected server-side, into the SQL that
-            # actually runs — never into the prompt, which the model could
+            # actually runs, never into the prompt, which the model could
             # ignore or the user could talk it out of.
             if scope is not None:
                 safe = scope_sql(safe, scope)

@@ -2,7 +2,7 @@
 
 Routes a message to a deterministic tool (linkage_scan/network/forecast/hotspots/
 risk ranking) or falls back to run_sql (NL->SQL). Entity extraction matches known
-districts/sub-heads/person names — no LLM needed, so routing is testable.
+districts/sub-heads/person names, no LLM needed, so routing is testable.
 """
 from __future__ import annotations
 

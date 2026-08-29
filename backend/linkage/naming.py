@@ -7,7 +7,7 @@ Two small things that change how a series *reads* to a police audience:
   features the engine already matched on, so the name is evidence-derived rather
   than invented.
 * **Link explanation.** A cosine of 0.94 means nothing to an investigating officer.
-  "Both: two men, black motorcycle, gold chain, evening" is auditable — it names
+  "Both: two men, black motorcycle, gold chain, evening" is auditable, it names
   exactly what the engine matched on, turning the linkage from a black box into
   something a court could follow.
 
@@ -50,7 +50,7 @@ def codename(hypothesis: dict, features: dict | None = None) -> str:
     """
     feats = features or {}
     parts: list[str] = []
-    # Most distinctive slots first — a motorcycle is common to many series, but the
+    # Most distinctive slots first, a motorcycle is common to many series, but the
     # target and the entry method are what actually characterise a ring.
     for slot in ("target", "entry", "weapon", "vehicle"):
         val = feats.get(slot)
@@ -74,8 +74,8 @@ def assign_codenames(hypotheses: list[dict]) -> None:
     """Give every series a UNIQUE codename, in place.
 
     MO features repeat across series (many rings use a motorcycle), so the same
-    name can be derived twice. A duplicate name is worse than none — officers would
-    conflate two operations — so collisions are broken with the series' primary
+    name can be derived twice. A duplicate name is worse than none, officers would
+    conflate two operations, so collisions are broken with the series' primary
     district, then with its id. Both are stable, so names never shift between runs.
     """
     used: set[str] = set()

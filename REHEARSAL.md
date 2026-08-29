@@ -1,4 +1,4 @@
-# REHEARSAL.md — finale-week checklist
+# REHEARSAL.md, finale-week checklist
 
 Everything below is mechanical. Do it in order; do not improvise on the day.
 
@@ -8,10 +8,10 @@ Everything below is mechanical. Do it in order; do not improvise on the day.
 
 | File | Purpose |
 |---|---|
-| `demo_path.md` | The 18-step golden path — the script you actually drive |
+| `demo_path.md` | The 18-step golden path, the script you actually drive |
 | `ANVESHAK_Finale_Pitch.pptx` / `.pdf` | 9-slide pitch deck (the demo is slide 4) |
 | `FINALE_QA.md` | 3-sentence answers to the questions that will come |
-| `ANVESHAK_demo.webm` | Recorded demo — the last-resort fallback |
+| `ANVESHAK_demo.webm` | Recorded demo, the last-resort fallback |
 | `ANVESHAK_KSP_Datathon_2026_Submission.pptx` | The Stage-1 submission deck |
 
 Regenerate the pitch deck after any change: `python scripts/build_finale_deck.py`
@@ -20,17 +20,17 @@ Regenerate the pitch deck after any change: `python scripts/build_finale_deck.py
 
 ## Three dry runs (do not skip the third)
 
-**Run 1 — correctness.** Walk `demo_path.md` slowly. Tick every "expect" value.
+**Run 1, correctness.** Walk `demo_path.md` slowly. Tick every "expect" value.
 Note anything that differs; fix it that day, not on the morning.
 
-**Run 2 — timing.** Same path with a stopwatch, aiming for **6:00**. If you are
-over, cut the patrol plan (step 15) and the graph — not the intake or the pack.
+**Run 2, timing.** Same path with a stopwatch, aiming for **6:00**. If you are
+over, cut the patrol plan (step 15) and the graph, not the intake or the pack.
 
-**Run 3 — hostile.** Someone plays a sceptical DGP: interrupt mid-demo, grab the
+**Run 3, hostile.** Someone plays a sceptical DGP: interrupt mid-demo, grab the
 keyboard, type a hostile prompt into the Trust Center, ask two questions from
 `FINALE_QA.md`. This is the run that decides whether you are ready.
 
-Also run once on a **phone hotspot** — venue Wi-Fi is unpredictable, and you should
+Also run once on a **phone hotspot**, venue Wi-Fi is unpredictable, and you should
 know how the app behaves on a weak connection before you find out live.
 
 ---
@@ -48,14 +48,14 @@ know how the app behaves on a weak connection before you find out live.
 
 ## Morning-of
 
-- [ ] `curl -X POST $BASE/api/intake/reset` — clears rehearsal FIRs so SH-07 reads **15**
+- [ ] `curl -X POST $BASE/api/intake/reset`, clears rehearsal FIRs so SH-07 reads **15**
 - [ ] `curl $BASE/api/warm` until it reports `warm` with `packs: ['SH-07']`
 - [ ] `python scripts/verify_live.py` one final time
 - [ ] Open all needed tabs; close everything else; notifications off; zoom 110%
 
 ## T-10 minutes
 
-- [ ] `curl $BASE/api/warm` once more (the container idles out — this is the single most common failure)
+- [ ] `curl $BASE/api/warm` once more (the container idles out, this is the single most common failure)
 - [ ] Lead Feed open on screen, ready to start
 
 ---
@@ -63,7 +63,7 @@ know how the app behaves on a weak connection before you find out live.
 ## Division of labour
 
 - **One person drives, one person talks.** Never both.
-- The talker never says "let me just…" — if something stalls, they keep talking
+- The talker never says "let me just…", if something stalls, they keep talking
   about *what the audience already saw* while the driver recovers.
 - Agree in advance who answers what (see the split at the top of `FINALE_QA.md`).
 

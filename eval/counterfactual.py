@@ -2,7 +2,7 @@
 
 Runs the real linkage engine against the corpus truncated to successive dates and
 finds the earliest point at which the series becomes detectable. The output answers
-the question a police jury actually cares about — *what would this have changed?* —
+the question a police jury actually cares about, *what would this have changed?* -
 with a number computed by our own engine rather than asserted in a slide.
 
 Honest by construction: it is a retrospective replay on synthetic data, the method
@@ -11,7 +11,7 @@ is recorded in the artefact, and if the answer is unimpressive we report that.
     python -m eval.counterfactual                 # SH-07
     python -m eval.counterfactual --series SH-03
 
-Writes backend/static_data/counterfactual_<series>.json (committed — derived data).
+Writes backend/static_data/counterfactual_<series>.json (committed, derived data).
 """
 from __future__ import annotations
 
@@ -28,7 +28,7 @@ OUT_DIR = Path("backend/static_data")
 DB_PATH = "build/anveshak.duckdb"
 
 # A series is "detectable" once the engine clusters at least this many of its cases
-# together with at least this confidence — i.e. enough for an officer to act on.
+# together with at least this confidence, i.e. enough for an officer to act on.
 MIN_MEMBERS = 4
 MIN_CONFIDENCE = 0.70
 
@@ -107,7 +107,7 @@ def main() -> int:
             break
 
     if not detected_at:
-        print("\nNot detectable before the full series — reporting honestly, no banner.")
+        print("\nNot detectable before the full series, reporting honestly, no banner.")
         return 1
 
     after = [c for c in cases if c[1] > _dt.datetime.fromisoformat(detected_at["date"])]

@@ -56,7 +56,7 @@ def create_views(con: duckdb.DuckDBPyConnection) -> None:
 # Tables the generator produces no rows for: they are written at runtime. Creating
 # them from an EMPTY DataFrame gives every column pandas' default int64 dtype, which
 # silently breaks inserts later (AuditLog took VARCHAR/TIMESTAMP values and every
-# write failed a cast). Build these from the schema DDL instead — schema.sql is the
+# write failed a cast). Build these from the schema DDL instead, schema.sql is the
 # contract (CLAUDE.md), so it should define them.
 RUNTIME_TABLES = ("AuditLog",)
 

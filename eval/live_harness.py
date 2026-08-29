@@ -2,11 +2,11 @@
 
 The published 76.7% was measured with a local 7B dev model. The finale claim should
 describe what actually runs in production: GLM-4.7-Flash on Catalyst QuickML, via
-the real API — prompt, guardrails, self-repair and all.
+the real API, prompt, guardrails, self-repair and all.
 
 Scoring is execution-match: the gold SQL runs locally against the same corpus and
 its result set is compared with the values the live API returned. SQL text is never
-compared — many correct queries are written differently.
+compared, many correct queries are written differently.
 
     python -m eval.live_harness                       # all 60 questions
     python -m eval.live_harness --lang kn --limit 5   # a subset
@@ -129,7 +129,7 @@ def main() -> int:
         if not ok:
             failures.append(q["id"])
         print(f"  [{'PASS' if ok else 'FAIL'}] {q['id']} ({q.get('lang')}) "
-              f"{q['question'][:58]}{' — ' + note if note else ''}")
+              f"{q['question'][:58]}{', ' + note if note else ''}")
         time.sleep(args.delay)
 
     en = [d for d in details if d["lang"] == "en"]

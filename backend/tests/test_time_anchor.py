@@ -2,7 +2,7 @@
 
 The synthetic corpus ends 2026-07-20. The Grand Finale demo happens months later,
 so anything that computes a relative window ("last 14 days", recency decay) MUST
-anchor to the data's own last FIR — not the wall clock — or the Lead Feed is empty
+anchor to the data's own last FIR, not the wall clock, or the Lead Feed is empty
 and risk scores collapse on stage.
 
 These tests move the system clock far past the corpus end and assert the demo
@@ -36,9 +36,9 @@ MODULES_UNDER_CLOCK = (
 class _FrozenDatetimeModule:
     """Stand-in for the `datetime` module whose *only* difference is "now".
 
-    date/datetime/timedelta pass straight through to the real classes — so values
+    date/datetime/timedelta pass straight through to the real classes, so values
     built here are genuine `datetime.date` instances that DuckDB can still bind as
-    query parameters — while today()/now() report the finale date. Swapping in
+    query parameters, while today()/now() report the finale date. Swapping in
     date/datetime *subclasses* instead would break inside the DuckDB driver rather
     than in the code we are actually testing.
     """
@@ -67,7 +67,7 @@ class _FrozenDatetimeModule:
                 return outer._dt
 
         # Callers do `_dt.date(y, m, d)` (real instances) and `_dt.date.today()`
-        # (frozen) — both work because these subclass the real classes.
+        # (frozen), both work because these subclass the real classes.
         self.date = _Date
         self.datetime = _DateTime
 
@@ -98,7 +98,7 @@ def test_anchor_ignores_the_wall_clock(con, clock_at_finale):
 
 
 def test_detectors_still_fire_at_finale_time(con, clock_at_finale):
-    """The Lead Feed — the demo's opening screen — must not go empty in September."""
+    """The Lead Feed, the demo's opening screen, must not go empty in September."""
     from backend.patrol.detectors import run_detectors
 
     leads = run_detectors(con)
@@ -119,7 +119,7 @@ def test_risk_recency_unaffected_by_clock(con, clock_at_finale):
     Compare the frozen-clock score against the same computation with the anchor
     forced to the corpus end: they must be identical, proving the wall clock plays
     no part. (The absolute value ~0.83 comes from his planted dormancy, which is
-    the point of the pattern — see demo_story.md SP-4.)
+    the point of the pattern, see demo_story.md SP-4.)
     """
     from backend.tools.risk_score import risk_score
 

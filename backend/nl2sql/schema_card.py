@@ -5,7 +5,7 @@ SCHEMA_CARD = """\
 You write DuckDB SQL for the Karnataka State Police crime database. Prefer the
 ANALYST VIEWS below; they already join the lookups. Return ONE read-only SELECT.
 
-VIEW vw_case_360 (one row per case — USE THIS FIRST):
+VIEW vw_case_360 (one row per case, USE THIS FIRST):
   CaseMasterID, CrimeNo, CaseNo, CrimeRegisteredDate (DATE),
   IncidentFromDate, IncidentToDate, latitude, longitude, BriefFacts,
   case_category ('FIR'|'UDR'|'PAR'|'Zero FIR'),

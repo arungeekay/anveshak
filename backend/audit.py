@@ -20,7 +20,7 @@ import threading
 log = logging.getLogger("anveshak.audit")
 
 # The audit_id is assigned as MAX(audit_id)+1 (read-modify-write) and each row hashes
-# the previous one, so writes MUST be serialised — otherwise ids collide and the
+# the previous one, so writes MUST be serialised, otherwise ids collide and the
 # chain forks (single AppSail worker/instance).
 _write_lock = threading.Lock()
 
@@ -29,7 +29,7 @@ GENESIS = "0" * 64  # prev_hash of the very first row
 
 def _canonical(audit_id: int, ts, user_id: str, role: str, action: str,
                detail: str) -> str:
-    """Stable string form of a row — the thing that gets hashed.
+    """Stable string form of a row, the thing that gets hashed.
 
     Sorted keys and an isoformat timestamp so the same row always hashes the same
     way, regardless of dict ordering or driver datetime representation.
@@ -68,7 +68,7 @@ def ensure_chain_columns(con) -> None:
     Two repairs, both needed by shipped mirrors:
 
     1. The generator produced AuditLog from an EMPTY DataFrame, so pandas typed
-       every column int64. Inserting a timestamp or a string then failed a cast —
+       every column int64. Inserting a timestamp or a string then failed a cast -
        and because audit writes are best-effort, that failure was swallowed and the
        audit log stayed permanently empty. If the types are wrong we recreate the
        table from the DDL; it holds no rows, so nothing is lost.
@@ -109,7 +109,7 @@ def ensure_chain_columns(con) -> None:
 
 def write_audit(con, user_id: str, role: str, action: str, detail: dict) -> int:
     """Best-effort audit write. Never let an audit failure (e.g. a read-only mirror)
-    break the request — the Data Store/NoSQL audit is the durable record (ADR-1/§8)."""
+    break the request, the Data Store/NoSQL audit is the durable record (ADR-1/§8)."""
     try:
         with _write_lock:
             head = con.execute(

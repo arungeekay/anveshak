@@ -1,7 +1,7 @@
 """Server-side role scoping (ADR-8, FINALE_PLAN F-09).
 
 The invariant: a scoped role cannot see beyond its unit, and the enforcement lives
-in the SQL that actually runs — not in the prompt (which a model may ignore) and
+in the SQL that actually runs, not in the prompt (which a model may ignore) and
 not in the browser (which is not access control).
 """
 from __future__ import annotations
@@ -38,7 +38,7 @@ def test_scopes_narrow_the_same_question(con):
     station = _count(con, Scope("SHO", "Jayanagar PS"))
 
     assert statewide == 47, statewide
-    assert station > 0, "the station scope returned nothing — demo would look broken"
+    assert station > 0, "the station scope returned nothing, demo would look broken"
     assert station < statewide, f"SHO ({station}) must see less than SCRB ({statewide})"
     assert district <= statewide
 

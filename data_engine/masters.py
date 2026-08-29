@@ -12,7 +12,7 @@ import pandas as pd
 
 
 # ---------------------------------------------------------------------------
-# Districts (31) — id, name, centre lat/lon, box half-width (deg), pop weight,
+# Districts (31), id, name, centre lat/lon, box half-width (deg), pop weight,
 # urban %, literacy %, density/km2. Demo-critical names spelled to match
 # demo_story.md exactly (Bengaluru City, Tumakuru, Mandya, Mysuru, ...).
 # ---------------------------------------------------------------------------
@@ -193,7 +193,7 @@ SUBHEADS: list[SubHeadSpec] = [
 ]
 SUBHEAD_BY_NAME: dict[str, SubHeadSpec] = {s.name: s for s in SUBHEADS}
 
-# Case categories — ID equals the 1-digit CrimeNo category code (FIR=1, UDR=3,
+# Case categories, ID equals the 1-digit CrimeNo category code (FIR=1, UDR=3,
 # PAR=4, ZeroFIR=8) so the composite decodes directly.
 CASE_CATEGORIES = [(1, "FIR"), (3, "UDR"), (4, "PAR"), (8, "Zero FIR")]
 GRAVITY = [(1, "Heinous"), (2, "Non-Heinous")]

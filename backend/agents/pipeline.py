@@ -50,13 +50,13 @@ def investigate(con, series_id: str):
                   "network_exhibit": {}, "suspects_ranked": [], "leads": [],
                   "legal": {}, "forecast": {}, "generated_by_role": "SP"}
 
-    # 1) Case Officer — plan + scope
+    # 1) Case Officer, plan + scope
     yield _step("case_officer", "started", f"Opening investigation into {series_id}.")
     yield _step("case_officer", "verified",
                 f"Scope: {len(case_ids)} cases · {sub_head} · {', '.join(districts)}.")
     yield _step("case_officer", "done")
 
-    # 2) Records Analyst — timeline
+    # 2) Records Analyst, timeline
     yield _step("records_analyst", "started", "Reconstructing the case timeline.")
     yield _step("records_analyst", "tool_call",
                 tool_call={"tool": "run_sql", "params": {"case_ids": case_ids}})
@@ -66,16 +66,16 @@ def investigate(con, series_id: str):
         ORDER BY CrimeRegisteredDate
     """).fetchall()
     pack["timeline"] = [{"date": str(r[1]), "case_id": int(r[0]),
-                         "event": f"FIR registered — {r[2]}, {r[3]}"} for r in rows]
+                         "event": f"FIR registered, {r[2]}, {r[3]}"} for r in rows]
     yield _step("records_analyst", "verified", f"{len(pack['timeline'])} events assembled.",
                 result_ref="pack.timeline")
     yield _step("records_analyst", "done")
 
-    # 3) Network Specialist — exhibit + suspects
+    # 3) Network Specialist, exhibit + suspects
     yield _step("network_specialist", "started", "Mapping the suspect network.")
     # The unsolved series cases have no named accused; bridge to solved analogues via
     # narrative similarity (accumulated over ALL series cases) so the serial's own
-    # known offenders surface — not prolific but unrelated background criminals.
+    # known offenders surface, not prolific but unrelated background criminals.
     from collections import defaultdict
     case_accused: dict[int, list[str]] = defaultdict(list)
     for cid, pk in con.execute("SELECT CaseMasterID, person_key FROM vw_accused_history").fetchall():
@@ -97,7 +97,7 @@ def investigate(con, series_id: str):
         name = con.execute("SELECT full_name FROM PersonRegistry WHERE person_key=?", [pk]).fetchone()
         ranked.append({"person_key": pk, "name": name[0] if name else pk, "risk": r,
                        "support": round(support[pk], 2), "history_case_ids": r["history_case_ids"]})
-    # Rank by strength of linkage to the series (support), risk as tiebreak — so the
+    # Rank by strength of linkage to the series (support), risk as tiebreak, so the
     # serial's own offenders outrank prolific-but-unrelated background criminals.
     ranked.sort(key=lambda x: (x["support"], x["risk"]["score"]), reverse=True)
     pack["suspects_ranked"] = ranked[:8]
@@ -106,7 +106,7 @@ def investigate(con, series_id: str):
                 f"{len(ranked)} suspects ranked; top: {top}.", result_ref="pack.suspects_ranked")
     yield _step("network_specialist", "done")
 
-    # 4) Crime Historian — similar cases / tactics
+    # 4) Crime Historian, similar cases / tactics
     yield _step("crime_historian", "started", "Searching for similar solved cases.")
     sims = similar_cases(case_ids[0], k=5, con=con) if case_ids else []
     yield _step("crime_historian", "tool_call",
@@ -121,7 +121,7 @@ def investigate(con, series_id: str):
     yield _step("crime_historian", "verified", f"{len(sims)} similar cases found.")
     yield _step("crime_historian", "done")
 
-    # 5) Legal Advisor — sections + elements check
+    # 5) Legal Advisor, sections + elements check
     yield _step("legal_advisor", "started", "Reviewing invoked sections and their ingredients.")
     sec_rows = con.execute(f"""
         SELECT DISTINCT ActID, SectionID FROM ActSectionAssociation
@@ -139,7 +139,7 @@ def investigate(con, series_id: str):
                 status = "missing" if i == len(info["elements"]) - 1 else "present"
                 elements_check.append({"section": key, "element": el, "status": status,
                                        "source": "BriefFacts / arrest records" if status == "present"
-                                       else "not yet established — investigation gap"})
+                                       else "not yet established, investigation gap"})
     pack["legal"] = {"sections_invoked": sections_invoked, "elements_check": elements_check}
     gaps = sum(1 for e in elements_check if e["status"] == "missing")
     yield _step("legal_advisor", "verified",
@@ -147,7 +147,7 @@ def investigate(con, series_id: str):
                 result_ref="pack.legal")
     yield _step("legal_advisor", "done")
 
-    # 6) Forecaster — next window + areas
+    # 6) Forecaster, next window + areas
     yield _step("forecaster", "started", "Projecting the next likely strike window.")
     dist = districts[0] if districts else "Bengaluru City"
     yield _step("forecaster", "tool_call",
@@ -168,7 +168,7 @@ def investigate(con, series_id: str):
             "rank": 0,
             "lead": f"Prioritise surveillance of {ranked[0]['name']} ({ranked[0]['person_key']})",
             "evidence_case_ids": ranked[0]["history_case_ids"][:5],
-            "rationale": f"Highest risk score {ranked[0]['risk']['score']} — "
+            "rationale": f"Highest risk score {ranked[0]['risk']['score']}, "
                          f"{ranked[0]['risk']['explanation']}"})
     for i, ld in enumerate(pack["leads"]):
         ld["rank"] = i + 1
@@ -187,7 +187,7 @@ def _summary(series, ranked, next_window, llm_polish: bool = False) -> str:
     if ranked:
         base += f"Prime suspect: {ranked[0]['name']} (risk {ranked[0]['risk']['score']}). "
     base += f"Projected next activity window: {next_window}."
-    # LLM polish is opt-in — the streamed thought_summaries already narrate reasoning,
+    # LLM polish is opt-in, the streamed thought_summaries already narrate reasoning,
     # and the pack must assemble well within the 90s budget without model latency.
     if not llm_polish:
         return base

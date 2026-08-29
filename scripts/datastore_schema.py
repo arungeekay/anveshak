@@ -43,7 +43,7 @@ def main() -> int:
     args = ap.parse_args()
 
     con = duckdb.connect(args.db, read_only=True)
-    print("Catalyst Data Store — tables to create in the console")
+    print("Catalyst Data Store, tables to create in the console")
     print("(Console → Data Store → New Table. Every table also gets ROWID + "
           "system columns automatically.)\n")
 
@@ -52,7 +52,7 @@ def main() -> int:
             "SELECT column_name, data_type FROM information_schema.columns "
             "WHERE table_name = ? ORDER BY ordinal_position", [name]).fetchall()
         if not cols:
-            print(f"  ! {name}: not present in the mirror — skipping\n")
+            print(f"  ! {name}: not present in the mirror, skipping\n")
             continue
         rows = con.execute(f'SELECT COUNT(*) FROM "{name}"').fetchone()[0]
         print(f"TABLE {name}   ({rows:,} rows to import)")

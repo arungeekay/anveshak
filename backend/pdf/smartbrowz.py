@@ -41,7 +41,7 @@ def _catalyst_app():
     req = current_request.get()
     if req is None:
         raise SmartBrowzUnavailable(
-            "no request context — SmartBrowz needs the incoming Catalyst headers")
+            "no request context, SmartBrowz needs the incoming Catalyst headers")
     try:
         import zcatalyst_sdk
     except ImportError as exc:  # pragma: no cover - SDK always present in prod

@@ -8,7 +8,7 @@ A jury WILL test this ("show me thefts by religion"), so the refusal is a design
 explainable product surface rather than a silent omission:
 
 * aggregate, explicitly sociological queries are ALLOWED (GROUP BY religion with
-  counts) — public-interest statistics are legitimate;
+  counts), public-interest statistics are legitimate;
 * anything that filters individuals by a protected attribute, or selects it
   alongside identifying columns, is BLOCKED with a policy explanation, in English
   and Kannada, and the attempt is audited.
@@ -67,7 +67,7 @@ class PolicyBlock(Exception):
     def as_dict(self, lang: str = "en") -> dict:
         return {
             "blocked": True,
-            "policy": "ADR-9 — protected attributes",
+            "policy": "ADR-9, protected attributes",
             "stage": self.stage,
             "reason": self.reason_kn if lang == "kn" else self.reason_en,
             "reason_en": self.reason_en,

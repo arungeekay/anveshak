@@ -2,7 +2,7 @@
 
 An SHO sees their own station, an SP their district, SCRB the whole state, and an
 analyst sees statewide data with personal names masked. ADR-8 requires this to be
-enforced **server-side in the tool layer** — a frontend that merely hides rows is
+enforced **server-side in the tool layer**, a frontend that merely hides rows is
 not access control.
 
 Two mechanisms:
@@ -14,7 +14,7 @@ Two mechanisms:
 * `mask_names()` replaces personal names with initials for the ANALYST role.
 
 The demo moment this buys: ask the same question as SP, then as SHO, and watch the
-number change on screen — governance you can see, not assert.
+number change on screen, governance you can see, not assert.
 """
 from __future__ import annotations
 
@@ -66,12 +66,12 @@ class Scope:
 
     def describe(self) -> str:
         if self.role == "SCRB":
-            return "Statewide — State Crime Records Bureau"
+            return "Statewide, State Crime Records Bureau"
         if self.role == "ANALYST":
-            return "Statewide, names masked — analyst"
+            return "Statewide, names masked, analyst"
         if self.role == "SP":
-            return f"District — {self.unit}"
-        return f"Police station — {self.unit}"
+            return f"District, {self.unit}"
+        return f"Police station, {self.unit}"
 
 
 def from_headers(headers) -> Scope:
@@ -97,7 +97,7 @@ def _predicate(scope: Scope, alias: str, cols: dict) -> exp.Expression | None:
 def scope_sql(sql: str, scope: Scope) -> str:
     """Return `sql` restricted to the caller's scope.
 
-    Raises ScopeError when a scoped caller asks something that cannot be limited —
+    Raises ScopeError when a scoped caller asks something that cannot be limited -
     better an honest refusal than data leaking past a role boundary.
     """
     if scope.statewide or not scope.unit:
@@ -133,7 +133,7 @@ def scope_sql(sql: str, scope: Scope) -> str:
 
 
 def _mask(value: str) -> str:
-    """'Ravi Kumar' -> 'R. K.' — enough to correlate rows, not to identify a person."""
+    """'Ravi Kumar' -> 'R. K.', enough to correlate rows, not to identify a person."""
     parts = [p for p in re.split(r"\s+", str(value).strip()) if p]
     if not parts:
         return value

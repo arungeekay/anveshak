@@ -1,4 +1,4 @@
-"""verify_live.py — post-deploy gate for the deployed ANVESHAK app (FINALE_PLAN F-04).
+"""verify_live.py, post-deploy gate for the deployed ANVESHAK app (FINALE_PLAN F-04).
 
 Asserts the golden path against the LIVE deployment and exits non-zero on any
 failure, so it can gate every deploy in the finale build.
@@ -81,7 +81,7 @@ def warm(base: str, tries: int = 25) -> None:
             pass
         print(".", end="", flush=True)
         time.sleep(6)
-    print(" (still slow — continuing anyway)")
+    print(" (still slow, continuing anyway)")
 
 
 # --- individual checks -------------------------------------------------------

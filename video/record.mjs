@@ -1,9 +1,12 @@
-// Records a real screen capture of the LIVE ANVESHAK app doing the full demo, with
-// on-screen caption text (no voiceover) that markets each feature. Node Playwright.
+// Records a real screen capture of the LIVE ANVESHAK app, with on-screen caption
+// text (no voiceover). Covers every feature, including the Stage-2 additions:
+// live FIR intake, Trust Center red-team, Person 360, patrol plan, RBAC scoping,
+// the counterfactual and the series replay.
 //
 //   node record.mjs   ->  out/anveshak-demo.webm
 //
-// The app must be WARM before running (open Series + Lead Feed once, wait ~90s).
+// Warm the app first (curl $BASE/api/warm until it reports "warm") and reset demo
+// state (POST /api/intake/reset), or SH-07 will already read 16 cases.
 
 import { chromium } from 'playwright';
 import fs from 'fs';
@@ -30,7 +33,7 @@ async function installOverlay(page) {
     #card.show { opacity:1; }
     #card .k { color:#5ab0ff; font-size:22px; font-weight:600; letter-spacing:3px; text-transform:uppercase; }
     #card .h { color:#fff; font-size:54px; font-weight:800; margin-top:14px; text-align:center; }
-    #card .p { color:#c9d6e8; font-size:24px; font-weight:500; margin-top:16px; text-align:center; max-width:1100px; }
+    #card .p { color:#c9d6e8; font-size:24px; font-weight:500; margin-top:16px; text-align:center; max-width:1150px; }
     #card .f { color:#8aa0bd; font-size:18px; margin-top:34px; text-align:center; }
   ` });
   await page.evaluate(() => {
@@ -67,144 +70,228 @@ async function nav(page, label) {
   const link = page.locator('nav a', { hasText: label }).first();
   await link.waitFor({ state: 'visible', timeout: 30000 });
   await link.click();
-  await sleep(800);
+  await sleep(900);
+  await installOverlay(page);
 }
 async function scene(name, fn) {
   try { await fn(); }
-  catch (e) { console.log(`scene "${name}" issue: ${e.message.split('\n')[0]}`); }
+  catch (e) { console.log(`scene "${name}": ${e.message.split('\n')[0]}`); }
 }
 
-async function main() {
-  const browser = await chromium.launch({ args: ['--disable-blink-features=AutomationControlled'] });
-  const ctx = await browser.newContext({
-    viewport: { width: W, height: H },
-    recordVideo: { dir: OUT, size: { width: W, height: H } },
-  });
-  const page = await ctx.newPage();
-  page.setDefaultTimeout(90000);
+const browser = await chromium.launch({ args: ['--disable-blink-features=AutomationControlled'] });
+const ctx = await browser.newContext({
+  viewport: { width: W, height: H },
+  recordVideo: { dir: OUT, size: { width: W, height: H } },
+});
+const page = await ctx.newPage();
+page.setDefaultTimeout(90000);
 
-  await page.goto(BASE, { waitUntil: 'networkidle' });
-  // Ensure the SPA has actually rendered (nav present) before driving it.
-  await page.locator('nav a').first().waitFor({ state: 'visible', timeout: 60000 });
-  await installOverlay(page);
+await page.goto(BASE, { waitUntil: 'networkidle' });
+await page.locator('nav a').first().waitFor({ state: 'visible', timeout: 60000 });
+await installOverlay(page);
 
-  let shown = false; // whether the Investigation Pack rendered (scene 5)
-  try {
-  // ===== INTRO CARD =====
+let packShown = false;
+try {
+  // ===== INTRO =====
   await card(page, {
     kicker: 'KSP Datathon 2026 · Challenge 1',
     head: 'ANVESHAK &nbsp;·&nbsp; ಅನ್ವೇಷಕ',
-    para: 'An autonomous AI investigation bureau for the Karnataka State Police',
+    para: 'An AI that does not just answer questions. It works cases.',
     foot: 'Ask in Kannada or English · every answer backed by evidence · runs 100% on Zoho Catalyst',
-  }, 5000);
+  }, 4200);
 
-  // ===== Scene 1 — Night Patrol =====
-  await nav(page, 'Lead Feed'); await installOverlay(page);
-  await cap(page, 'Night Patrol — the AI works before you ask',
-    'Overnight detectors raise ranked leads: crime spikes, repeat offenders, growing series — proactive policing, not reactive');
-  await page.locator('text=Night Patrol').first().waitFor({ timeout: 60000 }).catch(() => {});
-  await sleep(7000);
+  // ===== 1. Night Patrol =====
+  await scene('leads', async () => {
+    await nav(page, 'Lead Feed');
+    await cap(page, 'The AI works before you ask',
+      'An overnight sweep raises ranked leads: crime spikes, repeat offenders, growing series');
+    await page.locator('text=Night Patrol').first().waitFor({ timeout: 60000 }).catch(() => {});
+    await sleep(5200);
+  });
 
-  // ===== Scene 2 — Ask in English + evidence =====
-  await nav(page, 'Chat'); await installOverlay(page);
-  await cap(page, 'Any officer. Plain language. Instant answer.',
-    'No SQL, no analyst queue — ANVESHAK writes the query, runs it, and answers');
-  await sleep(1000);
-  await page.locator('button', { hasText: 'How many chain snatching' }).first().click();
-  await page.locator('text=/chain snatching cases/i').last().waitFor({ timeout: 60000 }).catch(() => {});
-  await sleep(3500);
-  await cap(page, 'Every answer shows its evidence',
-    'The exact SQL, the row count, the case IDs — the AI never invents a number. Court-defensible by design.');
-  await page.locator('button', { hasText: 'Evidence' }).first().click().catch(() => {});
-  await sleep(6500);
+  // ===== 2. Patrol plan =====
+  await scene('patrol plan', async () => {
+    await cap(page, 'Analytics that becomes tonight’s deployment',
+      'Which station, which hours, which offence, and the tools each recommendation came from');
+    await page.locator('button', { hasText: 'Generate' }).first().click();
+    await page.locator('text=Whitefield PS').first().waitFor({ timeout: 60000 }).catch(() => {});
+    await page.mouse.wheel(0, 600);
+    await sleep(5600);
+    await page.mouse.wheel(0, -600);
+  });
 
-  // ===== Scene 3 — charts on demand =====
-  await cap(page, 'From a question to insight in seconds',
-    'Trends and hotspots that used to need a data team — now on demand');
-  await page.locator('button', { hasText: 'Show the monthly trend' }).first().click();
-  await sleep(6500);
+  // ===== 3. Chat + evidence =====
+  await scene('chat', async () => {
+    await nav(page, 'Chat');
+    await cap(page, 'Any officer. Plain language. Instant answer.',
+      'No SQL, no analyst queue: ANVESHAK writes the query, runs it, and answers');
+    await sleep(1000);
+    await page.locator('button', { hasText: 'How many chain snatching' }).first().click();
+    await page.locator('text=/chain snatching cases/i').last().waitFor({ timeout: 60000 }).catch(() => {});
+    await sleep(2560);
+    await cap(page, 'Every answer shows its evidence',
+      'The exact SQL, the row count, the case IDs. The AI never invents a number.');
+    await page.locator('button', { hasText: 'Evidence' }).first().click().catch(() => {});
+    await sleep(5200);
+  });
 
-  // ===== Scene 4 — Serial linkage (Series) =====
-  await nav(page, 'Series'); await installOverlay(page);
-  await cap(page, 'Catch serial offenders across district lines',
-    'MO fingerprinting links cases that siloed district records would never connect');
-  await page.getByText('SH-07', { exact: true }).first().waitFor({ timeout: 60000 }).catch(() => {});
-  await sleep(2000);
-  await page.getByText('SH-07', { exact: true }).first().click().catch(() => {});
-  await cap(page, 'SH-07 — one ring, 15 cases, 3 districts',
-    'Shared modus operandi, cosine-linked — a serial series discovered cold, with the evidence for each link');
-  await sleep(7000);
+  // ===== 4. Trust Center: let them attack it =====
+  await scene('trust', async () => {
+    await nav(page, 'Trust Center');
+    await cap(page, 'Try to break it',
+      'Metrics recomputed on every load, and a console to attack the system yourself');
+    await sleep(4000);
+    await cap(page, 'Prompt injection, refused',
+      'The instruction hidden in the prompt is pulled out and shown being rejected by the sanitizer');
+    await page.locator('button', { hasText: 'Prompt injection' }).first().click();
+    await sleep(4800);
+    await cap(page, 'Profiling by caste, refused',
+      'Religion and caste are never model features. The refusal is explained and audit-logged.');
+    await page.locator('button', { hasText: 'Profiling by caste' }).first().click();
+    await sleep(4800);
+    await cap(page, 'History cannot be rewritten',
+      'Every audited action hashes the one before it, so tampering breaks the chain');
+    await page.locator('button', { hasText: 'Verify chain' }).first().click();
+    await sleep(4000);
+  });
 
-  // ===== Scene 5 — AI Investigation Cell (centerpiece) =====
-  await nav(page, 'Investigation Room'); await installOverlay(page);
-  await cap(page, 'Six AI agents work the case — live',
-    'Case Officer → Records → Network → History → Legal → Forecast, streaming their reasoning');
-  await sleep(1000);
-  await page.getByRole('button', { name: 'Investigate' }).click();
-  // Poll for the actual pack heading (an <h3> — won't collide with caption text).
-  const packHeading = page.locator('h3', { hasText: 'Investigation Pack' });
-  const t0 = Date.now();
-  while (Date.now() - t0 < 85000) {
-    if (await packHeading.count() > 0) { shown = true; break; }
+  // ===== 5. Live FIR intake (the flagship) =====
+  await scene('intake', async () => {
+    await nav(page, 'New FIR');
+    await cap(page, 'File a new FIR in your own words',
+      'Typed or dictated in Kannada. ANVESHAK embeds the narrative as it arrives.');
+    await sleep(4800);
+    await cap(page, 'Registering and linking…', 'Runtime embedding, then the linkage engine re-runs');
+    await page.locator('button', { hasText: 'Register FIR' }).first().click();
+    await page.locator('text=/joined|matches an existing/i').first().waitFor({ timeout: 90000 }).catch(() => {});
     await sleep(1500);
-  }
-  await cap(page, 'A court-ready Investigation Pack in ~2 minutes, not 2 days',
-    'Ranked suspects · evidence-cited leads · legal element checks · next-strike forecast');
-  if (shown) {
-    await packHeading.scrollIntoViewIfNeeded().catch(() => {});
+    await cap(page, 'It just joined a serial-crime series',
+      'That FIR was filed seconds ago. It is now case 16 of a ring operating across three districts.');
+    await sleep(6400);
+  });
+
+  // ===== 6. Series: codename, explanations, counterfactual, replay =====
+  await scene('series', async () => {
+    await nav(page, 'Series');
+    await cap(page, 'Serial crime, across district lines',
+      'MO fingerprinting links cases that siloed district records never connect');
+    await page.getByText('SH-07', { exact: true }).first().waitFor({ timeout: 60000 }).catch(() => {});
+    await sleep(1600);
+    await page.getByText('SH-07', { exact: true }).first().click().catch(() => {});
+    await cap(page, 'Operation Gold Chain Black Visor',
+      'Each link states what the engine matched on, in words an officer can check against the FIRs');
+    await sleep(5600);
+    await page.mouse.wheel(0, 420);
+    await cap(page, 'What it would have changed',
+      'Detectable at case 6. Nine further offences across three districts followed over 142 days.');
     await sleep(6000);
-    // scroll down to reveal leads / legal / forecast sections
-    await page.mouse.wheel(0, 380); await sleep(5000);
-    await page.mouse.wheel(0, 380); await sleep(4500);
-  } else {
+    await scene('replay', async () => {
+      await page.locator('button', { hasText: 'Replay the series' }).first().click();
+      await cap(page, 'Watch it cross the borders',
+        'Fifteen offences in date order, hopping between Bengaluru City, Mandya and Tumakuru');
+      await sleep(8800);
+    });
+  });
+
+  // ===== 7. Investigation Cell =====
+  await scene('investigation', async () => {
+    await nav(page, 'Investigation Room');
+    await cap(page, 'Six AI agents work the case, live',
+      'Case Officer, Records, Network, History, Legal, Forecast: each streams its reasoning');
+    await sleep(1000);
+    await page.getByRole('button', { name: 'Investigate' }).click();
+    const packHeading = page.locator('h3', { hasText: 'Investigation Pack' });
+    const t0 = Date.now();
+    while (Date.now() - t0 < 85000) {
+      if (await packHeading.count() > 0) { packShown = true; break; }
+      await sleep(1200);
+    }
+    await cap(page, 'A court-ready pack in seconds, not days',
+      'Ranked suspects, evidence-cited leads, legal element checks, and a next-strike forecast');
+    if (packShown) {
+      await sleep(4800);
+      await page.mouse.wheel(0, 380); await sleep(4000);
+      await page.mouse.wheel(0, 380); await sleep(3600);
+    } else { await sleep(4800); }
+  });
+
+  // ===== 8. Person 360 =====
+  await scene('person', async () => {
+    await nav(page, 'Person 360');
+    await cap(page, 'One name, the whole footprint',
+      'Case history, an explainable risk score, known associates, and the network around them');
+    await page.locator('input[placeholder*="Search a person"]').fill('Prakash Rao');
+    await page.getByRole('button', { name: 'Search' }).click();
+    await sleep(1600);
+    await page.locator('button', { hasText: 'Prakash Rao' }).first().click().catch(() => {});
+    await sleep(5600);
+    await page.mouse.wheel(0, 400);
+    await sleep(4000);
+  });
+
+  // ===== 9. CrimeGraph =====
+  await scene('graph', async () => {
+    await nav(page, 'CrimeGraph');
+    await cap(page, 'Expose the network behind the crime',
+      'Multi-hop questions over a crime knowledge graph reveal hubs, rings and money trails');
+    await page.locator('button', { hasText: 'Prakash Rao hub' }).first().click();
     await sleep(6000);
-  }
+  });
 
-  // ===== Scene 6 — CrimeGraph =====
-  await nav(page, 'CrimeGraph'); await installOverlay(page);
-  await cap(page, 'Expose the network behind the crime',
-    'Multi-hop questions over a crime knowledge graph reveal hubs, rings and money trails');
-  await page.locator('button', { hasText: 'Prakash Rao hub' }).first().click();
-  await sleep(8000);
+  // ===== 10. Kannada =====
+  await scene('kannada', async () => {
+    await nav(page, 'Chat');
+    await cap(page, 'In the language officers actually speak',
+      'Full Kannada and English, by voice or text, built for Karnataka’s force');
+    await page.locator('select').last().selectOption('kn').catch(() => {});
+    await sleep(600);
+    await page.locator('input[placeholder="Ask ANVESHAK…"]')
+      .fill('ಈ ವರ್ಷ ಬೆಂಗಳೂರು ನಗರದಲ್ಲಿ ಎಷ್ಟು ಸರಗಳ್ಳತನ ಪ್ರಕರಣಗಳು ದಾಖಲಾಗಿವೆ?');
+    await page.getByRole('button', { name: 'Send' }).click();
+    await sleep(5200);
+  });
 
-  // ===== Scene 7 — Bilingual (Kannada) =====
-  await nav(page, 'Chat'); await installOverlay(page);
-  await cap(page, 'In the language officers actually speak',
-    'Full Kannada + English, by voice or text — built for Karnataka’s force');
-  await page.locator('select').last().selectOption('kn').catch(() => {});
-  await sleep(600);
-  await page.locator('input[placeholder="Ask ANVESHAK…"]')
-    .fill('ಈ ವರ್ಷ ಬೆಂಗಳೂರು ನಗರದಲ್ಲಿ ಎಷ್ಟು ಸರಗಳ್ಳತನ ಪ್ರಕರಣಗಳು ದಾಖಲಾಗಿವೆ?');
-  await page.getByRole('button', { name: 'Send' }).click();
-  await sleep(6500);
+  // ===== 11. RBAC: the governance moment =====
+  await scene('rbac', async () => {
+    await cap(page, 'Same question, different officer, different answer',
+      'Scope is enforced in the query itself, not hidden in the browser');
+    await page.locator('header select').first().selectOption('SHO').catch(() => {});
+    await sleep(1200);
+    await page.locator('select').last().selectOption('en').catch(() => {});
+    await page.locator('input[placeholder="Ask ANVESHAK…"]')
+      .fill('How many chain snatching cases were registered in Bengaluru City in 2026?');
+    await page.getByRole('button', { name: 'Send' }).click();
+    await sleep(6000);
+  });
 
-  // ===== Scene 8 — Governance =====
-  await nav(page, 'Audit'); await installOverlay(page);
-  await cap(page, 'Trustworthy, accountable, court-defensible',
-    'Every action audit-logged · role-based access (SHO/SP/SCRB) · no protected attributes in any model');
-  await sleep(6000);
+  // ===== 12. Audit =====
+  await scene('audit', async () => {
+    await nav(page, 'Audit');
+    await cap(page, 'Everything is on the record',
+      'Every question, refusal and investigation logged with its role, in a tamper-evident chain');
+    await sleep(4800);
+  });
 
-  // ===== OUTRO CARD =====
+  // ===== OUTRO =====
   await card(page, {
-    kicker: 'An AI that doesn’t just answer — it works cases',
+    kicker: 'An AI that does not just answer. It works cases.',
     head: 'ANVESHAK &nbsp;·&nbsp; ಅನ್ವೇಷಕ',
     para: 'Faster answers · serial crime caught across districts · court-ready packs in minutes · proactive leads every morning',
-    foot: 'Team Zen — Hiran Vikraman S R · Arun G K   |   github.com/arungeekay/anveshak   |   100% on Zoho Catalyst',
-  }, 6500);
-  } catch (e) {
-    console.log('scene error (finalizing anyway):', e.message.split('\n')[0]);
-  } finally {
-    await page.close().catch(() => {});
-    await ctx.close().catch(() => {});
-    await browser.close().catch(() => {});
-  }
-  const files = fs.readdirSync(OUT).filter((f) => f.endsWith('.webm'));
-  if (files.length) {
-    const newest = files.map((f) => ({ f, t: fs.statSync(`${OUT}/${f}`).mtimeMs }))
-      .sort((a, b) => b.t - a.t)[0].f;
-    if (fs.existsSync(`${OUT}/anveshak-demo.webm`)) fs.rmSync(`${OUT}/anveshak-demo.webm`);
-    fs.renameSync(`${OUT}/${newest}`, `${OUT}/anveshak-demo.webm`);
-    console.log('WROTE out/anveshak-demo.webm  (pack shown:', shown, ')');
-  }
+    foot: 'Team Zen: Hiran Vikraman S R · Arun G K   |   github.com/arungeekay/anveshak   |   100% on Zoho Catalyst',
+  }, 5200);
+} catch (e) {
+  console.log('scene error (finalizing anyway):', e.message.split('\n')[0]);
+} finally {
+  await page.close().catch(() => {});
+  await ctx.close().catch(() => {});
+  await browser.close().catch(() => {});
 }
-main().catch((e) => { console.error('FATAL', e); process.exit(1); });
+
+const files = fs.readdirSync(OUT).filter((f) => f.endsWith('.webm'));
+if (files.length) {
+  const newest = files.map((f) => ({ f, t: fs.statSync(`${OUT}/${f}`).mtimeMs }))
+    .sort((a, b) => b.t - a.t)[0].f;
+  if (fs.existsSync(`${OUT}/anveshak-demo.webm`)) fs.rmSync(`${OUT}/anveshak-demo.webm`);
+  fs.renameSync(`${OUT}/${newest}`, `${OUT}/anveshak-demo.webm`);
+  console.log('WROTE out/anveshak-demo.webm  (pack shown:', packShown, ')');
+}

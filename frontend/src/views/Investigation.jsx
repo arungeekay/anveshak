@@ -132,7 +132,7 @@ function PackView({ pack, pdfUrl }) {
         </ol>
       </Section>
 
-      <Section title="Legal — sections & element checks">
+      <Section title="Legal: sections and element checks">
         <p className="text-xs text-slate-400">{(pack.legal?.sections_invoked || []).map((s) => `${s.act} ${s.section}`).join(", ")}</p>
         <ul className="mt-1 text-xs">
           {(pack.legal?.elements_check || []).slice(0, 8).map((e, i) => (

@@ -73,7 +73,7 @@ export default function Intake() {
     try {
       const r = await apiPost("/api/intake/reset");
       setResult(null);
-      setErr(`Demo state restored — ${r.removed} case(s) removed, ${r.cases} in corpus.`);
+      setErr(`Demo state restored: ${r.removed} case(s) removed, ${r.cases} in corpus.`);
     } catch (e) {
       setErr(e.message);
     } finally {
@@ -91,7 +91,7 @@ export default function Intake() {
         </button>
       </div>
       <p className="mb-4 text-sm text-slate-400">
-        Describe the incident in plain words — English or Kannada, typed or dictated.
+        Describe the incident in plain words, English or Kannada, typed or dictated.
         ANVESHAK embeds the narrative, re-runs linkage, and tells you instantly whether
         it belongs to a known serial-crime series.
       </p>
@@ -133,7 +133,7 @@ export default function Intake() {
             {busy ? "Registering & linking…" : "Register FIR"}
           </button>
           <span className="text-xs text-slate-500">
-            Embeds the narrative and re-runs the linkage engine — usually a few seconds.
+            Embeds the narrative and re-runs the linkage engine, usually a few seconds.
           </span>
         </div>
       </div>
@@ -173,7 +173,7 @@ export default function Intake() {
             </div>
           ) : (
             <p className="mt-3 border-t border-emerald-800 pt-3 text-sm text-slate-400">
-              No existing series matched this modus operandi — the case is registered and
+              No existing series matched this modus operandi, so the case is registered and
               will be reconsidered as new FIRs arrive.
             </p>
           )}

@@ -1,8 +1,8 @@
 """Person 360 (FINALE_PLAN F-13).
 
 The page an investigating officer lives in: one name, the whole criminal footprint.
-Assembled from existing deterministic tools (ADR-2) — accused history, risk scoring,
-CrimeGraph — never from the model.
+Assembled from existing deterministic tools (ADR-2), accused history, risk scoring,
+CrimeGraph, never from the model.
 """
 from __future__ import annotations
 

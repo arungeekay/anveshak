@@ -110,7 +110,7 @@ def forecast_spec(fc: dict, title: str = "Forecast") -> dict:
 
 def _no_invented_numbers(text: str, value, question: str) -> bool:
     """True if every numeric token in `text` is the tool value or already appears in the
-    question (e.g. a year) — i.e. the narration invented no figures (ADR-2)."""
+    question (e.g. a year), i.e. the narration invented no figures (ADR-2)."""
     allowed = {str(value).replace(",", "")}
     allowed |= {t.replace(",", "") for t in re.findall(r"\d[\d,]*", question)}
     for tok in re.findall(r"\d[\d,]*", text):
@@ -135,7 +135,7 @@ def compose_answer(question: str, columns: list[str], rows: list, lang: str) -> 
         payload = f"The answer is exactly: {value}"
         rule = (f"Write ONE short factual sentence in {lang_name} answering the question, "
                 f"containing the number {value}. Do NOT include any other number, "
-                f"percentage, rate, per-lakh/per-capita figure, or population — only {value}.")
+                f"percentage, rate, per-lakh/per-capita figure, or population, only {value}.")
     else:
         preview = "; ".join(str(tuple(r)) for r in rows[:10])
         payload = f"Columns: {columns}\nRows (up to 10): {preview}"

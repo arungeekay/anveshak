@@ -37,7 +37,7 @@ def test_background_clusters_do_not_swamp_the_plan(client):
     """Discovery surfaces huge background clusters; they must not dominate.
 
     Without filtering, a single station accumulated 20+ series and a priority of
-    35 — the reasoning became unreadable and the focus wrong.
+    35, the reasoning became unreadable and the focus wrong.
     """
     d = client.get("/api/patrol/plan", params={"district": "Bengaluru City"}).json()
     for it in d["items"]:

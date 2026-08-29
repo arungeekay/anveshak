@@ -2,7 +2,7 @@
 
 Using a Python launcher (rather than `uvicorn ... --port $X_ZOHO_CATALYST_LISTEN_PORT`
 in the command string) avoids any shell env-var expansion ambiguity in the managed
-runtime — the port is read programmatically.
+runtime, the port is read programmatically.
 """
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ log = logging.getLogger("anveshak.serve")
 def _prewarm() -> None:
     """Warm the expensive caches (linkage discovery, CrimeGraph, Night-Patrol
     detectors) in a background thread at startup. Each cold computation takes tens of
-    seconds — longer than the AppSail gateway's request timeout — so the FIRST demo
+    seconds, longer than the AppSail gateway's request timeout, so the FIRST demo
     request to /api/series, /api/graph or /api/leads must never trigger it live.
     Runs off the request path; failures are non-fatal (endpoints fall back to lazy,
     stampede-locked computation)."""
@@ -47,7 +47,7 @@ def _prewarm() -> None:
         # Warm the primary demo series' Investigation Pack so "Open pack" is instant
         # even if a viewer navigates straight to the pack URL without streaming first.
         # This runs the 6-agent pipeline (LLM-dependent); it's the last, fully optional
-        # warm step — a failure here never affects anything else.
+        # warm step, a failure here never affects anything else.
         demo_series = os.getenv("PREWARM_PACK_SERIES", "SH-07")
         if demo_series:
             try:
@@ -77,7 +77,7 @@ def _usable(path: str) -> tuple[bool, str]:
 def _prepare_database(src: str) -> None:
     """Put a WRITABLE, VALIDATED database in place before the app serves anything.
 
-    AppSail's /app is read-only, so the mirror is copied to /tmp — the audit log and
+    AppSail's /app is read-only, so the mirror is copied to /tmp, the audit log and
     FIR intake both need to write. Three lessons are baked in here:
 
     * the copy is UNCONDITIONAL. It used to be skipped when /tmp already held a
@@ -91,7 +91,7 @@ def _prepare_database(src: str) -> None:
     ok, detail = _usable(src)
     if not ok:
         log.error("BUNDLED DATABASE IS UNUSABLE (%s). The image was probably built "
-                  "from a mid-write copy — rebuild with scripts/stage_db.py.", detail)
+                  "from a mid-write copy, rebuild with scripts/stage_db.py.", detail)
         return
     log.info("bundled database ok: %s", detail)
 

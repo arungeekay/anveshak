@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Restore pristine demo state (contracts/demo_path).
 
-Default (fast, <60s): refresh the runtime caches on a running server —
+Default (fast, <60s): refresh the runtime caches on a running server -
 re-discover series, rebuild the graph, re-run Night Patrol detectors.
 --rebuild also regenerates build/anveshak.duckdb from the seed (slower; embeds).
 

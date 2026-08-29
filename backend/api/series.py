@@ -35,7 +35,7 @@ def get_series(series_id: str) -> dict:
 def replay(series_id: str) -> dict:
     """Chronological frames for animating the series across the map (F-15).
 
-    Watching the dots appear in order — and hop district borders — makes the case
+    Watching the dots appear in order, and hop district borders, makes the case
     for cross-district linkage far better than a table does: you see the exact
     moment human coordination would have lost the thread.
     """
@@ -74,7 +74,7 @@ def replay(series_id: str) -> dict:
 def counterfactual(series_id: str) -> dict:
     """When would ANVESHAK have caught this series, and what followed? (F-11)
 
-    Precomputed offline by `python -m eval.counterfactual` — it replays the real
+    Precomputed offline by `python -m eval.counterfactual`, it replays the real
     linkage engine over the corpus truncated at each of the series' case dates,
     which is far too heavy to run per request. The artefact carries its own method
     statement so the claim is auditable rather than asserted.

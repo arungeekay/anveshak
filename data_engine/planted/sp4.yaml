@@ -1,4 +1,4 @@
-# SP-4 — "Suresh B" escalating repeat offender (profiling showcase). demo_story.md.
+# SP-4, "Suresh B" escalating repeat offender (profiling showcase). demo_story.md.
 person: {key: "P-005555", name: "Suresh B", age: 34}
 home: {area: "Peenya", district: "Bengaluru City", lat: 13.029, lon: 77.519}
 # 6-case escalation trajectory (chronological)

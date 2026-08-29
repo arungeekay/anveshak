@@ -18,7 +18,7 @@ from .generator import Ctx, emit_case
 
 PLANTED_DIR = Path(__file__).parent / "planted"
 
-# Distinctive SP-1/SH-07 serial MO (varied slots, invariant signature) — kept separate
+# Distinctive SP-1/SH-07 serial MO (varied slots, invariant signature), kept separate
 # from the generic background chain-snatching narratives so linkage can isolate it.
 _SP1_EN = (
     "The complainant, {name}, aged {age}, was walking alone near {area} at about {time} hrs "
@@ -92,7 +92,7 @@ def plant_all(ctx: Ctx, tables) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# SP-1 / SH-07 — chain-snatching serial
+# SP-1 / SH-07, chain-snatching serial
 # ---------------------------------------------------------------------------
 def _plant_sp1(ctx: Ctx, by_name, by_district) -> dict:
     cfg = _load("sp1.yaml")
@@ -174,7 +174,7 @@ def _plant_sp1(ctx: Ctx, by_name, by_district) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# SP-2 / Prakash web — investment-fraud hub
+# SP-2 / Prakash web, investment-fraud hub
 # ---------------------------------------------------------------------------
 def _plant_sp2(ctx: Ctx, by_name, by_district) -> dict:
     cfg = _load("sp2.yaml")
@@ -220,7 +220,7 @@ def _plant_sp2(ctx: Ctx, by_name, by_district) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# SP-3 — festival burglary wave + live Whitefield spike
+# SP-3, festival burglary wave + live Whitefield spike
 # ---------------------------------------------------------------------------
 def _plant_sp3(ctx: Ctx, by_name, by_district) -> dict:
     cfg = _load("sp3.yaml")
@@ -261,7 +261,7 @@ def _plant_sp3(ctx: Ctx, by_name, by_district) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# SP-4 — Suresh B escalating repeat offender
+# SP-4, Suresh B escalating repeat offender
 # ---------------------------------------------------------------------------
 def _plant_sp4(ctx: Ctx, by_name, by_district) -> dict:
     cfg = _load("sp4.yaml")

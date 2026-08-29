@@ -1,8 +1,8 @@
 """Patrol Plan (contracts.md §9, FINALE_PLAN F-14).
 
 Police leadership's standing complaint about crime analytics is "so what do I
-actually *do* tonight?". This turns the signals ANVESHAK already computes —
-overnight leads, recent concentrations, series geography, weekly forecasts — into a
+actually *do* tonight?". This turns the signals ANVESHAK already computes -
+overnight leads, recent concentrations, series geography, weekly forecasts, into a
 ranked deployment card per district: which station, which window, which beats, and
 why.
 
@@ -74,12 +74,12 @@ def patrol_plan(district: str, limit: int = 5) -> dict:
             "focus_weight": Counter(),
         })
 
-    # 1) Overnight leads for this district — the strongest signal we have.
+    # 1) Overnight leads for this district, the strongest signal we have.
     for ld in leads_store.ensure(con):
         if (ld.get("district") or "").lower() != district.lower():
             continue
         title = ld.get("title", "")
-        ps = title.split("—")[-1].strip() if "—" in title else None
+        ps = title.split("-")[-1].strip() if "-" in title else None
         if not ps:
             continue
         it = _item(ps)
@@ -90,7 +90,7 @@ def patrol_plan(district: str, limit: int = 5) -> dict:
         it["sources"].append(f"night_patrol:{ld.get('type')}")
         it["case_ids"] += (ev.get("case_ids") or [])[:20]
         # The offence named in the lead title, e.g. "House Burglary (Night) 18.3x ...".
-        offence = title.split(" — ")[0].split(" 1")[0].split(" grew")[0].strip()
+        offence = title.split(", ")[0].split(" 1")[0].split(" grew")[0].strip()
         if offence:
             it["focus_weight"][offence] += weight
 
@@ -107,7 +107,7 @@ def patrol_plan(district: str, limit: int = 5) -> dict:
         it["reasons"].append(f"{n} {sub} cases in the last {RECENT_DAYS} days")
         it["sources"].append("run_sql:recent_concentration")
 
-    # 3) Active series touching this district — where the next strike is expected.
+    # 3) Active series touching this district, where the next strike is expected.
     for h in series_store.all(con):
         if district not in (h.get("districts") or []):
             continue
@@ -129,7 +129,7 @@ def patrol_plan(district: str, limit: int = 5) -> dict:
             it["priority"] += weight
             it["focus_weight"][h["crime_sub_head"]] += weight
             it["reasons"].append(
-                f"series {h['series_id']} ({h['crime_sub_head']}) — {n} of its "
+                f"series {h['series_id']} ({h['crime_sub_head']}), {n} of its "
                 f"{len(h['case_ids'])} cases here, confidence "
                 f"{h['confidence']:.2f}")
             it["sources"].append(f"linkage:{h['series_id']}")

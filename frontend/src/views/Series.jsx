@@ -86,7 +86,7 @@ function Counterfactual({ seriesId }) {
       <div className="mt-1 text-sm text-slate-300">
         <b className="text-white">{cf.cases_after_detection} further offences</b> across{" "}
         {cf.districts_after_detection.join(", ")} followed over the next{" "}
-        <b className="text-white">{cf.days_of_exposure} days</b> — after the pattern
+        <b className="text-white">{cf.days_of_exposure} days</b>, after the pattern
         was already visible.
       </div>
       <details className="mt-2">
@@ -97,7 +97,7 @@ function Counterfactual({ seriesId }) {
   );
 }
 
-// Chronological replay: the dots appear in order and hop district borders — you
+// Chronological replay: the dots appear in order and hop district borders, you
 // see the exact moment human coordination would have lost the thread.
 function Replay({ seriesId }) {
   const [frames, setFrames] = useState(null);

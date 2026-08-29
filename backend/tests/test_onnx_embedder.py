@@ -2,7 +2,7 @@
 
 The deployed image has no torch, so ONNX Runtime is what lets the live app embed
 text a judge types on stage. Its output must be interchangeable with the
-precomputed CaseMOVector corpus (built with sentence-transformers, ADR-5) — if the
+precomputed CaseMOVector corpus (built with sentence-transformers, ADR-5), if the
 pooling drifts, linkage on new FIRs silently degrades.
 
 Skipped when models/minilm-onnx is absent (produce it with
@@ -17,7 +17,7 @@ from backend.embeddings.onnx_embedder import MODEL_DIR, embed, embed_one
 
 pytestmark = pytest.mark.skipif(
     not MODEL_DIR.exists(),
-    reason=f"{MODEL_DIR} not built — run scripts/fetch_onnx_model.py")
+    reason=f"{MODEL_DIR} not built, run scripts/fetch_onnx_model.py")
 
 CHAIN_SNATCH = ("Two men on a black motorcycle snatched a gold chain from a woman "
                 "walking alone; the pillion rider grabbed it and they escaped "
@@ -45,7 +45,7 @@ def test_similar_texts_score_higher_than_unrelated():
 
 
 def test_kannada_is_embedded_meaningfully():
-    """The model is multilingual — the KN chain-snatching text must sit closer to
+    """The model is multilingual, the KN chain-snatching text must sit closer to
     the EN chain-snatching text than to an unrelated burglary."""
     kn = embed_one(KANNADA)
     assert float(kn @ embed_one(CHAIN_SNATCH)) > float(kn @ embed_one(BURGLARY))
@@ -72,7 +72,7 @@ def test_matches_the_precomputed_corpus():
     assert hits, "no matches for a corpus narrative"
     top_id, top_cos = hits[0]
     assert top_id == case_id, f"expected case {case_id} first, got {hits}"
-    assert top_cos > 0.99, f"cosine {top_cos:.4f} — runtime/corpus spaces disagree"
+    assert top_cos > 0.99, f"cosine {top_cos:.4f}, runtime/corpus spaces disagree"
 
 
 def test_empty_input_is_safe():

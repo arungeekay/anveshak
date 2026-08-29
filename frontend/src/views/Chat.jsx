@@ -66,7 +66,7 @@ export default function Chat({ role }) {
 
       <div ref={listRef} className="flex-1 space-y-4 overflow-y-auto">
         {messages.length === 0 && (
-          <p className="text-slate-500">Ask about crimes, series, networks, offenders, or forecasts — in English or Kannada.</p>
+          <p className="text-slate-500">Ask about crimes, series, networks, offenders, or forecasts, in English or Kannada.</p>
         )}
         {messages.map((m, i) =>
           m.role === "user" ? (
@@ -75,7 +75,7 @@ export default function Chat({ role }) {
             <div key={i} className="max-w-[92%] rounded-lg bg-navy-900 px-3 py-2">
               {m.resp.blocked ? (
                 <div className="rounded-lg border border-amber-700 bg-amber-950/25 p-3">
-                  <p className="text-sm font-medium text-amber-300">Policy — {m.resp.policy}</p>
+                  <p className="text-sm font-medium text-amber-300">Policy: {m.resp.policy}</p>
                   <p className="mt-1 font-kannada text-sm text-slate-300">{m.resp.reason}</p>
                   {m.resp.audit_id > 0 && (
                     <p className="mt-2 text-[10px] text-slate-500">logged as audit #{m.resp.audit_id}</p>

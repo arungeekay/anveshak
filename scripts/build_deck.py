@@ -3,7 +3,7 @@
 The template has a full-slide BLACK background image + a bold heading text box per
 slide (the section prompt). We keep each heading as the slide title and add a light
 (readable-on-black) body text box beneath it. All numbers are the measured ones from
-README.md / eval / PROGRESS.log — no invented figures.
+README.md / eval / PROGRESS.log. No invented figures.
 
 Run:  python scripts/build_deck.py
 Out:  ANVESHAK_KSP_Datathon_2026_Submission.pptx
@@ -24,11 +24,11 @@ GITHUB = "https://github.com/arungeekay/anveshak"
 
 # Palette tuned for the template's WHITE content background (dark text on white).
 # (Names kept for minimal churn; "WHITE" now means the dark emphasis ink.)
-WHITE = RGBColor(0x0B, 0x1F, 0x3A)    # dark navy — headings / emphasis
-BODY = RGBColor(0x2B, 0x37, 0x4B)     # dark slate — body copy
-ACCENT = RGBColor(0x1D, 0x4E, 0xD8)   # blue-700 — metrics / links / emphasis
-MUTED = RGBColor(0x64, 0x74, 0x8B)    # slate-500 — captions / placeholders
-GOOD = RGBColor(0x04, 0x78, 0x55)     # emerald-700 — live / confirmed
+WHITE = RGBColor(0x0B, 0x1F, 0x3A)    # dark navy: headings / emphasis
+BODY = RGBColor(0x2B, 0x37, 0x4B)     # dark slate: body copy
+ACCENT = RGBColor(0x1D, 0x4E, 0xD8)   # blue-700: metrics / links
+MUTED = RGBColor(0x64, 0x74, 0x8B)    # slate-500: captions / placeholders
+GOOD = RGBColor(0x04, 0x78, 0x55)     # emerald-700: live / confirmed
 
 # body text box geometry (below the heading), in inches
 BODY_LEFT, BODY_TOP, BODY_W, BODY_H = 0.55, 1.55, 8.95, 3.75
@@ -75,12 +75,12 @@ def para(tf, text, *, size=12, color=BODY, bold=False, level=0, bullet=False,
 
 
 SHOTS = [
-    ("video/shots/01_leadfeed.png", "Night Patrol — proactive leads"),
-    ("video/shots/02_chat_evidence.png", "Chat — answer + evidence (SQL)"),
-    ("video/shots/03_series.png", "Serial linkage — SH-07"),
-    ("video/shots/04_pack.png", "Investigation Pack — 6 agents"),
-    ("video/shots/05_graph.png", "CrimeGraph — fraud hub"),
-    ("video/shots/06_kannada.png", "Bilingual — ಕನ್ನಡ + English"),
+    ("video/shots/01_leadfeed.png", "Night Patrol: proactive leads"),
+    ("video/shots/02_chat_evidence.png", "Chat: answer plus its SQL evidence"),
+    ("video/shots/07_intake.png", "New FIR joins a live series"),
+    ("video/shots/04_pack.png", "Investigation Pack: six agents"),
+    ("video/shots/08_trust.png", "Trust Center: red-team console"),
+    ("video/shots/09_person.png", "Person 360"),
 ]
 
 
@@ -132,9 +132,9 @@ def fill_team(slide):
         ("Team name:  Team Zen", BODY, False, 14),
         ("Team leader name:  Hiran Vikraman S R", BODY, False, 14),
         ("Team size:  2   (Hiran Vikraman S R · Arun G K)", BODY, False, 14),
-        ("Problem Statement:  Challenge 1 — Intelligent Conversational AI for the "
+        ("Problem Statement:  Challenge 1. Intelligent Conversational AI for the "
          "KSP Crime Database. Enable officers to query the FIR/crime database in "
-         "natural language (English & Kannada) and get accurate, evidence-grounded "
+         "natural language (English and Kannada) and get accurate, evidence-grounded "
          "answers.", BODY, False, 13),
     ]
     tf.clear()  # leaves a single empty paragraph
@@ -148,203 +148,256 @@ def main():
 
     fill_team(S[0])
 
-    # Slide 1 — Brief about the solution
+    # Slide 1: Brief about the solution
     tf = add_body(S[1])
-    para(tf, [("ANVESHAK (ಅನ್ವೇಷಕ", WHITE, True), (" = “the investigator”) turns the KSP "
-              "crime database into an ", BODY, False),
+    para(tf, [("ANVESHAK (ಅನ್ವೇಷಕ", WHITE, True),
+              (' = "the investigator") turns the KSP crime database into an ', BODY, False),
               ("AI investigation partner", WHITE, True),
-              (" — not just a chatbot.", BODY, False)], size=13, first=True, space=8)
-    para(tf, [("Ask in Kannada or English, by voice or text — get an answer in seconds, ", BODY, False),
-              ("with the evidence", WHITE, True), (" (SQL + rows + case IDs) attached. No SQL "
-              "skills, no analyst queue.", BODY, False)], bullet=True)
-    para(tf, [("Deterministic tools compute; the LLM only narrates", WHITE, True),
-              (" — every number traces to a tool result. Zero hallucinated statistics — "
-               "essential for policing.", BODY, False)], bullet=True)
-    para(tf, "It doesn’t stop at answers — it works cases: links serial crime across "
-             "districts, runs a 6-agent cell that assembles court-ready packs, traverses a "
-             "crime knowledge graph, and sweeps overnight to raise leads before anyone asks.",
+              (", not just a chatbot.", BODY, False)], size=13, first=True, space=8)
+    para(tf, [("Ask in Kannada or English, by voice or text, and get an answer in "
+               "seconds ", BODY, False), ("with the evidence attached", WHITE, True),
+              (": the SQL, the rows, the case IDs. No SQL skills, no analyst queue.",
+               BODY, False)], bullet=True)
+    para(tf, [("Deterministic tools compute; the model only narrates.", WHITE, True),
+              (" Every number traces to a tool result, so there are no invented "
+               "statistics. That is what makes it usable in policing.", BODY, False)],
          bullet=True)
-    para(tf, [("Impact: minutes instead of days, catches siloed records miss, and "
-               "proactive leads every morning. ", WHITE, True),
+    para(tf, "It does not stop at answers, it works cases: links serial crime across "
+             "district boundaries, files new FIRs and links them live, runs a six-agent "
+             "cell that assembles court-ready packs, and sweeps overnight to raise leads "
+             "before anyone asks.", bullet=True)
+    para(tf, [("Impact: minutes instead of days, catches that siloed records miss, and "
+               "a ranked lead list every morning. ", WHITE, True),
               ("Runs 100% on Zoho Catalyst.", GOOD, True)], bullet=True, space=2)
 
-    # Slide 2 — Opportunities / differentiation / USP
+    # Slide 2: Opportunities / differentiation / USP
     tf = add_body(S[2])
     para(tf, "How it is different, and how it solves the problem:", size=12, color=WHITE,
          bold=True, first=True, space=8)
-    para(tf, "Most “crime chatbots” stop at NL→SQL. ANVESHAK adds an "
-             "investigation layer: cross-district serial linkage, multi-agent case work, "
-             "and proactive patrol.", bullet=True)
+    para(tf, 'Most "crime chatbots" stop at natural language to SQL. ANVESHAK adds an '
+             "investigation layer: cross-district serial linkage, live FIR intake, "
+             "multi-agent case work and proactive patrol.", bullet=True)
     para(tf, [("Trust by construction: ", WHITE, True),
-              ("the LLM never invents numbers (deterministic tools + evidence drawer), and "
-               "the linkage ground truth is public so results are independently verifiable.", BODY, False)],
-         bullet=True)
+              ("the model never invents numbers, the linkage ground truth is public, "
+               "role scope is enforced in the query, and the audit log is "
+               "tamper-evident. There is a red-team console in the product so anyone "
+               "can test it.", BODY, False)], bullet=True)
     para(tf, [("Cross-district reach: ", WHITE, True),
-              ("MO fingerprinting via multilingual embeddings finds serial offenders that "
-               "siloed district records miss.", BODY, False)], bullet=True)
+              ("MO fingerprinting via multilingual embeddings finds serial offenders "
+               "that siloed district records miss.", BODY, False)], bullet=True)
     para(tf, [("Built for real officers: ", WHITE, True),
-              ("bilingual (Kannada + English) with browser voice, government-grade UI.", BODY, False)],
-         bullet=True)
+              ("bilingual Kannada and English, voice or text, government-grade UI.",
+               BODY, False)], bullet=True)
     para(tf, [("Where it makes a difference: ", WHITE, True),
               ("a constable at a rural station gets a statewide answer in Kannada in "
-               "seconds · an SP spots a serial ring crossing Mandya into Bengaluru before "
-               "the next strike · an IO gets a first-draft, court-ready pack in minutes · "
-               "a control room sees tomorrow’s hotspot tonight.", BODY, False)], size=11, space=6)
+               "seconds; an SP spots a ring crossing Mandya into Bengaluru before the "
+               "next strike; an IO gets a first-draft court-ready pack in minutes; a "
+               "control room sees tomorrow's hotspot tonight.", BODY, False)],
+         size=11, space=6)
     para(tf, [("USP:  ", ACCENT, True),
-              ("“Ask a question, get a verified answer with evidence — and let the AI "
-               "work the case end-to-end to a court-ready pack.”", WHITE, False)], size=11.5, space=2)
+              ('"Ask a question, get a verified answer with evidence, and let the AI '
+               'work the case end to end to a court-ready pack."', WHITE, False)],
+         size=11.5, space=2)
 
-    # Slide 3 — List of features
+    # Slide 3: List of features
     tf = add_body(S[3])
     feats = [
-        ("Conversational floor", " — bilingual EN + Kannada, voice + text, verified NL→SQL with evidence drawer on every answer."),
-        ("Serial Crime Linkage Engine", " — MO fingerprinting (multilingual embeddings + structured features), weighted cosine, HDBSCAN, 180-day / 120-km filter; discovers cross-district series cold."),
-        ("AI Investigation Cell", " — 6 agents stream their reasoning over SSE → court-ready Investigation Pack (PDF)."),
-        ("CrimeGraph", " — knowledge graph over people/cases; ego-network, shortest path, Louvain communities for multi-hop questions."),
-        ("Night Patrol", " — spike / series-growth / repeat-offender detectors → ranked Lead Cards, autonomously."),
-        ("Court-ready outputs", " — Investigation Pack + conversation-to-PDF via SmartBrowz."),
-        ("Governance", " — RBAC scopes (SHO/SP/SCRB/analyst), audit log, and no protected attributes (religion/caste) in any model (ADR-9)."),
+        ("Conversational floor", ": bilingual English and Kannada, voice or text, "
+         "verified natural-language-to-SQL with an evidence drawer on every answer."),
+        ("Serial Crime Linkage Engine", ": MO fingerprinting (multilingual embeddings "
+         "plus structured features), weighted cosine, HDBSCAN, 180-day / 120-km "
+         "filter. Discovers cross-district series cold."),
+        ("Live FIR intake", ": file a new FIR in plain words, typed or dictated in "
+         "Kannada. It is embedded at runtime and joins a matching series immediately."),
+        ("AI Investigation Cell", ": six agents stream their reasoning and assemble a "
+         "court-ready Investigation Pack, rendered to PDF by SmartBrowz."),
+        ("CrimeGraph and Person 360", ": a knowledge graph over people and cases, plus "
+         "one page holding a person's whole footprint, risk breakdown and associates."),
+        ("Night Patrol and patrol plans", ": spike, series-growth and repeat-offender "
+         "detectors produce ranked lead cards, then a deployment plan per district."),
+        ("Trust Center", ": live metrics, a red-team console anyone can attack, and a "
+         "hash-chained audit log that proves history has not been rewritten."),
+        ("Governance", ": role scope enforced server-side (SHO, SP, SCRB, analyst with "
+         "masked names), and no protected attributes in any model (ADR-9)."),
     ]
     for i, (h, rest) in enumerate(feats):
-        para(tf, [(f"{i+1}. {h}", WHITE, True), (rest, BODY, False)], size=11.5, space=5,
-             first=(i == 0))
+        para(tf, [(f"{i+1}. {h}", WHITE, True), (rest, BODY, False)], size=10.5,
+             space=4, first=(i == 0))
 
-    # Slide 4 — Process flow / use-case
+    # Slide 4: Process flow / use-case
     tf = add_body(S[4])
-    para(tf, "Officer (EN/KN, voice or text)  →  React SPA  →  FastAPI intent router:",
-         size=12, color=WHITE, bold=True, first=True, space=8)
-    para(tf, [("NL→SQL path: ", ACCENT, True),
-              ("schema card + few-shots → sqlglot guardrails (SELECT-only, auto-LIMIT, "
-               "self-repair) → DuckDB → answer + evidence drawer.", BODY, False)], bullet=True)
-    para(tf, [("Tool path: ", ACCENT, True),
-              ("linkage / graph / forecast / hotspots / risk / similar → DuckDB → "
-               "verified result → LLM narrates.", BODY, False)], bullet=True)
-    para(tf, [("Investigation: ", ACCENT, True),
-              ("“Investigate SH-07” → 6-agent pipeline (SSE) → Investigation "
-               "Pack → SmartBrowz PDF.", BODY, False)], bullet=True)
-    para(tf, [("Autonomous: ", ACCENT, True),
-              ("Cron → Night Patrol detectors → Lead Cards → Signals / Mail digest.", BODY, False)],
+    para(tf, "Officer (English or Kannada, voice or text) to React SPA to a FastAPI "
+             "intent router:", size=12, color=WHITE, bold=True, first=True, space=8)
+    para(tf, [("Question path: ", ACCENT, True),
+              ("schema card and few-shots, then guardrails (SELECT-only, allowlisted "
+               "tables, no file IO), the ADR-9 policy screen, role-scope injection, "
+               "and self-repair. Answer plus evidence drawer.", BODY, False)],
          bullet=True)
+    para(tf, [("Tool path: ", ACCENT, True),
+              ("linkage, graph, forecast, hotspots, risk and similarity tools compute "
+               "on DuckDB; the model narrates the verified result.", BODY, False)],
+         bullet=True)
+    para(tf, [("New FIR: ", ACCENT, True),
+              ("the narrative is embedded at runtime by ONNX, written to Data Store "
+               "and the mirror, linkage re-runs, and the officer is told which series "
+               "it joined.", BODY, False)], bullet=True)
+    para(tf, [("Investigation: ", ACCENT, True),
+              ('"Investigate SH-07" starts the six-agent pipeline over SSE, ending in '
+               "the Investigation Pack and its PDF.", BODY, False)], bullet=True)
+    para(tf, [("Autonomous: ", ACCENT, True),
+              ("Cron runs Night Patrol, which produces lead cards, a patrol plan and a "
+               "spoken Kannada morning briefing.", BODY, False)], bullet=True)
     para(tf, [("Two data layers (ADR-1): ", WHITE, True),
-              ("Catalyst Data Store = system of record; an embedded DuckDB analytical "
-               "mirror serves sub-second analytics.", BODY, False)], size=11, space=2)
+              ("Catalyst Data Store is the system of record; an embedded DuckDB mirror "
+               "serves sub-second analytics.", BODY, False)], size=11, space=2)
 
-    # Slide 5 — Wireframes / mock
+    # Slide 5: Wireframes / mock
     tf = add_body(S[5])
-    para(tf, "Six views in the live prototype (government-grade dark theme):", size=12,
-         color=WHITE, bold=True, first=True, space=8)
+    para(tf, "Nine views in the live prototype (government-grade dark theme):",
+         size=12, color=WHITE, bold=True, first=True, space=8)
     for h, rest in [
-        ("Chat", " — bilingual answer + evidence drawer (SQL, rows, case IDs) + voice input."),
-        ("Lead Feed", " — ranked Night-Patrol Lead Cards."),
-        ("Series", " — discovered serial-crime hypotheses with confidence + linked case IDs."),
-        ("CrimeGraph", " — interactive people/case network with community highlighting."),
-        ("Investigation Room", " — six agent cards stream live, then the assembled pack."),
-        ("Audit", " — every action logged (user, role, action, detail)."),
+        ("Chat", ": bilingual answer, evidence drawer, voice input, scope badge."),
+        ("Lead Feed", ": ranked Night-Patrol cards, patrol plan, spoken briefing."),
+        ("Series", ": discovered series with codename, link explanations, replay and "
+         "the counterfactual banner."),
+        ("New FIR", ": file a case in plain words and watch it join a series."),
+        ("Investigation Room", ": six agents streaming, then the assembled pack."),
+        ("Person 360", ": one person's history, risk breakdown, network, associates."),
+        ("CrimeGraph", ": interactive people and case network."),
+        ("Trust Center", ": metrics, red-team console, audit-chain verification."),
+        ("Audit", ": every action logged with its role."),
     ]:
-        para(tf, [(h, WHITE, True), (rest, BODY, False)], bullet=True, size=11.5)
-    para(tf, f"Live: {LIVE_URL}", size=11, color=ACCENT, space=2)
+        para(tf, [(h, WHITE, True), (rest, BODY, False)], bullet=True, size=11)
+    para(tf, f"Live: {LIVE_URL}", size=10.5, color=ACCENT, space=2)
 
-    # Slide 6 — Architecture
+    # Slide 6: Architecture
     tf = add_body(S[6])
     flow = [
-        "Officer (EN/KN, voice+text)",
-        "React SPA  (served on Catalyst)",
-        "FastAPI backend on Catalyst AppSail  →  intent router",
-        "  ⤷  NL→SQL (guardrails + self-repair)   and   typed tools",
-        "        (linkage · graph · forecast · hotspots · risk · similar)",
-        "DuckDB analytical mirror  ⟷  Catalyst Data Store (system of record)",
-        "LLM adapter  →  Catalyst QuickML  →  GLM-4.7-Flash",
-        "6-agent Investigation Cell (SSE)  →  SmartBrowz  →  Pack PDF",
-        "Cron  →  Night Patrol detectors  →  Lead Cards",
+        "Officer (English / Kannada, voice and text)",
+        "React SPA, served by the backend at /ui",
+        "FastAPI on Catalyst AppSail, then the intent router",
+        "  guardrails, ADR-9 policy, role scope, self-repair, and typed tools",
+        "        (linkage, graph, forecast, hotspots, risk, similarity)",
+        "DuckDB analytical mirror, with Catalyst Data Store as system of record",
+        "ONNX MiniLM embeds new text at runtime, with no external model calls",
+        "LLM adapter to Catalyst QuickML, serving GLM-4.7-Flash",
+        "Six-agent Investigation Cell over SSE, then SmartBrowz for the pack PDF",
+        "Cron drives Night Patrol, producing lead cards and the morning briefing",
     ]
     for i, line in enumerate(flow):
         indent = line.startswith(" ")
-        para(tf, line.strip(), size=11, color=(MUTED if indent else BODY),
-             bold=False, first=(i == 0), space=3)
-    para(tf, [("Deterministic tools, LLM narrates (ADR-2). ", WHITE, True),
-              ("No external inference API is ever called from the deployed app (ADR-4).", BODY, False)],
-         size=10.5, space=2)
+        para(tf, line.strip(), size=10.5, color=(MUTED if indent else BODY),
+             first=(i == 0), space=3)
+    para(tf, [("Deterministic tools compute, the model narrates (ADR-2). ", WHITE, True),
+              ("No external inference API is ever called from the deployed app (ADR-4).",
+               BODY, False)], size=10.5, space=2)
 
-    # Slide 7 — Technologies
+    # Slide 7: Technologies
     tf = add_body(S[7])
     for h, rest in [
-        ("Backend", "Python 3.12, FastAPI, DuckDB, sqlglot, sentence-transformers "
-                    "(paraphrase-multilingual-MiniLM-L12-v2), scikit-learn / HDBSCAN, "
-                    "NetworkX + Louvain, statsmodels SARIMA, sse-starlette."),
-        ("Frontend", "React 18, Vite, Tailwind CSS, ECharts (charts + network graph), "
-                     "Leaflet + OpenStreetMap, Web Speech API (kn-IN voice)."),
-        ("LLM", "GLM-4.7-Flash served via Catalyst QuickML LLM Serving."),
-        ("Packaging", "Docker (custom AppSail runtime — bakes the scientific stack)."),
-        ("Quality", "pytest suite (46 tests), bilingual eval harness (60 questions), "
-                    "public linkage ground truth."),
+        ("Backend", "Python 3.12, FastAPI, DuckDB, sqlglot, ONNX Runtime with "
+                    "paraphrase-multilingual-MiniLM-L12-v2, scikit-learn and HDBSCAN, "
+                    "NetworkX with Louvain, statsmodels SARIMA, sse-starlette."),
+        ("Frontend", "React 18, Vite, Tailwind CSS, ECharts for charts and the network "
+                     "graph, Leaflet with OpenStreetMap, Web Speech API for kn-IN voice."),
+        ("LLM", "GLM-4.7-Flash served through Catalyst QuickML LLM Serving."),
+        ("Packaging", "Docker custom AppSail runtime, with the scientific stack, the "
+                      "embedding model and the SPA bundled in the image."),
+        ("Quality", "86 tests, a 60-question bilingual eval harness, public linkage "
+                    "ground truth, and a post-deploy verification gate."),
     ]:
         para(tf, [(f"{h}:  ", WHITE, True), (rest, BODY, False)], size=11.5, space=6,
              first=(h == "Backend"))
 
-    # Slide 8 — Catalyst services
+    # Slide 8: Catalyst services
     tf = add_body(S[8])
     para(tf, [("Live now:  ", GOOD, True),
-              ("AppSail (FastAPI, custom Docker runtime)  ·  QuickML LLM Serving "
-               "(GLM-4.7-Flash)  ·  Web Client Hosting  ·  Authentication  ·  API Gateway.", BODY, False)],
+              ("AppSail (FastAPI, custom Docker runtime), QuickML LLM Serving "
+               "(GLM-4.7-Flash), Web Client Hosting, Authentication, API Gateway, "
+               "SmartBrowz for the Investigation Pack PDF.", BODY, False)],
          size=11.5, first=True, space=8)
-    para(tf, [("In the architecture / provisioned:  ", ACCENT, True),
-              ("Data Store (system of record)  ·  NoSQL (graph snapshots)  ·  SmartBrowz "
-               "(pack PDF)  ·  Cron (Night Patrol)  ·  Signals + Mail (lead digests)  ·  "
-               "Cache  ·  Stratus (pack storage).", BODY, False)], size=11.5, space=8)
+    para(tf, [("Integrated, with an honest status:  ", ACCENT, True),
+              ("Data Store as the system of record. The app reports its live "
+               "connection state rather than assuming it, and FIR intake writes there "
+               "as well as to the analytical mirror.", BODY, False)], size=11.5, space=8)
+    para(tf, [("In the architecture:  ", ACCENT, True),
+              ("NoSQL for graph snapshots, Cron for Night Patrol, Signals and Mail for "
+               "lead digests, Cache, and Stratus for pack storage.", BODY, False)],
+         size=11.5, space=8)
     para(tf, "Deployment is exclusively on Zoho Catalyst, per the competition mandate.",
          size=11, color=WHITE, bold=True, space=2)
 
-    # Slide 9 — Estimated cost (optional)
+    # Slide 9: Estimated cost (optional)
     tf = add_body(S[9])
     para(tf, "The prototype runs within the Catalyst development tier.", size=12,
          color=WHITE, bold=True, first=True, space=8)
-    para(tf, "AppSail: 1 GB memory, single instance (custom Docker runtime).", bullet=True)
-    para(tf, "QuickML: GLM-4.7-Flash is a Zoho-hosted shared model — no per-model "
-             "deployment cost; billed per token at production scale.", bullet=True)
-    para(tf, "Web Client Hosting + Data Store + Cron: serverless, usage-based.", bullet=True)
-    para(tf, "Embeddings are precomputed at data-generation time, so runtime needs no "
-             "GPU / heavy inference for search.", bullet=True)
+    para(tf, "AppSail: 1 GB memory, single instance, custom Docker runtime.", bullet=True)
+    para(tf, "QuickML: GLM-4.7-Flash is a Zoho-hosted shared model, so there is no "
+             "per-model deployment cost; it is billed per token at production scale.",
+         bullet=True)
+    para(tf, "Web Client Hosting, Data Store and Cron are serverless and usage-based.",
+         bullet=True)
+    para(tf, "Corpus embeddings are precomputed, and runtime embedding uses ONNX on "
+             "CPU, so no GPU is required at any point.", bullet=True)
 
-    # Slide 10 — Snapshots (real screenshots of the live app in a 3x2 grid)
+    # Slide 10: Snapshots
     _place_shots(S[10])
 
-    # Slide 11 — Performance / benchmarking
+    # Slide 11: Performance / benchmarking
     tf = add_body(S[11])
     rows = [
-        ("Dataset", "15,405 FIRs · 31 districts · 248 stations · 2023–2026 (synthetic, seed 42)."),
-        ("NL→SQL accuracy", "76.7% overall (EN 82.2%, KN 60.0%) on the local 7B dev model; gold-vs-gold 100%. Production GLM-4.7-Flash is expected higher."),
-        ("Serial linkage (SH-07)", "precision 0.86 · recall 12/14; the disjoint SP-2 series correctly not merged."),
-        ("Forecast (burglary)", "backtest MAE 1.83 vs seasonal-naive 1.75 — competitive and honestly reported."),
-        ("Repeat-offender risk", "Suresh B scores 0.83 (recency / frequency / gravity / centrality)."),
-        ("Night Patrol", "Whitefield spike + repeat-offender cluster fire on the planted anomalies."),
-        ("Robustness", "thread-safe analytical layer — 60 concurrent requests, 0 errors; caches pre-warmed at startup."),
+        ("Dataset", "15,405 FIRs, 31 districts, 248 stations, 2023 to 2026 "
+                    "(synthetic, seed 42)."),
+        ("Natural language to SQL", "76.7% overall (English 82.2%, Kannada 60.0%) "
+                                    "measured on the local 7B development model; "
+                                    "gold-versus-gold 100%. A live harness re-measures "
+                                    "against the deployed GLM."),
+        ("Serial linkage (SH-07)", "precision 0.86, recall 12 of 14; the disjoint SP-2 "
+                                   "series is correctly not merged."),
+        ("Counterfactual", "the series becomes detectable at case 6; nine further "
+                           "offences across three districts followed over 142 days."),
+        ("Investigation Cell", "six agents complete in about 10 seconds, producing "
+                               "8 ranked suspects."),
+        ("Forecast (burglary)", "backtest MAE 1.83 against a seasonal-naive 1.75, "
+                                "which is competitive and honestly reported."),
+        ("Guardrails", "10 of 10 attack vectors blocked, re-tested live on every Trust "
+                       "Center load."),
+        ("Robustness", "thread-safe analytical layer: 60 concurrent requests, zero "
+                       "errors; caches pre-warmed at startup."),
     ]
     for i, (h, rest) in enumerate(rows):
-        para(tf, [(f"{h}:  ", WHITE, True), (rest, BODY, False)], size=11, space=5,
+        para(tf, [(f"{h}:  ", WHITE, True), (rest, BODY, False)], size=10.5, space=4,
              first=(i == 0))
-    para(tf, "Linkage ground truth is public (data_engine/planted/*.yaml) — numbers are "
-             "independently verifiable.", size=10, color=MUTED, space=2)
+    para(tf, "Linkage ground truth is public (data_engine/planted/*.yaml), so these "
+             "numbers are independently verifiable.", size=10, color=MUTED, space=2)
 
-    # Slide 12 — Links
+    # Slide 12: Links
     tf = add_body(S[12])
     para(tf, [("GitHub (public):  ", WHITE, True), (GITHUB, ACCENT, False)], size=13,
          first=True, space=10)
     para(tf, [("Deployed link (Catalyst):  ", WHITE, True), (LIVE_URL, ACCENT, False)],
          size=13, space=10)
-    para(tf, [("Demo video (3 min):  ", WHITE, True), ("(add your public YouTube / Drive link)", MUTED, False)],
+    para(tf, [("Demo video (3 min):  ", WHITE, True),
+              ("(add your public YouTube or Drive link)", MUTED, False)],
          size=13, space=10)
     para(tf, f"API base: {API_URL}", size=10, color=MUTED, space=2)
 
-    # Slide 13 — Additional / future development
+    # Slide 13: Additional / future development
     tf = add_body(S[13])
-    para(tf, "Roadmap to production:", size=12, color=WHITE, bold=True, first=True, space=8)
+    para(tf, "Roadmap to production:", size=12, color=WHITE, bold=True, first=True,
+         space=8)
     for line in [
-        "RBAC server-side scope injection (designed, ADR-8) → full enforcement via Catalyst Auth.",
-        "Live Data Store loader + FIR-intake write-back; NoSQL graph persistence.",
-        "SmartBrowz pack PDF, Cron schedule, and Signals / Mail digests fully wired end-to-end.",
-        "Real CCTNS identity resolution (name / parentage / DOB) replacing the synthetic person_key.",
-        "Kannada NL→SQL tuning (hand-curated few-shots) to lift KN accuracy toward the EN level.",
-        "Human-in-the-loop feedback on linkage / leads to continuously improve precision.",
+        "CCTNS integration: a live read connection plus identity resolution on name, "
+        "parentage and date of birth, replacing the synthetic person key.",
+        "Catalyst Auth issuing real officer identities into the scope layer that "
+        "already enforces them server-side.",
+        "Kannada tuning with hand-curated examples from real officer phrasing, which "
+        "is our clearest measured gap.",
+        "Human-in-the-loop learning: every analyst Confirm or Reject on a series "
+        "becomes a label that improves precision.",
+        "Photo intake: scan a paper FIR with a vision model, so the workflow starts "
+        "where policing actually starts.",
+        "A pilot with one district's live data.",
     ]:
         para(tf, line, bullet=True, size=11.5, color=BODY)
 

@@ -1,7 +1,7 @@
 """risk_score tool (contracts.md §7).
 
 Components: recency, frequency, gravity, centrality. ADR-9: NO protected attributes
-(religion/caste/occupation) are ever read — enforced by a unit test.
+(religion/caste/occupation) are ever read, enforced by a unit test.
 """
 from __future__ import annotations
 

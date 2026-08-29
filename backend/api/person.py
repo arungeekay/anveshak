@@ -2,7 +2,7 @@
 
 Investigators think person-first, not query-first: "who is this man, what has he
 done, who does he work with, how dangerous is he?" This composes tools we already
-have — accused history, risk scoring, the CrimeGraph, similar cases — into the one
+have, accused history, risk scoring, the CrimeGraph, similar cases, into the one
 page an investigating officer would actually live in.
 
 Every number still comes from a deterministic tool (ADR-2); this endpoint only

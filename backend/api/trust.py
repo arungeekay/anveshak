@@ -1,6 +1,6 @@
 """Trust Center: verifiable claims + a red-team console (FINALE_PLAN F-12).
 
-A police jury's instinct is to attack the system — "what stops it inventing
+A police jury's instinct is to attack the system, "what stops it inventing
 numbers?", "can I make it leak?", "will it profile by caste?". This turns that
 instinct into the strongest part of the demo: every defence is a surface a judge
 can drive themselves, and every refusal is explained and audited.
@@ -125,7 +125,7 @@ def trust_metrics() -> dict:
             "synthetic": True,
         },
         "nl2sql": ev or {
-            "note": "no live eval artefact yet — run eval/live_harness.py",
+            "note": "no live eval artefact yet, run eval/live_harness.py",
             "baseline_overall": 0.767, "baseline_en": 0.822, "baseline_kn": 0.60,
             "baseline_model": "local qwen2.5:7b (dev)",
         },
@@ -135,7 +135,7 @@ def trust_metrics() -> dict:
                                      if s["series_id"] == "SH-07"), None),
             "precision_on_planted": 0.86,
             "recall_on_planted": "12/14",
-            "ground_truth": "public — data_engine/planted/*.yaml",
+            "ground_truth": "public, data_engine/planted/*.yaml",
         },
         "guardrails": _guardrail_summary(),
         "audit": verify_chain(con),
@@ -153,7 +153,7 @@ def redteam_try(req: RedTeamRequest) -> dict:
     """Run an adversarial prompt through the real defences and explain the outcome.
 
     Deliberately reuses the production path: the question screen, the SQL sanitizer
-    and the ADR-9 policy. Nothing unsafe is executed — the SQL branch stops at
+    and the ADR-9 policy. Nothing unsafe is executed, the SQL branch stops at
     sanitize(), which is exactly where the real system stops it too.
     """
     con = get_connection()
@@ -167,7 +167,7 @@ def redteam_try(req: RedTeamRequest) -> dict:
                           {"prompt": prompt, "stage": blocked.stage})
         return {"outcome": "blocked", "stage": "policy (question)",
                 "reason": blocked.reason_kn if req.lang == "kn" else blocked.reason_en,
-                "policy": "ADR-9 — protected attributes", "audit_id": aid}
+                "policy": "ADR-9, protected attributes", "audit_id": aid}
 
     # 2) If it looks like raw SQL, put it through the sanitizer verbatim.
     looks_like_sql = prompt.lstrip().lower().startswith(
@@ -191,17 +191,17 @@ def redteam_try(req: RedTeamRequest) -> dict:
                               {"prompt": prompt, "stage": blocked.stage})
             return {"outcome": "blocked", "stage": "policy (SQL)",
                     "reason": blocked.reason_kn if req.lang == "kn" else blocked.reason_en,
-                    "policy": "ADR-9 — protected attributes", "audit_id": aid}
+                    "policy": "ADR-9, protected attributes", "audit_id": aid}
         aid = write_audit(con, "redteam", "SCRB", "redteam_allowed",
                           {"prompt": prompt, "sanitized": safe})
         return {"outcome": "allowed", "stage": "SQL guardrail",
-                "reason": "Read-only SELECT against allowlisted tables — permitted, "
+                "reason": "Read-only SELECT against allowlisted tables, permitted, "
                           "with an automatic row limit applied.",
                 "sanitized_sql": safe, "audit_id": aid}
 
     # 3) Prompt injection: the text is a question, but it carries an instruction to
     #    run something destructive. Demonstrate the defence rather than asserting it
-    #    — pull the embedded statement out and put it through the real sanitizer,
+    #   , pull the embedded statement out and put it through the real sanitizer,
     #    which is exactly what would happen to it downstream.
     embedded = _embedded_statement(prompt)
     if embedded:
@@ -219,9 +219,9 @@ def redteam_try(req: RedTeamRequest) -> dict:
             "reason": (f"The instruction embedded in this prompt (\"{embedded}\") was "
                        f"put through the same sanitizer every generated query faces, "
                        f"and rejected: {verdict}. The model cannot widen what the "
-                       f"system is permitted to execute — only SELECTs against "
+                       f"system is permitted to execute, only SELECTs against "
                        f"allowlisted tables ever run."),
-            "policy": "ADR-2 — deterministic tools compute, the model only narrates",
+            "policy": "ADR-2, deterministic tools compute, the model only narrates",
             "embedded_statement": embedded,
             "audit_id": aid,
         }
@@ -237,6 +237,6 @@ def redteam_try(req: RedTeamRequest) -> dict:
                   "SQL the model produces is still sanitised (SELECT-only, "
                   "allowlisted tables, no file/IO functions) and screened against "
                   "ADR-9 before execution.",
-        "policy": "ADR-2 — deterministic tools compute, the model only narrates",
+        "policy": "ADR-2, deterministic tools compute, the model only narrates",
         "audit_id": aid,
     }

@@ -53,7 +53,7 @@ _data_max_date: _dt.date | None = None
 
 
 def data_max_date(con=None) -> _dt.date:
-    """The dataset's most recent FIR date — the anchor for every relative window.
+    """The dataset's most recent FIR date, the anchor for every relative window.
 
     Detectors ("last 14 days"), recency scoring and demo narratives must measure
     from the data's own end, never from the wall clock: the corpus ends 2026-07-20,

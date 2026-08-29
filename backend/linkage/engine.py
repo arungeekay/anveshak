@@ -132,7 +132,7 @@ def _build_hypothesis(members_local: list[int], ctx: dict, data: dict, cfg: dict
 
     # confidence = mean over members of each member's STRONGEST link to another member.
     # (A series is defined by every case having a strong tie to the group, not by all
-    # pairs being similar — the latter is unfairly dragged down by EN<->KN embedding gaps.)
+    # pairs being similar, the latter is unfairly dragged down by EN<->KN embedding gaps.)
     pairs = [(a, b) for i, a in enumerate(members_local) for b in members_local[i + 1:]]
     best = []
     for i in members_local:
@@ -151,7 +151,7 @@ def _build_hypothesis(members_local: list[int], ctx: dict, data: dict, cfg: dict
             if fa.get(key) and fa.get(key) == fb.get(key):
                 shared.append(f"{key}:{fa[key]}")
         # Name what the engine matched on, in words an officer can check against
-        # the FIRs — a cosine alone is not auditable evidence (F-15).
+        # the FIRs, a cosine alone is not auditable evidence (F-15).
         shared_map = {k.split(":", 1)[0]: k.split(":", 1)[1] for k in shared if ":" in k}
         links.append({
             "case_a": int(data["case_id"][ga]), "case_b": int(data["case_id"][gb]),
@@ -160,7 +160,7 @@ def _build_hypothesis(members_local: list[int], ctx: dict, data: dict, cfg: dict
             "evidence_phrases": _phrases(data["brief"][ga], data["brief"][gb]),
         })
 
-    # The MO features shared by most members — what the series is "about".
+    # The MO features shared by most members, what the series is "about".
     member_feats = [ctx["feats"][i] for i in members_local]
     dominant = {}
     for key in ("vehicle", "target", "entry", "weapon", "tod_bucket"):
@@ -219,7 +219,7 @@ def _assign_ids(hyps: list[dict]) -> list[dict]:
         used.add(counter)
         counter += 1
     for h in hyps:
-        h["name"] = f"{h['crime_sub_head']} series — {', '.join(h['districts'][:3])}"
+        h["name"] = f"{h['crime_sub_head']} series, {', '.join(h['districts'][:3])}"
     return hyps
 
 

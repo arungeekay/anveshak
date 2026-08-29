@@ -2,7 +2,7 @@
 
 **Why this exists.** The Dockerfile used to `COPY build/anveshak.duckdb` directly.
 That file is the same one local tests and dev servers write to, so a build started
-while anything held it open baked a torn copy into the image — the deployed app
+while anything held it open baked a torn copy into the image, the deployed app
 came up with `db: error, cases: 0` and every endpoint 500'd. It is an easy mistake
 to repeat and an expensive one to notice, because the build itself succeeds.
 
@@ -93,7 +93,7 @@ def main() -> int:
     args = ap.parse_args()
 
     if not SRC.exists():
-        print(f"{SRC} not found — run `python -m data_engine.build` first")
+        print(f"{SRC} not found, run `python -m data_engine.build` first")
         return 1
 
     if args.clean:
@@ -102,7 +102,7 @@ def main() -> int:
 
     print(f"verifying source {SRC} …")
     if not verify(SRC):
-        print("\nSOURCE DATABASE IS NOT USABLE — not staging. "
+        print("\nSOURCE DATABASE IS NOT USABLE, not staging. "
               "Close anything holding it open and re-run.")
         return 1
 
@@ -110,14 +110,14 @@ def main() -> int:
     shutil.copy2(SRC, DST)
     wal = SRC.with_suffix(".duckdb.wal")
     if wal.exists():
-        print(f"  WARNING: {wal.name} exists — the source was mid-write; "
+        print(f"  WARNING: {wal.name} exists, the source was mid-write; "
               f"re-run after closing other processes")
         return 1
     print(f"staged -> {DST} ({DST.stat().st_size / 1e6:.0f} MB)")
 
     print("verifying the SNAPSHOT (this is what ships) …")
     if not verify(DST):
-        print("\nSNAPSHOT IS CORRUPT — the build must not proceed.")
+        print("\nSNAPSHOT IS CORRUPT, the build must not proceed.")
         return 1
     print("\nsnapshot verified; safe to `docker build`.")
     return 0

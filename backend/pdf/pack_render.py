@@ -28,7 +28,7 @@ def render_pack_html(pack: dict) -> str:
                      f"<span class='score'>risk {r['score']}</span><div>{comps}</div>"
                      f"<div class='muted'>{_esc(r['explanation'])}</div></div>")
     leads = "".join(f"<li><b>#{_esc(ld['rank'])}</b> {_esc(ld['lead'])} "
-                    f"<span class='muted'>— {_esc(ld['rationale'])}</span></li>"
+                    f"<span class='muted'>: {_esc(ld['rationale'])}</span></li>"
                     for ld in pack.get("leads", []))
     legal = pack.get("legal", {})
     sections = ", ".join(f"{_esc(s['act'])} {_esc(s['section'])}"
