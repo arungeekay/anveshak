@@ -10,8 +10,6 @@ Out:  ANVESHAK_KSP_Datathon_2026_Submission.pptx
 """
 from __future__ import annotations
 
-import copy
-
 from pptx import Presentation
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
@@ -107,8 +105,11 @@ def _place_shots(slide):
                                       Emu(int(iw * EMU)), Emu(int(cap_h * EMU)))
         p = tb.text_frame.paragraphs[0]
         p.alignment = PP_ALIGN.CENTER
-        r0 = p.add_run(); r0.text = caption
-        r0.font.size = Pt(9.5); r0.font.color.rgb = BODY; r0.font.name = "Calibri"
+        r0 = p.add_run()
+        r0.text = caption
+        r0.font.size = Pt(9.5)
+        r0.font.color.rgb = BODY
+        r0.font.name = "Calibri"
 
 
 def _delete_slide_by_text(prs, marker):

@@ -1,6 +1,8 @@
-# RUNTIME deps (AppSail deploy + backend). Lean on purpose: MO embeddings are
-# PRECOMPUTED into the DuckDB mirror at build time, so torch/sentence-transformers
-# are NOT needed at runtime. Heavy ML libs live in requirements-ml.txt (data build).
+# RUNTIME deps (AppSail deploy + backend). Lean on purpose: the corpus MO embeddings
+# are PRECOMPUTED into the DuckDB mirror at build time (ADR-5), so torch and
+# sentence-transformers are NOT needed at runtime. Heavy ML libs live in
+# requirements-ml.txt (data build). ONNX Runtime (~15MB, CPU) is the exception: it
+# embeds NEW text at runtime — a judge's FIR narrative on stage — without torch.
 fastapi==0.115.6
 uvicorn[standard]==0.34.0
 pydantic==2.10.4
@@ -19,6 +21,11 @@ scikit-learn==1.6.0
 statsmodels==0.14.4
 h3==4.1.2
 networkx==3.4.2
+
+# Runtime text embedding (F-05): ONNX MiniLM, no torch. Model files are exported by
+# scripts/fetch_onnx_model.py into models/minilm-onnx and COPYed into the image.
+onnxruntime==1.29.0
+tokenizers==0.22.2
 
 # Catalyst platform SDK (Data Store, SmartBrowz, Cache, Mail, ...)
 zcatalyst-sdk
