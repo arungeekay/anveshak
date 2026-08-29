@@ -188,7 +188,7 @@ try {
     await scene('replay', async () => {
       await page.locator('button', { hasText: 'Replay the series' }).first().click();
       await cap(page, 'Watch it cross the borders',
-        'Fifteen offences in date order, hopping between Bengaluru City, Mandya and Tumakuru');
+        'Every offence in date order, hopping between Bengaluru City, Mandya and Tumakuru');
       await sleep(8800);
     });
   });
