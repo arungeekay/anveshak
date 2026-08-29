@@ -1,6 +1,8 @@
 """ANVESHAK FastAPI application entrypoint (Catalyst AppSail)."""
 from __future__ import annotations
 
+import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -13,6 +15,8 @@ from .api import leads as leads_api
 from .api import series as series_api
 from .config import settings
 from .db import db_status
+
+log = logging.getLogger("anveshak.main")
 
 app = FastAPI(
     title="ANVESHAK API",
@@ -54,6 +58,72 @@ def health() -> dict:
         "environment": settings.environment,
         "llm_backend": settings.llm_backend,
         **status,
+    }
+
+
+@app.get("/api/warm")
+def warm() -> dict:
+    """Keep-alive + cache-warm probe (FINALE_PLAN F-01).
+
+    AppSail idles the container out after inactivity, and a cold start costs 60-90s
+    of prewarming — unacceptable in front of a jury. A Catalyst Cron hits this every
+    few minutes so the container (and every heavy cache) stays hot.
+
+    Also useful right after a deploy: call it until `cold` is false. Each stage is
+    individually guarded so one failure cannot break the keep-alive itself.
+    """
+    import time as _t
+
+    from .db import get_connection
+
+    timings: dict[str, float] = {}
+    cold = False
+
+    def stage(name: str, fn):
+        nonlocal cold
+        t0 = _t.perf_counter()
+        try:
+            fn()
+        except Exception as exc:  # noqa: BLE001 - a warm probe must never 500
+            timings[name] = -1.0
+            log.warning("warm stage %s failed: %s", name, exc)
+            return
+        dt = _t.perf_counter() - t0
+        timings[name] = round(dt, 3)
+        if dt > 2.0:  # anything slow means that cache had to be (re)built
+            cold = True
+
+    con = get_connection()
+    stage("db", lambda: con.execute("SELECT 1").fetchone())
+
+    from .embeddings import matrix
+    stage("embeddings", lambda: matrix.ensure(con))
+
+    from .linkage.store import store as series_store
+    stage("series", lambda: series_store.ensure(con))
+
+    from .graph import engine as graph_engine
+    stage("graph", lambda: graph_engine.cache.ensure(con))
+
+    from .patrol.store import leads_store
+    stage("leads", lambda: leads_store.ensure(con))
+
+    # The demo series' pack is prewarmed at boot; rebuild it here if a restart or a
+    # failed prewarm left it missing, so "Open pack" is never cold on stage.
+    from .api.investigate import _build_pack, _packs
+    stage("pack", lambda: _packs.get("SH-07") or _build_pack(con, "SH-07"))
+
+    return {
+        "status": "warm" if not cold else "warming",
+        "cold": cold,
+        "timings_s": timings,
+        "caches": {
+            "embeddings": matrix.size(),
+            "series": len(series_store.all(con)),
+            "graph_nodes": graph_engine.cache.g.number_of_nodes() if graph_engine.cache.g else 0,
+            "leads": len(leads_store.all()),
+            "packs": sorted(_packs.keys()),
+        },
     }
 
 
