@@ -5,6 +5,7 @@ import Series from "./views/Series.jsx";
 import GraphView from "./views/GraphView.jsx";
 import Leads from "./views/Leads.jsx";
 import Investigation from "./views/Investigation.jsx";
+import Intake from "./views/Intake.jsx";
 import Audit from "./views/Audit.jsx";
 
 const ROLES = ["SCRB", "SP", "SHO", "ANALYST"];
@@ -14,6 +15,7 @@ const NAV = [
   ["/series", "Series", "🔗"],
   ["/graph", "CrimeGraph", "🕸️"],
   ["/investigate", "Investigation Room", "🗂️"],
+  ["/intake", "New FIR", "📝"],
   ["/audit", "Audit", "📜"],
 ];
 
@@ -71,6 +73,7 @@ export default function App() {
               <Route path="/series" element={<Series />} />
               <Route path="/graph" element={<GraphView />} />
               <Route path="/investigate" element={<Investigation />} />
+              <Route path="/intake" element={<Intake />} />
               <Route path="/audit" element={<Audit />} />
             </Routes>
           </main>

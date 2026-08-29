@@ -170,6 +170,43 @@ def c_concurrency(base):
     return "20 concurrent requests: all 200, no empty bodies"
 
 
+def c_similar_by_text(base):
+    """Runtime embedding (F-05/F-06): unseen wording must retrieve the right MO."""
+    narrative = ("Two men on a black motorbike rode up behind a woman walking alone "
+                 "and the pillion rider snatched her gold chain before speeding off.")
+    d = get_json(base, "/api/similar/by_text",
+                 payload={"narrative": narrative, "k": 5})
+    matches = d.get("matches") or []
+    assert len(matches) >= 3, f"only {len(matches)} matches"
+    assert matches[0]["cosine"] > 0.6, f"weak top match {matches[0]['cosine']}"
+    subs = [m["crime_sub_head"] for m in matches]
+    assert subs.count("Chain Snatching") >= 2, f"MO not recognised: {subs}"
+    return f"top cosine {matches[0]['cosine']}, {subs.count('Chain Snatching')}/5 chain snatching"
+
+
+def c_intake_roundtrip(base):
+    """The flagship beat: a paraphrased FIR joins SH-07, then state is restored."""
+    narrative = ("Yesterday evening my mother was walking by herself near the market "
+                 "when two men on a black motorbike came from behind, the pillion "
+                 "rider grabbed her gold chain and they sped away against the "
+                 "one-way traffic with helmet visors down.")
+    d = get_json(base, "/api/intake",
+                 payload={"narrative": narrative, "district": "Bengaluru City",
+                          "police_station": "Jayanagar PS"}, timeout=120)
+    try:
+        assert d.get("embedded"), "narrative was not embedded"
+        assert "SH-07" in (d.get("joined_series") or []), \
+            f"did not join SH-07: {d.get('joined_series')}"
+        joined = next(s for s in d["series"] if s["series_id"] == "SH-07")
+        detail = (f"case {d['case_id']} joined SH-07 "
+                  f"({joined['case_count']} cases, {d['rescan_ms']}ms rescan)")
+    finally:
+        # Always restore the pristine corpus, even if the assertions failed.
+        r = get_json(base, "/api/intake/reset", payload={}, timeout=120)
+        assert r["cases"] == EXPECTED_CASES, f"reset left {r['cases']} cases"
+    return detail
+
+
 CHECKS = [
     ("health", c_health, False),
     ("SPA /ui/", c_spa, False),
@@ -179,6 +216,8 @@ CHECKS = [
     ("graph hub", c_graph, False),
     ("leads (3 detectors)", c_leads, False),
     ("investigation pack", c_pack, False),
+    ("similar by text", c_similar_by_text, False),
+    ("intake -> SH-07", c_intake_roundtrip, True),
     ("concurrency x20", c_concurrency, True),
 ]
 
