@@ -26,6 +26,11 @@ def _prewarm() -> None:
     try:
         from .db import get_connection
         con = get_connection()
+        # MO embedding matrix first: linkage, similar_cases and the agent pipeline
+        # all read it, and loading it once here keeps every later call sub-second.
+        from .embeddings import matrix as embed_matrix
+        embed_matrix.ensure(con)
+        log.info("prewarm: embedding matrix %d vectors", embed_matrix.size())
         from .linkage.store import store as series_store
         series_store.ensure(con)
         log.info("prewarm: linkage discovered %d series", len(series_store.all(con)))

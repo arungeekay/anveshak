@@ -19,3 +19,6 @@ python_files = ["test_*.py"]
 addopts = "-q"
 asyncio_default_fixture_loop_scope = "function"
 filterwarnings = ["ignore::DeprecationWarning"]
+markers = [
+    "slow: end-to-end checks (e.g. the full 6-agent investigation latency budget)",
+]
