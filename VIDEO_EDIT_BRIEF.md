@@ -153,3 +153,106 @@ Use these verbatim, or nothing:
 
 Any question about whether a change is factually safe: **ask before changing it.**
 Accuracy matters more here than polish, because the judges can and will check.
+
+---
+
+# Exact spec: what to add, and where
+
+The video **already has burned-in captions for every scene**, so it does not need
+explanatory text adding. Do not duplicate what a caption already says. The list
+below is everything that is actually wanted.
+
+Navigate by the caption text (it is unambiguous); the timecodes are approximate to
+within a second or two.
+
+## 1. Opening screen
+
+There is already a title card at 0:00 to 0:07. **Replace it with an animated
+version.** Same copy, better execution:
+
+```
+KSP DATATHON 2026  ·  CHALLENGE 1
+ANVESHAK  ·  ಅನ್ವೇಷಕ
+An AI that does not just answer questions. It works cases.
+Ask in Kannada or English · every answer backed by evidence · runs 100% on Zoho Catalyst
+```
+
+Keep it to about 5 seconds. Dark navy ground, white type, blue accent (#5AB0FF).
+
+## 2. Text to ADD (only these three)
+
+Everything else is already captioned. Add:
+
+**a) At about 2:24, the role-switch moment.** This is the fastest scene and the
+point is easy to miss. Both answers are on screen together in the chat thread.
+Draw a connector or place two small labels beside them:
+
+```
+Statewide officer:  48
+Station officer (Jayanagar PS):  11
+Same question. The database enforces who sees what.
+```
+
+**b) At about 1:14, under the counterfactual.** Optional but strong. A single
+line, small, beneath the amber banner:
+
+```
+Nine crimes, after the pattern was already visible.
+```
+
+**c) End card, replacing 2:33 onward.** Same copy as now, better designed:
+
+```
+ANVESHAK  ·  ಅನ್ವೇಷಕ
+Faster answers · serial crime caught across districts ·
+court-ready packs in minutes · proactive leads every morning
+
+Team Zen: Hiran Vikraman S R · Arun G K
+github.com/arungeekay/anveshak
+Runs 100% on Zoho Catalyst
+```
+
+## 3. Highlights (numbers to emphasise as they appear)
+
+Soft glow, a thin box, or briefly dimming the rest of the frame. Keep it subtle
+and consistent. Never cover the number itself.
+
+| Approx. time | Highlight | Why it matters |
+|---|---|---|
+| 0:09 | `18.3x baseline` and the `94%` confidence | The AI found this on its own, overnight |
+| 0:16 | `Whitefield PS` and `00:00-05:00` | Analytics turned into a concrete order |
+| 0:24 | The answer `47`, then the SQL in the evidence drawer | Proof it does not invent numbers |
+| 0:34 | `BLOCKED` and the extracted `DROP TABLE CaseMaster` | An attack, caught and shown |
+| 0:44 | `chain intact` | Tamper-evident audit |
+| **1:06** | **`now 16 linked cases`** | **The single most important frame in the video** |
+| 1:14 | `case #6`, `9 further offences`, `142 days` | The cost of not having this |
+| 1:26 | `3 districts` as the replay crosses borders | Cross-district reach |
+| 1:44 | `risk 0.731` beside the top suspect | Ranked, explainable output |
+| 2:24 | `48` and `11` | Role-based access, visible |
+
+## 4. One thing to point out, not hide
+
+The chain-snatching count is **47 early in the video** and **48 later**. That is
+not an error. Partway through, the demo files a **new FIR**, which becomes case
+16 of the series and pushes the statewide count up by one. If anything, make this
+legible: it is live proof the system ingested a case during the recording.
+
+Do not "fix" either number.
+
+## 5. Voiceover
+
+**Recommendation: no voiceover.** Reasons:
+
+- The captions already carry the narrative, and reading plus listening to
+  different words competes for attention.
+- Every claim in this video has been checked for accuracy. A new script would
+  need the same scrutiny, and a small paraphrase can turn a careful statement
+  into an overclaim the judges can challenge.
+- Judges often watch entries with the sound off.
+
+If you strongly disagree, say so and we will write the script ourselves so the
+wording stays accurate. Do not write and record one unprompted.
+
+**Music: yes.** Restrained, investigative, documentary tone. Low in the mix. Let
+it lift slightly at the FIR-joins-the-series moment (1:06) and settle for the
+counterfactual (1:14).
