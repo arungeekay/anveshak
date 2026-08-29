@@ -38,6 +38,26 @@ PROBES = [
 ]
 
 
+def to_fp16() -> None:
+    """Halve the model (487MB -> 235MB) at unchanged accuracy.
+
+    Deploy uploads the entire image, so size is deploy time and reliability. fp16
+    measured cosine 1.00000 against sentence-transformers on every probe; the cost
+    is ~300ms per embed instead of ~1ms (CPUs have no native fp16 ops), which is
+    imperceptible next to the ~3s linkage rescan that follows an intake. int8 was
+    rejected earlier — it dropped to 0.988, worst on the chain-snatching narrative
+    the flagship demo depends on.
+    """
+    import onnx
+    from onnxconverter_common import float16
+
+    src = OUT_DIR / "model.onnx"
+    before = src.stat().st_size / 1e6
+    m16 = float16.convert_float_to_float16(onnx.load(str(src)), keep_io_types=True)
+    onnx.save(m16, str(src))
+    print(f"fp16: {before:.0f} MB -> {src.stat().st_size / 1e6:.0f} MB")
+
+
 def export() -> None:
     from optimum.onnxruntime import ORTModelForFeatureExtraction
     from transformers import AutoTokenizer
@@ -84,9 +104,13 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true",
                     help="only verify an existing export")
+    ap.add_argument("--fp16", action="store_true",
+                    help="halve the model size (parity-verified afterwards)")
     args = ap.parse_args()
     if not args.check:
         export()
+    if args.fp16:
+        to_fp16()
     if not OUT_DIR.exists():
         print(f"missing {OUT_DIR} — run without --check first")
         return 1

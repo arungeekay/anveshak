@@ -60,31 +60,67 @@ def _prewarm() -> None:
         log.warning("prewarm failed (endpoints will compute lazily): %s", exc)
 
 
+def _usable(path: str) -> tuple[bool, str]:
+    """Can DuckDB open this file and does it hold the corpus?"""
+    try:
+        import duckdb
+        con = duckdb.connect(path, read_only=True)
+        try:
+            n = con.execute("SELECT COUNT(*) FROM CaseMaster").fetchone()[0]
+        finally:
+            con.close()
+        return (n > 0), f"{n} cases"
+    except Exception as exc:  # noqa: BLE001
+        return False, str(exc)[:140]
+
+
+def _prepare_database(src: str) -> None:
+    """Put a WRITABLE, VALIDATED database in place before the app serves anything.
+
+    AppSail's /app is read-only, so the mirror is copied to /tmp — the audit log and
+    FIR intake both need to write. Three lessons are baked in here:
+
+    * the copy is UNCONDITIONAL. It used to be skipped when /tmp already held a
+      file, so a corrupt copy from an earlier bad image survived every redeploy.
+    * both the source and the copy are validated. A torn database (an image built
+      while something held the file open) otherwise shows up only as every endpoint
+      500ing, with nothing in the logs pointing at the cause.
+    * if the copy is unusable we fall back to the bundled read-only path rather than
+      serving from a file we know is broken.
+    """
+    ok, detail = _usable(src)
+    if not ok:
+        log.error("BUNDLED DATABASE IS UNUSABLE (%s). The image was probably built "
+                  "from a mid-write copy — rebuild with scripts/stage_db.py.", detail)
+        return
+    log.info("bundled database ok: %s", detail)
+
+    dst = "/tmp/anveshak.duckdb"
+    try:
+        for stale in (dst, dst + ".wal"):
+            if os.path.exists(stale):
+                os.remove(stale)
+        shutil.copy(src, dst)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("could not stage a writable database (%s); using the bundled "
+                    "read-only copy", exc)
+        return
+
+    ok, detail = _usable(dst)
+    if ok:
+        os.environ["DUCKDB_PATH"] = dst
+        log.info("writable database ready at %s (%s)", dst, detail)
+    else:
+        log.error("copy at %s is unusable (%s); falling back to %s", dst, detail, src)
+
+
 def main() -> None:
     port = int(os.getenv("X_ZOHO_CATALYST_LISTEN_PORT", "9000"))
     # AppSail's /app is read-only; the DuckDB mirror needs a WRITABLE location so the
     # audit log (and any write) works. Copy the bundled DB to /tmp and repoint.
     src = os.getenv("DUCKDB_PATH", "build/anveshak.duckdb")
     if os.path.exists(src):
-        dst = "/tmp/anveshak.duckdb"
-        try:
-            if not os.path.exists(dst):
-                shutil.copy(src, dst)
-            os.environ["DUCKDB_PATH"] = dst
-        except Exception:  # noqa: BLE001 - fall back to the read-only bundled path
-            pass
-        # Fail loudly at boot if the bundled database is unusable. A torn copy
-        # (the image built while something held the file open) otherwise presents
-        # as every endpoint 500ing with no obvious cause.
-        try:
-            import duckdb
-            probe = duckdb.connect(os.environ.get("DUCKDB_PATH", src), read_only=True)
-            n = probe.execute("SELECT COUNT(*) FROM CaseMaster").fetchone()[0]
-            probe.close()
-            log.info("database ok: %s cases", n)
-        except Exception as exc:  # noqa: BLE001
-            log.error("BUNDLED DATABASE IS UNUSABLE (%s) — the image was probably "
-                      "built from a mid-write copy; re-run scripts/stage_db.py", exc)
+        _prepare_database(src)
     # Kick off cache warming so the container is demo-ready shortly after boot; the
     # server starts serving immediately (health/root respond while warming runs).
     threading.Thread(target=_prewarm, name="prewarm", daemon=True).start()

@@ -98,7 +98,12 @@ def db_status() -> dict:
         cases = conn.execute("SELECT COUNT(*) FROM CaseMaster").fetchone()[0]
         return {"db": "loaded", "cases": int(cases)}
     except Exception as exc:  # pragma: no cover - defensive
-        return {"db": "error", "cases": 0, "detail": str(exc)}
+        # Name the file and its size: a torn/mid-write copy is otherwise invisible
+        # from outside the container.
+        p = Path(settings.duckdb_path)
+        return {"db": "error", "cases": 0, "detail": str(exc),
+                "db_path": str(p.resolve()),
+                "db_bytes": p.stat().st_size if p.exists() else 0}
 
 
 def reset_connection() -> None:
