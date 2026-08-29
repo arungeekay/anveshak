@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { HashRouter, NavLink, Route, Routes } from "react-router-dom";
+import { setRole as setApiRole } from "./lib/api.js";
 import Chat from "./views/Chat.jsx";
 import Series from "./views/Series.jsx";
 import GraphView from "./views/GraphView.jsx";
@@ -23,8 +24,12 @@ const NAV = [
   ["/audit", "Audit", "📜"],
 ];
 
+const ROLE_UNIT = { SP: "Bengaluru City", SHO: "Jayanagar PS" };
+
 export default function App() {
   const [role, setRole] = useState("SCRB");
+  // Push the role into the API client so every request carries it.
+  useEffect(() => { setApiRole(role, ROLE_UNIT[role] || null); }, [role]);
   return (
     <HashRouter>
       <div className="flex min-h-screen">
@@ -55,7 +60,7 @@ export default function App() {
         <div className="flex flex-1 flex-col">
           <header className="flex items-center justify-between border-b border-navy-800 bg-navy-900/60 px-6 py-3">
             <span className="text-sm text-slate-400">Autonomous AI Investigation Bureau</span>
-            <label className="flex items-center gap-2 text-sm" title="Role-based access control (RBAC) scope injection is designed per ADR-8; server-side enforcement lands with Catalyst Auth.">
+            <label className="flex items-center gap-2 text-sm" title="Scope is enforced server-side: SHO sees their station, SP their district, SCRB statewide, Analyst statewide with names masked (ADR-8).">
               <span className="text-slate-400">Role</span>
               <select
                 value={role}
@@ -66,7 +71,11 @@ export default function App() {
                   <option key={r}>{r}</option>
                 ))}
               </select>
-              <span className="rounded bg-navy-700 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-slate-400">preview</span>
+              {ROLE_UNIT[role] && (
+                <span className="rounded bg-navy-700 px-2 py-0.5 text-[10px] text-slate-300">
+                  {ROLE_UNIT[role]}
+                </span>
+              )}
             </label>
           </header>
 

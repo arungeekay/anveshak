@@ -10,6 +10,7 @@ import logging
 from fastapi import APIRouter, Request
 
 from ..audit import write_audit
+from ..auth import scope as scope_mod
 from ..db import db_status, get_connection
 from ..llm.adapter import LLMError
 from ..llm.request_ctx import current_request
@@ -35,16 +36,22 @@ router = APIRouter()
 
 
 def _resp(answer, specs, tool, *, sql=None, row_count=0, case_ids=None, params=None,
-          confidence="high", audit_id=0, follow="") -> dict:
-    return {
+          confidence="high", audit_id=0, follow="", scope=None) -> dict:
+    out = {
         "answer_text": answer, "render_specs": specs,
         "evidence": {"tool": tool, "sql": sql, "row_count": row_count,
                      "case_ids": case_ids or [], "params": params or {}},
         "followup_context": follow, "confidence": confidence, "audit_id": audit_id,
     }
+    if scope is not None:
+        # Tell the UI what the answer was limited to, so a scoped number is never
+        # mistaken for a statewide one (ADR-8).
+        out["scope"] = {"role": scope.role, "unit": scope.unit,
+                        "description": scope.describe()}
+    return out
 
 
-def _run_sql_path(con, req: ChatRequest, audit) -> dict:
+def _run_sql_path(con, req: ChatRequest, audit, scope) -> dict:
     # ADR-9 gate, before and after generation: never profile people by religion or
     # caste. Refusals are explained on screen and audited (FINALE_PLAN F-12).
     try:
@@ -54,7 +61,7 @@ def _run_sql_path(con, req: ChatRequest, audit) -> dict:
         return {**blocked.as_dict(req.lang), "audit_id": aid}
 
     try:
-        nl = engine.run(con, req.message)
+        nl = engine.run(con, req.message, scope=scope)
     except policy.PolicyBlock as blocked:
         aid = audit("policy_block", {"question": req.message, "stage": blocked.stage})
         return {**blocked.as_dict(req.lang), "audit_id": aid}
@@ -63,17 +70,24 @@ def _run_sql_path(con, req: ChatRequest, audit) -> dict:
         return {"error": "The language model is not reachable right now.",
                 "suggestion": "The database, series, graph, and patrol features still work. "
                               "Try again shortly."}
+    except scope_mod.ScopeError as exc:
+        aid = audit("scope_denied", {"question": req.message, "role": scope.role})
+        return {"error": str(exc), "suggestion": "Switch to a wider role to ask this.",
+                "scope": {"role": scope.role, "unit": scope.unit,
+                          "description": scope.describe()}, "audit_id": aid}
     except engine.EngineError as exc:
         log.info("nl2sql failed for %r: %s", req.message, exc)
         return {"error": "I couldn't translate that into a database query.",
                 "suggestion": "Try naming a crime type, a district, and a year."}
-    specs = build_render_specs(nl.columns, nl.rows, req.message)
-    answer = compose_answer(req.message, nl.columns, nl.rows, req.lang)
+    rows = scope_mod.mask_rows(nl.columns, nl.rows, scope)
+    specs = build_render_specs(nl.columns, rows, req.message)
+    answer = compose_answer(req.message, nl.columns, rows, req.lang)
     conf = "high" if nl.row_count > 0 and not nl.repaired else "low" if nl.row_count == 0 else "medium"
-    aid = audit("chat", {"question": req.message, "sql": nl.sql, "rows": nl.row_count})
+    aid = audit("chat", {"question": req.message, "sql": nl.sql, "rows": nl.row_count,
+                         "scope": scope.describe()})
     return _resp(answer, specs, "run_sql", sql=nl.sql, row_count=nl.row_count,
-                 case_ids=extract_case_ids(nl.columns, nl.rows), confidence=conf,
-                 audit_id=aid, follow=req.message)
+                 case_ids=extract_case_ids(nl.columns, rows), confidence=conf,
+                 audit_id=aid, follow=req.message, scope=scope)
 
 
 @router.post("/api/chat")
@@ -83,9 +97,11 @@ def chat(req: ChatRequest, request: Request) -> dict:
         return {"error": "The crime database is not loaded on this server.",
                 "suggestion": "Build the DuckDB mirror (data_engine) or restart the app."}
     con = get_connection()
+    scope = scope_mod.from_headers(request.headers)
 
     def audit(action, detail):
-        return write_audit(con, user_id="demo", role="SCRB", action=action, detail=detail)
+        return write_audit(con, user_id=f"demo.{scope.role.lower()}", role=scope.role,
+                           action=action, detail=detail)
 
     intent, params = route(con, req.message)
 
@@ -152,4 +168,4 @@ def chat(req: ChatRequest, request: Request) -> dict:
         return _resp(answer, specs, "risk_score",
                      case_ids=ranking[0]["history_case_ids"] if ranking else [], audit_id=aid)
 
-    return _run_sql_path(con, req, audit)
+    return _run_sql_path(con, req, audit, scope)

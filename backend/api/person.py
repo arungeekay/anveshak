@@ -12,8 +12,9 @@ from __future__ import annotations
 
 import logging
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 
+from ..auth import scope as scope_mod
 from ..db import get_connection
 from ..graph import engine as graph_engine
 from ..tools.risk_score import risk_score
@@ -23,7 +24,7 @@ log = logging.getLogger("anveshak.person")
 
 
 @router.get("/api/person")
-def search_person(q: str, limit: int = 10) -> list[dict]:
+def search_person(q: str, request: Request, limit: int = 10) -> list[dict]:
     """Find people by (partial) name, most-connected first.
 
     Namesakes are common in police data, so the ordering matters: the person with
@@ -42,14 +43,17 @@ def search_person(q: str, limit: int = 10) -> list[dict]:
         ORDER BY n_cases DESC, last_seen DESC
         LIMIT ?
     """, [f"%{q}%", limit]).fetchall()
-    return [{"person_key": r[0], "name": r[1], "n_cases": int(r[2]),
+    sc = scope_mod.from_headers(request.headers)
+    return [{"person_key": r[0], "name": scope_mod.mask_name(r[1], sc),
+             "n_cases": int(r[2]),
              "last_seen": str(r[3])[:10] if r[3] else None} for r in rows]
 
 
 @router.get("/api/person/{person_key}")
-def person_profile(person_key: str, graph_depth: int = 1) -> dict:
+def person_profile(person_key: str, request: Request, graph_depth: int = 1) -> dict:
     """Everything known about one person: history, risk, network, timeline."""
     con = get_connection()
+    sc = scope_mod.from_headers(request.headers)
 
     reg = con.execute(
         "SELECT person_key, full_name, dob, home_h3, notes FROM PersonRegistry "
@@ -93,7 +97,8 @@ def person_profile(person_key: str, graph_depth: int = 1) -> dict:
     if case_rows:
         ids = ",".join(str(c["case_id"]) for c in case_rows)
         co_accused = [{
-            "person_key": r[0], "name": r[1], "shared_cases": int(r[2]),
+            "person_key": r[0], "name": scope_mod.mask_name(r[1], sc),
+            "shared_cases": int(r[2]),
         } for r in con.execute(f"""
             SELECT person_key, MAX(full_name), COUNT(DISTINCT CaseMasterID) n
             FROM vw_accused_history
@@ -116,8 +121,8 @@ def person_profile(person_key: str, graph_depth: int = 1) -> dict:
 
     return {
         "person_key": person_key,
-        "name": name,
-        "aliases": aliases,
+        "name": scope_mod.mask_name(name, sc),
+        "aliases": [scope_mod.mask_name(a, sc) for a in aliases],
         "age_recorded": age_recorded,   # range across FIRs; see note above
         "dob": str(reg[2])[:10] if reg and reg[2] else None,
         "home_h3": reg[3] if reg else None,

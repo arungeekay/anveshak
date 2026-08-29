@@ -73,7 +73,15 @@ export default function Chat({ role }) {
             <div key={i} className="ml-auto max-w-[80%] rounded-lg bg-navy-700 px-3 py-2 font-kannada">{m.text}</div>
           ) : (
             <div key={i} className="max-w-[92%] rounded-lg bg-navy-900 px-3 py-2">
-              {m.resp.error ? (
+              {m.resp.blocked ? (
+                <div className="rounded-lg border border-amber-700 bg-amber-950/25 p-3">
+                  <p className="text-sm font-medium text-amber-300">Policy — {m.resp.policy}</p>
+                  <p className="mt-1 font-kannada text-sm text-slate-300">{m.resp.reason}</p>
+                  {m.resp.audit_id > 0 && (
+                    <p className="mt-2 text-[10px] text-slate-500">logged as audit #{m.resp.audit_id}</p>
+                  )}
+                </div>
+              ) : m.resp.error ? (
                 <p className="text-red-400">{m.resp.error}{m.resp.suggestion && <span className="block text-slate-400">{m.resp.suggestion}</span>}</p>
               ) : (
                 <>
@@ -81,6 +89,12 @@ export default function Chat({ role }) {
                   <span className={`mt-1 inline-block text-[10px] uppercase ${m.resp.confidence === "high" ? "text-emerald-400" : m.resp.confidence === "low" ? "text-red-400" : "text-amber-400"}`}>
                     confidence: {m.resp.confidence}
                   </span>
+                  {m.resp.scope && m.resp.scope.role !== "SCRB" && (
+                    // A scoped number must never be mistaken for a statewide one.
+                    <span className="ml-2 inline-block rounded bg-navy-700 px-1.5 py-0.5 text-[10px] text-slate-300">
+                      🔒 {m.resp.scope.description}
+                    </span>
+                  )}
                   {(m.resp.render_specs || []).map((s, j) => <RenderSpec key={j} spec={s} />)}
                   <EvidenceDrawer evidence={m.resp.evidence} />
                 </>

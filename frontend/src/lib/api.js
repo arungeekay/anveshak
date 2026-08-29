@@ -2,6 +2,17 @@
 // is empty and calls are same-origin (/api/*). VITE_API_BASE can override at build.
 const BASE = import.meta.env.VITE_API_BASE || "";
 
+// The active role travels on every request; the server enforces the scope (ADR-8).
+// Hiding rows in the browser would not be access control.
+let role = "SCRB";
+let unit = null;
+export function setRole(r, u = null) { role = r; unit = u; }
+function authHeaders() {
+  const h = { "X-Anveshak-Role": role };
+  if (unit) h["X-Anveshak-Unit"] = unit;
+  return h;
+}
+
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // Parse a response body tolerantly: an empty body (which can happen on a transient
@@ -35,13 +46,14 @@ async function withRetry(fn) {
 }
 
 export async function apiGet(path) {
-  return withRetry(async () => parseBody(await fetch(`${BASE}${path}`), path));
+  return withRetry(async () =>
+    parseBody(await fetch(`${BASE}${path}`, { headers: authHeaders() }), path));
 }
 
 export async function apiPost(path, body) {
   const opts = {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify(body || {}),
   };
   return withRetry(async () => parseBody(await fetch(`${BASE}${path}`, opts), path));
