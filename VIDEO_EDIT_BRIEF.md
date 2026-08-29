@@ -70,16 +70,16 @@ software really works.**
 Give these room. If you need to save time, take it from the medium-priority
 scenes, never from these.
 
-1. **The FIR joining the series (1:12)** — a crime report typed in ordinary words
+1. **The FIR joining the series (1:12)**: a crime report typed in ordinary words
    becomes case 16 of a serial ring, instantly. Punch in on the green result
    panel. Consider a beat of silence or a held frame on "now 16 linked cases".
    This is the moment that proves the product is real.
-2. **The counterfactual (1:32)** — "nine further offences over 142 days". This is
+2. **The counterfactual (1:32)**: "nine further offences over 142 days". This is
    the emotional core: crimes that would have been prevented. Hold it longer than
    feels comfortable. Consider isolating the numbers with a subtle highlight.
-3. **The series replay (1:40)** — dots appearing across a map of districts. The
+3. **The series replay (1:40)**: dots appearing across a map of districts. The
    most cinematic thing in the video. Do not cut away early.
-4. **The attack being refused (0:48)** — a hacking attempt is caught and
+4. **The attack being refused (0:48)**: a hacking attempt is caught and
    explained. Land the "BLOCKED" state clearly.
 
 ---
@@ -108,7 +108,7 @@ scenes, never from these.
 - A proper animated opening title would help a lot. Content:
   **ANVESHAK · ಅನ್ವೇಷಕ** with the line *"An AI that does not just answer
   questions. It works cases."* and *KSP Datathon 2026 · Challenge 1*.
-- A clean end card: **Team Zen — Hiran Vikraman S R, Arun G K**, plus
+- A clean end card: **Team Zen: Hiran Vikraman S R, Arun G K**, plus
   `github.com/arungeekay/anveshak` and *Runs 100% on Zoho Catalyst*.
   (Ask us for the live URL to include if you want it on screen.)
 - The in-video captions can be restyled to match your titles. Keep the wording.
