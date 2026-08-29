@@ -79,7 +79,10 @@ def patrol_plan(district: str, limit: int = 5) -> dict:
         if (ld.get("district") or "").lower() != district.lower():
             continue
         title = ld.get("title", "")
-        ps = title.split("-")[-1].strip() if "-" in title else None
+        # Read the station from the lead's own field. This used to be parsed out of
+        # the display title, which silently broke the moment the title wording
+        # changed: display strings are not an interface.
+        ps = ld.get("police_station")
         if not ps:
             continue
         it = _item(ps)
@@ -89,8 +92,7 @@ def patrol_plan(district: str, limit: int = 5) -> dict:
         it["reasons"].append(title)
         it["sources"].append(f"night_patrol:{ld.get('type')}")
         it["case_ids"] += (ev.get("case_ids") or [])[:20]
-        # The offence named in the lead title, e.g. "House Burglary (Night) 18.3x ...".
-        offence = title.split(", ")[0].split(" 1")[0].split(" grew")[0].strip()
+        offence = ld.get("crime_sub_head")
         if offence:
             it["focus_weight"][offence] += weight
 

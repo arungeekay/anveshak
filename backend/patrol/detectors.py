@@ -67,6 +67,8 @@ def _spike(con) -> list[dict]:
             "confidence": round(min(0.95, 0.6 + z / 30), 2),
             "suggested_action": f"Increase night patrols and pickets around {ps} for the next 14 days.",
             "district": dist, "_z": z,
+            # Structured, so consumers never have to parse the display title.
+            "police_station": ps, "crime_sub_head": sub,
         })
     leads.sort(key=lambda x: x["_z"], reverse=True)
     return leads[:8]
@@ -90,6 +92,7 @@ def _series_growth(con) -> list[dict]:
                 "confidence": s["confidence"],
                 "suggested_action": f"Escalate {s['series_id']} ({s['crime_sub_head']}) to a special team.",
                 "district": s["districts"][0] if s["districts"] else "",
+                "police_station": None, "crime_sub_head": s["crime_sub_head"],
             })
     return leads
 
@@ -142,6 +145,7 @@ def _repeat_offender(con) -> list[dict]:
                 "suggested_action": f"Question {name[0] if name else pk}; verify alibi for the "
                                     f"{len(near)} unsolved cases near their residence.",
                 "district": "Bengaluru City",
+                "police_station": None, "crime_sub_head": subs[0] if subs else None,
             })
     return leads
 
