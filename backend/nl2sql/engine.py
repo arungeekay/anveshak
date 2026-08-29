@@ -13,7 +13,7 @@ from pathlib import Path
 import yaml
 
 from ..llm import adapter
-from . import guardrails
+from . import guardrails, policy
 from .schema_card import build_prompt
 
 log = logging.getLogger("anveshak.nl2sql")
@@ -72,6 +72,10 @@ def run(con, question: str, *, max_repairs: int = 2) -> NLResult:
         safe = None
         try:
             safe = guardrails.sanitize(raw)
+            # ADR-9: refuse SQL that profiles people by a protected
+            # attribute. Raised past the repair loop deliberately —
+            # this is a policy decision, not a syntax error to retry.
+            policy.check_sql(safe)
             cur = con.execute(safe)
             columns = [d[0] for d in cur.description]
             rows = cur.fetchall()

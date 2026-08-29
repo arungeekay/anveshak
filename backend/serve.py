@@ -26,6 +26,10 @@ def _prewarm() -> None:
     try:
         from .db import get_connection
         con = get_connection()
+        # Audit rows are hash-chained (F-12); the shipped mirror predates
+        # those columns, so add them before anything writes.
+        from .audit import ensure_chain_columns
+        ensure_chain_columns(con)
         # MO embedding matrix first: linkage, similar_cases and the agent pipeline
         # all read it, and loading it once here keeps every later call sub-second.
         from .embeddings import matrix as embed_matrix

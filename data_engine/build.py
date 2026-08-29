@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import datetime as _dt
 import json
+import re
 from pathlib import Path
 
 import duckdb
@@ -52,9 +53,31 @@ def create_views(con: duckdb.DuckDBPyConnection) -> None:
             con.execute(s.replace("CREATE VIEW", "CREATE OR REPLACE VIEW", 1))
 
 
+# Tables the generator produces no rows for: they are written at runtime. Creating
+# them from an EMPTY DataFrame gives every column pandas' default int64 dtype, which
+# silently breaks inserts later (AuditLog took VARCHAR/TIMESTAMP values and every
+# write failed a cast). Build these from the schema DDL instead — schema.sql is the
+# contract (CLAUDE.md), so it should define them.
+RUNTIME_TABLES = ("AuditLog",)
+
+
+def create_runtime_tables(con: duckdb.DuckDBPyConnection) -> None:
+    sql = SCHEMA_PATH.read_text(encoding="utf-8")
+    for stmt in sql.split(";"):
+        lines = [ln for ln in stmt.splitlines() if not ln.strip().startswith("--")]
+        s = "\n".join(lines).strip()
+        if not s.upper().startswith("CREATE TABLE"):
+            continue
+        for name in RUNTIME_TABLES:
+            if re.match(rf"CREATE\s+TABLE\s+{name}\b", s, re.IGNORECASE):
+                con.execute(f'DROP TABLE IF EXISTS "{name}"')
+                con.execute(s)
+
+
 def build_duckdb(tables: dict[str, pd.DataFrame], path: str = ":memory:") -> duckdb.DuckDBPyConnection:
     con = duckdb.connect(path)
     load_tables_into(con, tables)
+    create_runtime_tables(con)
     create_views(con)
     return con
 

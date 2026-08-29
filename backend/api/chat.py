@@ -14,7 +14,7 @@ from ..db import db_status, get_connection
 from ..llm.adapter import LLMError
 from ..llm.request_ctx import current_request
 from ..models import ChatRequest
-from ..nl2sql import engine
+from ..nl2sql import engine, policy
 from ..nl2sql.router import route
 from ..tools.forecast import forecast
 from ..tools.hotspots import hotspots
@@ -45,8 +45,19 @@ def _resp(answer, specs, tool, *, sql=None, row_count=0, case_ids=None, params=N
 
 
 def _run_sql_path(con, req: ChatRequest, audit) -> dict:
+    # ADR-9 gate, before and after generation: never profile people by religion or
+    # caste. Refusals are explained on screen and audited (FINALE_PLAN F-12).
+    try:
+        policy.check_question(req.message)
+    except policy.PolicyBlock as blocked:
+        aid = audit("policy_block", {"question": req.message, "stage": blocked.stage})
+        return {**blocked.as_dict(req.lang), "audit_id": aid}
+
     try:
         nl = engine.run(con, req.message)
+    except policy.PolicyBlock as blocked:
+        aid = audit("policy_block", {"question": req.message, "stage": blocked.stage})
+        return {**blocked.as_dict(req.lang), "audit_id": aid}
     except LLMError as exc:
         log.warning("LLM unavailable for chat: %s", exc)
         return {"error": "The language model is not reachable right now.",

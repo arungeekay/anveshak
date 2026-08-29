@@ -7,6 +7,7 @@ import Leads from "./views/Leads.jsx";
 import Investigation from "./views/Investigation.jsx";
 import Intake from "./views/Intake.jsx";
 import PersonView from "./views/PersonView.jsx";
+import TrustCenter from "./views/TrustCenter.jsx";
 import Audit from "./views/Audit.jsx";
 
 const ROLES = ["SCRB", "SP", "SHO", "ANALYST"];
@@ -18,6 +19,7 @@ const NAV = [
   ["/investigate", "Investigation Room", "🗂️"],
   ["/intake", "New FIR", "📝"],
   ["/person", "Person 360", "👤"],
+  ["/trust", "Trust Center", "🛡️"],
   ["/audit", "Audit", "📜"],
 ];
 
@@ -78,6 +80,7 @@ export default function App() {
               <Route path="/intake" element={<Intake />} />
               <Route path="/person" element={<PersonView />} />
               <Route path="/person/:personKey" element={<PersonView />} />
+              <Route path="/trust" element={<TrustCenter />} />
               <Route path="/audit" element={<Audit />} />
             </Routes>
           </main>
