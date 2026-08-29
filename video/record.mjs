@@ -100,13 +100,28 @@ try {
     foot: 'Ask in Kannada or English · every answer backed by evidence · runs 100% on Zoho Catalyst',
   }, 4200);
 
+  // ===== 1. Built on Zoho Catalyst (platform first: the sponsor mandates it,
+  // and leading with it frames everything that follows as running on Catalyst) =====
+  await scene('catalyst', async () => {
+    await nav(page, 'Trust Center');
+    await page.evaluate(() => {
+      const el = [...document.querySelectorAll("div")].find(
+        (d) => d.textContent.trim().startsWith("Built on Zoho Catalyst"));
+      el?.scrollIntoView({ block: "center", behavior: "instant" });
+    });
+    await sleep(700);
+    await cap(page, 'Built entirely on Zoho Catalyst',
+      'AppSail, QuickML, Data Store, SmartBrowz and more. The app reports its own platform status, live.');
+    await sleep(8000);
+  });
+
   // ===== 1. Night Patrol =====
   await scene('leads', async () => {
     await nav(page, 'Lead Feed');
     await cap(page, 'The AI works before you ask',
       'An overnight sweep raises ranked leads: crime spikes, repeat offenders, growing series');
     await page.locator('text=Night Patrol').first().waitFor({ timeout: 60000 }).catch(() => {});
-    await sleep(4200);
+    await sleep(5200);
   });
 
   // ===== 2. Patrol plan =====
@@ -116,7 +131,7 @@ try {
     await page.locator('button', { hasText: 'Generate' }).first().click();
     await page.locator('text=Whitefield PS').first().waitFor({ timeout: 60000 }).catch(() => {});
     await page.evaluate(() => document.querySelector('main')?.scrollBy({ top: 600, behavior: 'smooth' }));
-    await sleep(4600);
+    await sleep(6000);
     await page.evaluate(() => document.querySelector('main')?.scrollBy({ top: -600, behavior: 'smooth' }));
   });
 
@@ -153,18 +168,6 @@ try {
       'Every audited action hashes the one before it, so tampering breaks the chain');
     await page.locator('button', { hasText: 'Verify chain' }).first().click();
     await sleep(3600);
-    // The platform claim, generated from the running process rather than asserted.
-    // Centre the panel in the viewport: the caption bar covers the bottom ~120px,
-    // and a smooth scroll to the page end left the panel underneath it.
-    await page.evaluate(() => {
-      const el = [...document.querySelectorAll("div")].find(
-        (d) => d.textContent.trim().startsWith("Built on Zoho Catalyst"));
-      el?.scrollIntoView({ block: "center", behavior: "instant" });
-    });
-    await sleep(700);
-    await cap(page, 'Built entirely on Zoho Catalyst',
-      'AppSail, QuickML, Data Store, SmartBrowz and more. The app reports its own platform status.');
-    await sleep(6200);
   });
 
   // ===== 5. Live FIR intake (the flagship) =====

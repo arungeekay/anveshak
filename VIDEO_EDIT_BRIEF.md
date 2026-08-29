@@ -1,6 +1,6 @@
 # Demo video: editing brief
 
-**Source file:** `ANVESHAK_demo.webm` (1600x900, 2 min 43 s, no audio)
+**Source file:** `ANVESHAK_demo.webm` (1600x900, 2 min 57 s, no audio)
 **Deliver:** MP4, 1920x1080, H.264, **under 3 minutes** (hard rule, see constraints)
 
 ---
@@ -24,7 +24,7 @@ software really works.**
 
 ## Hard constraints (breaking any of these can disqualify the entry)
 
-1. **Under 3:00.** Currently 2:43, so there are about 15 seconds of headroom.
+1. **Under 3:00.** Currently 2:57. The 3-minute limit is printed on slide 12 of the organizers' own submission template, so it is a real rule even though the dashboard does not repeat it. There is very little headroom.
 2. **Do not alter anything on screen that states a fact.** Numbers, case IDs,
    confidence percentages, SQL, names. You may zoom, crop, highlight, or slow
    down. You may **not** retouch, retype or "clean up" a value. These are real
@@ -45,6 +45,28 @@ software really works.**
 
 | Time | Scene | What is happening | Editing priority |
 |---|---|---|---|
+| 0:00 - 0:08 | **Title card** | Product name in English and Kannada | Replace with an animated title |
+| 0:08 - 0:20 | **Built on Zoho Catalyst** | All twelve Catalyst services with live status | **High: the sponsor moment, and it opens the film** |
+| 0:20 - 0:28 | Night Patrol leads | Three AI-found leads with confidence scores | Medium |
+| 0:28 - 0:36 | Patrol plan | Tonight's deployment: station, hours, offence | Medium |
+| 0:36 - 0:44 | Chat and evidence | Answer, then the SQL evidence drawer | **High: zoom the evidence** |
+| 0:44 - 0:54 | Red-team: prompt injection | Attack refused, blocked statement shown | **High** |
+| 0:54 - 1:02 | Audit chain verify | Tamper-evident log verifies | Medium |
+| 1:02 - 1:16 | New FIR being filed | Officer's plain-words narrative, then linking | Speed up slightly |
+| **1:16 - 1:26** | **FIR joins the series** | "now 16 linked cases" | **HIGHEST: the hero shot** |
+| 1:26 - 1:34 | Series and codename | Link explanations, Operation Gold Chain Black Visor | High |
+| 1:34 - 1:40 | Counterfactual | "case 6, nine further offences, 142 days" | **High: let it land** |
+| 1:40 - 1:50 | Series replay | Dots in date order across three districts | **High: most cinematic** |
+| 1:50 - 2:04 | Six agents working | Cards complete one by one, live | High |
+| 2:04 - 2:14 | Investigation pack | Suspects, leads, legal checks, forecast | High |
+| 2:14 - 2:22 | Person 360 | One person's history, risk, network | Medium |
+| 2:22 - 2:30 | CrimeGraph | The fraud hub network | Medium |
+| 2:30 - 2:38 | Kannada question | Asked and answered in Kannada | High |
+| 2:38 - 2:46 | Role switch | Same question, different officer, different answer | Medium |
+| 2:46 - 2:52 | Audit log | Every action recorded with its role | Low: cut here if time is needed |
+| 2:52 - 2:57 | Closing card | Team and links | Replace with a stronger end card |
+
+---|---|---|---|
 | 0:00 - 0:07 | **Title card** | Product name in English and Kannada | Replace with a stronger animated title |
 | 0:07 - 0:20 | Night Patrol lead feed | Three AI-generated leads with confidence scores | Trim if needed |
 | 0:20 - 0:33 | Patrol plan | Generates tonight's deployment: station, hours, offence | Medium |
