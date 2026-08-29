@@ -50,6 +50,7 @@ export default function Series() {
                     ))}
                   </tbody>
                 </table>
+                <Counterfactual seriesId={s.series_id} />
                 <a href={`#/investigate?series=${s.series_id}`}
                   className="mt-3 inline-block rounded-lg bg-accent px-3 py-1 text-white">Investigate {s.series_id} →</a>
               </div>
@@ -58,6 +59,35 @@ export default function Series() {
         ))}
         {series.length === 0 && !err && <p className="text-slate-500">Loading series…</p>}
       </div>
+    </div>
+  );
+}
+
+// The counterfactual: when the engine would first have flagged this series, and
+// what happened afterwards. Precomputed by eval/counterfactual.py; absent for most
+// series, in which case nothing is shown.
+function Counterfactual({ seriesId }) {
+  const [cf, setCf] = useState(null);
+  useEffect(() => {
+    apiGet(`/api/series/${seriesId}/counterfactual`).then(setCf).catch(() => setCf(null));
+  }, [seriesId]);
+  if (!cf) return null;
+  return (
+    <div className="mt-3 rounded-lg border border-amber-700 bg-amber-950/25 p-3">
+      <div className="text-sm text-amber-200">
+        ⏱ ANVESHAK would have flagged this series at{" "}
+        <b className="text-white">case #{cf.detectable_at_case}</b> ({cf.detected_on}).
+      </div>
+      <div className="mt-1 text-sm text-slate-300">
+        <b className="text-white">{cf.cases_after_detection} further offences</b> across{" "}
+        {cf.districts_after_detection.join(", ")} followed over the next{" "}
+        <b className="text-white">{cf.days_of_exposure} days</b> — after the pattern
+        was already visible.
+      </div>
+      <details className="mt-2">
+        <summary className="cursor-pointer text-[11px] text-slate-500">method</summary>
+        <p className="mt-1 text-[11px] text-slate-500">{cf.method}</p>
+      </details>
     </div>
   );
 }
