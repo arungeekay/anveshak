@@ -39,7 +39,12 @@ PROBES = [
 
 
 def to_fp16() -> None:
-    """Halve the model (487MB -> 235MB) at unchanged accuracy.
+    """Halve the model (487MB -> 235MB). **DO NOT USE — see below.**
+
+    onnxruntime 1.29 refuses to load the converted graph ("Type (tensor(float16))
+    of output arg ... Cast_output_0"), so the deployed app falls back to
+    sentence-transformers, which is not installed in the image, and every embedding
+    endpoint 500s. Kept only to document the attempt.
 
     Deploy uploads the entire image, so size is deploy time and reliability. fp16
     measured cosine 1.00000 against sentence-transformers on every probe; the cost
