@@ -394,7 +394,7 @@ def main():
     para(tf, [("Deployed link (Catalyst):  ", WHITE, True), (LIVE_URL, ACCENT, False)],
          size=13, space=10)
     para(tf, [("Demo video (3 min):  ", WHITE, True),
-              ("(add your public YouTube or Drive link)", MUTED, False)],
+              ("https://youtu.be/SpmZWo9keSI", ACCENT, False)],
          size=13, space=10)
     para(tf, f"API base: {API_URL}", size=10, color=MUTED, space=2)
 
