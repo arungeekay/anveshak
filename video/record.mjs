@@ -35,6 +35,29 @@ async function installOverlay(page) {
     #card .h { color:#fff; font-size:54px; font-weight:800; margin-top:14px; text-align:center; }
     #card .p { color:#c9d6e8; font-size:24px; font-weight:500; margin-top:16px; text-align:center; max-width:1150px; }
     #card .f { color:#8aa0bd; font-size:18px; margin-top:34px; text-align:center; }
+    /* staggered rise-in for the title and end cards */
+    #card.show .k { animation: anvRise .7s cubic-bezier(.22,.61,.36,1) both; }
+    #card.show .h { animation: anvRise .8s cubic-bezier(.22,.61,.36,1) .15s both; }
+    #card.show .p { animation: anvRise .8s cubic-bezier(.22,.61,.36,1) .35s both; }
+    #card.show .f { animation: anvRise .8s cubic-bezier(.22,.61,.36,1) .55s both; }
+    #card.show::after { content:""; position:absolute; left:50%; top:63%; width:0; height:2px;
+      background:linear-gradient(90deg, transparent, #5ab0ff, transparent);
+      animation: anvLine 1.1s ease-out .5s forwards; }
+    @keyframes anvRise { from { opacity:0; transform:translateY(26px); } to { opacity:1; transform:none; } }
+    @keyframes anvLine { to { left:30%; width:40%; } }
+    /* highlight glow for key numbers */
+    .anv-hl { box-shadow: 0 0 0 3px rgba(90,176,255,.95), 0 0 26px 6px rgba(90,176,255,.4) !important;
+      border-radius: 8px; transition: box-shadow .5s ease; }
+    /* click ripple */
+    .anv-rip { position:fixed; width:26px; height:26px; margin:-13px 0 0 -13px; border:3px solid #5ab0ff;
+      border-radius:50%; pointer-events:none; z-index:2147483500; animation: anvRip .55s ease-out forwards; }
+    @keyframes anvRip { from { transform:scale(.5); opacity:1; } to { transform:scale(2.4); opacity:0; } }
+    /* floating annotation chip */
+    #anv-note { position:fixed; right:36px; top:96px; z-index:2147483200; max-width:420px;
+      background:rgba(7,16,33,.94); border:1px solid #2b4a7a; border-radius:12px; padding:14px 18px;
+      font-family:Inter,Segoe UI,sans-serif; font-size:17px; line-height:1.45; color:#dbe6f6;
+      box-shadow:0 8px 30px rgba(0,0,0,.5); animation: anvRise .5s cubic-bezier(.22,.61,.36,1) both; }
+    #anv-note b { color:#fff; }
   ` });
   await page.evaluate(() => {
     if (!document.getElementById('cap')) {
@@ -46,6 +69,18 @@ async function installOverlay(page) {
       const d = document.createElement('div'); d.id = 'card';
       d.innerHTML = '<div class="k"></div><div class="h"></div><div class="p"></div><div class="f"></div>';
       document.body.appendChild(d);
+    }
+    if (!window.__anvRipples) {
+      window.__anvRipples = true;
+      document.addEventListener('click', (e) => {
+        if (!e.clientX && !e.clientY) return;
+        const r = document.createElement('div');
+        r.className = 'anv-rip';
+        r.style.left = e.clientX + 'px';
+        r.style.top = e.clientY + 'px';
+        document.body.appendChild(r);
+        setTimeout(() => r.remove(), 600);
+      }, true);
     }
   });
 }
@@ -66,7 +101,66 @@ async function card(page, { kicker = '', head = '', para = '', foot = '' }, ms =
   await page.evaluate(() => document.getElementById('card')?.classList.remove('show'));
   await sleep(450);
 }
+
+// ---- record-time motion graphics: the "edit" happens in the browser ----------
+// Find the smallest element containing `txt` and push the camera into it by
+// scaling #root around that point. The overlay (captions, cards, notes) lives
+// outside #root, so it stays crisp and unscaled.
+async function zoomTo(page, txt, scale = 1.3) {
+  await page.evaluate(([t, sc]) => {
+    const root = document.getElementById('root');
+    if (!root) return;
+    let best = null;
+    for (const el of root.querySelectorAll('*')) {
+      if (el.children.length > 8) continue;
+      const c = (el.textContent || '').trim();
+      if (c.includes(t) && (!best || c.length < best.textContent.trim().length)) best = el;
+    }
+    const r = (best || root).getBoundingClientRect();
+    root.style.transition = 'transform 1.1s cubic-bezier(.22,.61,.36,1)';
+    root.style.transformOrigin = `${r.left + r.width / 2}px ${r.top + r.height / 2}px`;
+    root.style.transform = `scale(${sc})`;
+  }, [txt, scale]);
+}
+async function zoomOut(page) {
+  await page.evaluate(() => {
+    const root = document.getElementById('root');
+    if (root) root.style.transform = 'scale(1)';
+  });
+}
+async function highlight(page, txt) {
+  await page.evaluate((t) => {
+    const root = document.getElementById('root');
+    if (!root) return;
+    let best = null;
+    for (const el of root.querySelectorAll('*')) {
+      if (el.children.length > 8) continue;
+      const c = (el.textContent || '').trim();
+      if (c.includes(t) && (!best || c.length < best.textContent.trim().length)) best = el;
+    }
+    best?.classList.add('anv-hl');
+  }, txt);
+}
+async function note(page, html) {
+  await page.evaluate((h) => {
+    document.getElementById('anv-note')?.remove();
+    const d = document.createElement('div');
+    d.id = 'anv-note';
+    d.innerHTML = h;
+    document.body.appendChild(d);
+  }, html);
+}
+async function clearFx(page) {
+  await page.evaluate(() => {
+    document.querySelectorAll('.anv-hl').forEach((e) => e.classList.remove('anv-hl'));
+    document.getElementById('anv-note')?.remove();
+    const root = document.getElementById('root');
+    if (root) root.style.transform = 'scale(1)';
+  });
+}
+
 async function nav(page, label) {
+  await clearFx(page);
   const link = page.locator('nav a', { hasText: label }).first();
   await link.waitFor({ state: 'visible', timeout: 30000 });
   await link.click();
@@ -112,7 +206,14 @@ try {
     await sleep(700);
     await cap(page, 'Built entirely on Zoho Catalyst',
       'AppSail, QuickML, Data Store, SmartBrowz and more. The app reports its own platform status, live.');
-    await sleep(8000);
+    await sleep(1400);
+    await zoomTo(page, 'QuickML (LLM Serving)', 1.22);
+    await sleep(1300);
+    await highlight(page, 'QuickML (LLM Serving)');
+    await highlight(page, 'AppSail');
+    await sleep(4100);
+    await zoomOut(page);
+    await sleep(1200);
   });
 
   // ===== 1. Night Patrol =====
@@ -143,11 +244,17 @@ try {
     await sleep(1000);
     await page.locator('button', { hasText: 'How many chain snatching' }).first().click();
     await page.locator('text=/chain snatching cases/i').last().waitFor({ timeout: 60000 }).catch(() => {});
-    await sleep(2560);
+    await sleep(800);
+    await highlight(page, 'chain snatching cases were registered');
+    await sleep(1760);
     await cap(page, 'Every answer shows its evidence',
       'The exact SQL, the row count, the case IDs. The AI never invents a number.');
     await page.locator('button', { hasText: 'Evidence' }).first().click().catch(() => {});
-    await sleep(5200);
+    await sleep(900);
+    await zoomTo(page, 'SELECT COUNT', 1.3);
+    await sleep(3100);
+    await zoomOut(page);
+    await sleep(1200);
   });
 
   // ===== 4. Trust Center: let them attack it =====
@@ -159,7 +266,12 @@ try {
     await cap(page, 'Prompt injection, refused',
       'The instruction hidden in the prompt is pulled out and shown being rejected by the sanitizer');
     await page.locator('button', { hasText: 'Prompt injection' }).first().click();
-    await sleep(4800);
+    await sleep(1300);
+    await zoomTo(page, 'BLOCKED', 1.25);
+    await highlight(page, 'DROP TABLE CaseMaster');
+    await sleep(2500);
+    await zoomOut(page);
+    await sleep(1000);
     await cap(page, 'Profiling by caste, refused',
       'Religion and caste are never model features. The refusal is explained and audit-logged.');
     await page.locator('button', { hasText: 'Profiling by caste' }).first().click();
@@ -167,7 +279,9 @@ try {
     await cap(page, 'History cannot be rewritten',
       'Every audited action hashes the one before it, so tampering breaks the chain');
     await page.locator('button', { hasText: 'Verify chain' }).first().click();
-    await sleep(3600);
+    await sleep(900);
+    await highlight(page, 'chain intact across');
+    await sleep(2700);
   });
 
   // ===== 5. Live FIR intake (the flagship) =====
@@ -182,7 +296,12 @@ try {
     await sleep(1500);
     await cap(page, 'It just joined a serial-crime series',
       'That FIR was filed seconds ago. It is now case 16 of a ring operating across three districts.');
-    await sleep(6400);
+    await sleep(700);
+    await zoomTo(page, '16 linked cases', 1.45);
+    await highlight(page, '16 linked cases');
+    await sleep(4400);
+    await zoomOut(page);
+    await sleep(1300);
   });
 
   // ===== 6. Series: codename, explanations, counterfactual, replay =====
@@ -199,7 +318,12 @@ try {
     await page.evaluate(() => document.querySelector('main')?.scrollBy({ top: 420, behavior: 'smooth' }));
     await cap(page, 'What it would have changed',
       'Detectable at case 6. Nine further offences across three districts followed over 142 days.');
-    await sleep(6000);
+    await sleep(700);
+    await zoomTo(page, '9 further offences', 1.22);
+    await highlight(page, '142 days');
+    await sleep(4100);
+    await zoomOut(page);
+    await sleep(1200);
     await scene('replay', async () => {
       await page.locator('button', { hasText: 'Replay the series' }).first().click();
       await cap(page, 'Watch it cross the borders',
@@ -224,7 +348,9 @@ try {
     await cap(page, 'A court-ready pack in seconds, not days',
       'Ranked suspects, evidence-cited leads, legal element checks, and a next-strike forecast');
     if (packShown) {
-      await sleep(4800);
+      await sleep(1200);
+      await highlight(page, 'risk 0.731');
+      await sleep(3600);
       await page.evaluate(() => document.querySelector('main')?.scrollBy({ top: 380, behavior: 'smooth' })); await sleep(4000);
       await page.evaluate(() => document.querySelector('main')?.scrollBy({ top: 380, behavior: 'smooth' })); await sleep(3600);
     } else { await sleep(4800); }
@@ -276,7 +402,9 @@ try {
     await page.locator('input[placeholder="Ask ANVESHAK…"]')
       .fill('How many chain snatching cases were registered in Bengaluru City in 2026?');
     await page.getByRole('button', { name: 'Send' }).click();
-    await sleep(6000);
+    await sleep(2400);
+    await note(page, '<b>Statewide officer: 48</b><br><b>Station officer (Jayanagar PS): 11</b><br>Same question. The scope is enforced inside the query.');
+    await sleep(4200);
   });
 
   // ===== 12. Audit =====
@@ -293,7 +421,7 @@ try {
     head: 'ANVESHAK &nbsp;·&nbsp; ಅನ್ವೇಷಕ',
     para: 'Faster answers · serial crime caught across districts · court-ready packs in minutes · proactive leads every morning',
     foot: 'Team Zen: Hiran Vikraman S R · Arun G K   |   github.com/arungeekay/anveshak   |   100% on Zoho Catalyst',
-  }, 5200);
+  }, 4600);
 } catch (e) {
   console.log('scene error (finalizing anyway):', e.message.split('\n')[0]);
 } finally {
